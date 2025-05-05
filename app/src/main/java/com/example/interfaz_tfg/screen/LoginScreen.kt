@@ -11,14 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,24 +31,35 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.compose.TextFielPassword
 import com.example.interfaz_tfg.compose.Textfield
 import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.viewModel.LoginViewModel
 
 
 @Composable
-fun LoginScreen(navController: NavController){
+fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewModel() ){
     var user by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passVisible by rememberSaveable { mutableStateOf(false) }
-    //val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     var errorMessage by remember { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(uiState) {
+        if (uiState.isNotEmpty()) {
+            errorMessage = uiState
+            error = true
+            user = ""
+            password = ""
+        }
+    }
 
     Box(){
         Image(painter = painterResource(R.drawable.fondo_login),
@@ -83,7 +93,6 @@ fun LoginScreen(navController: NavController){
                             modifier =  Modifier
                                 .fillMaxWidth()
                                 .padding(30.dp)
-                            // .clickable { navController.navigate(route = AppScreen.RegisterScreen.route) }
                         )
 
                         Textfield(user, "Usuario") { user = it }
@@ -110,7 +119,7 @@ fun LoginScreen(navController: NavController){
                                     error = true
                                 } else {
                                     // Si todo está bien, intentamos hacer login
-                                    // viewModel.login(user, password, navController)
+                                    viewModel.login(user, password, navController)
                                     errorMessage = ""
                                 }
                             },

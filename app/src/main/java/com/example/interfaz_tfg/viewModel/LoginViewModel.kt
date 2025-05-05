@@ -37,7 +37,6 @@ class LoginViewModel: ViewModel() {
                 val response = API.retrofitService.login(UserLoginDTO(user, password))
                 if (response.isSuccessful) {
                     response.body()?.token?.let { token ->
-                        _uiState.value = token
                         val userRol = getRolFromToken(token)
                         navController.navigate(route = AppScreen.HomeScreen.route + "/$user/$userRol/$token")
                     } ?: run { _uiState.value = "Token no recibido" }
@@ -45,6 +44,7 @@ class LoginViewModel: ViewModel() {
                     _uiState.value = "Credenciales incorrectas."
                 }
             } catch (e: Exception) {
+                println(e.message)
                 _uiState.value = "Error de conexión: ${e.message}"
             }
         }

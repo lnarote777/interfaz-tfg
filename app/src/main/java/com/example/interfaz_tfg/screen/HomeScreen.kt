@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.R
@@ -40,7 +41,7 @@ import java.time.LocalDate
 
 
 @Composable
-fun HomeScreen(navController: NavController){
+fun HomeScreen(navController: NavController, user: String?, userRol: String?, token: String?, ){
     val diasPeriodo = 7 //cambiar
     val scrollState = rememberScrollState()
     LaunchedEffect(Unit) {

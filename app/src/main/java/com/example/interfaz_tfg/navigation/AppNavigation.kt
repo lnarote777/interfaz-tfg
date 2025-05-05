@@ -1,5 +1,7 @@
 package com.example.interfaz_tfg.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -25,6 +27,7 @@ import com.example.interfaz_tfg.screen.settings.UserSettingsScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppNavigation(){
@@ -69,8 +72,25 @@ fun AppNavigation(){
             DailyScreen(navController)
         }
 
-        composable(AppScreen.HomeScreen.route){
-            HomeScreen(navController)
+        composable(AppScreen.HomeScreen.route + "/{user}/{userRol}/{token}",
+            arguments = listOf(
+                navArgument(name = "user"){
+                    type = NavType.StringType
+                },
+                navArgument(name = "userRol"){
+                    type = NavType.StringType
+                },
+                navArgument(name = "token") {
+                    type = NavType.StringType
+                }
+            )
+        ){
+            HomeScreen(
+                navController = navController,
+                user = it.arguments?.getString("user"),
+                token = it.arguments?.getString("token") ?: "",
+                userRol = it.arguments?.getString("userRol")
+            )
         }
 
         composable(AppScreen.LoadScreen.route){
