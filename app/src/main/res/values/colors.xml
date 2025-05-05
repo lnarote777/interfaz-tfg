@@ -7,4 +7,17 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="titulo">#840051</color>
+    <color name="eslogan">#34052D</color>
+    <color name="botones1">#543585</color>
+    <color name="botones2">#D06589</color>
+    <color name="fondo">#F6F6F6</color>
+    <color name="VipBox">#42BF34A1</color>
+    <color name="ocre">#C9A42C</color>
+    <color name="rosa_55">#8CFFD3D5</color>
+    <color name="bordeMorado">#673175</color>
+    <color name="iconosNav">#F1B7BA</color>
+    <color name="navMenu">#321B51</color>
+    <color name="tarjetaDatos">#D1FFD5D5</color>
+
 </resources>
