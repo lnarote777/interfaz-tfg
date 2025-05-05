@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.screen
+package com.example.interfaz_tfg.screen
 
 import androidx.compose.material3.Divider
 import android.graphics.drawable.Icon
@@ -43,9 +43,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.R
-import com.example.interfaz_mesames.compose.Header
-import com.example.interfaz_mesames.compose.premium.CaracteristicasBox
+import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.compose.Header
+import com.example.interfaz_tfg.compose.premium.CaracteristicasBox
 
 
 @Composable

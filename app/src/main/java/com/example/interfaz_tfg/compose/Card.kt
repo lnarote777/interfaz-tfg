@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.compose
+package com.example.interfaz_tfg.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

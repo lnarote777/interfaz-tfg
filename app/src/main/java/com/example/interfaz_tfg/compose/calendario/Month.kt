@@ -1,5 +1,7 @@
-package com.example.interfaz_mesames.compose.calendario
+package com.example.interfaz_tfg.compose.calendario
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -23,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.interfaz_mesames.R
+import com.example.interfaz_tfg.R
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
@@ -31,6 +33,7 @@ import java.time.Year
 import java.time.format.TextStyle
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Month(
     year: Int,

@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.screen
+package com.example.interfaz_tfg.screen
 
 
 import androidx.compose.animation.Crossfade
@@ -35,8 +35,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.R
-import com.example.interfaz_mesames.navigation.AppScreen
+import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.R
 import kotlinx.coroutines.delay
 
 

@@ -1,9 +1,9 @@
-package com.example.interfaz_mesames.api
+package com.example.interfaz_tfg.api
 
-import com.example.interfaz_mesames.api.model.LogInResponse
-import com.example.interfaz_mesames.api.model.UserDTO
-import com.example.interfaz_mesames.api.model.UserLoginDTO
-import com.example.interfaz_mesames.api.model.UserRegisterDTO
+import com.example.interfaz_tfg.api.model.LogInResponse
+import com.example.interfaz_tfg.api.model.UserDTO
+import com.example.interfaz_tfg.api.model.UserLoginDTO
+import com.example.interfaz_tfg.api.model.UserRegisterDTO
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST

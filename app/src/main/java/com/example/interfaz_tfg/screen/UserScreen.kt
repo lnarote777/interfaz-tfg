@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.screen
+package com.example.interfaz_tfg.screen
 
 
 import androidx.compose.foundation.background
@@ -30,10 +30,10 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.R
-import com.example.interfaz_mesames.compose.Header
-import com.example.interfaz_mesames.compose.configuraciones.SettingItem
-import com.example.interfaz_mesames.navigation.AppScreen
+import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.compose.Header
+import com.example.interfaz_tfg.compose.configuraciones.SettingItem
+import com.example.interfaz_tfg.navigation.AppScreen
 
 @Composable
 fun UserScreen(

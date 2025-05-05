@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.screen
+package com.example.interfaz_tfg.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,10 +36,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.R
-import com.example.interfaz_mesames.compose.TextFielPassword
-import com.example.interfaz_mesames.compose.Textfield
-import com.example.interfaz_mesames.navigation.AppScreen
+import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.compose.TextFielPassword
+import com.example.interfaz_tfg.compose.Textfield
+import com.example.interfaz_tfg.navigation.AppScreen
 
 
 @Composable

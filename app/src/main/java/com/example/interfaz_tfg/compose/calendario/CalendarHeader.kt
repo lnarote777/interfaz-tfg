@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.compose.calendario
+package com.example.interfaz_tfg.compose.calendario
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.R
+import com.example.interfaz_tfg.R
 
 @Composable
 fun CalendarHeader(navController: NavController, title: String, back: Boolean = true, route: String = "", onTodayClick: () -> Unit){

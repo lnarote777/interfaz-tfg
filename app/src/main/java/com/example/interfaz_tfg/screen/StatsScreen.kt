@@ -1,8 +1,8 @@
-package com.example.interfaz_mesames.screen
+package com.example.interfaz_tfg.screen
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.compose.Header
+import com.example.interfaz_tfg.compose.Header
 
 @Composable
 fun StatsScreen(navController: NavController){

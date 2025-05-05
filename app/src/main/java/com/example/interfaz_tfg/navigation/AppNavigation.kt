@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.navigation
+package com.example.interfaz_tfg.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
@@ -9,19 +9,19 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.interfaz_mesames.screen.CalendarScreen
-import com.example.interfaz_mesames.screen.CoverScreen
-import com.example.interfaz_mesames.screen.DailyScreen
-import com.example.interfaz_mesames.screen.HomeScreen
-import com.example.interfaz_mesames.screen.LoadScreen
-import com.example.interfaz_mesames.screen.LoginScreen
-import com.example.interfaz_mesames.screen.PremiumScreen
-import com.example.interfaz_mesames.screen.RegisterScreen
-import com.example.interfaz_mesames.screen.StatsScreen
-import com.example.interfaz_mesames.screen.UserScreen
-import com.example.interfaz_mesames.screen.settings.CycleSettingsScreen
-import com.example.interfaz_mesames.screen.settings.SettingsScreen
-import com.example.interfaz_mesames.screen.settings.UserSettingsScreen
+import com.example.interfaz_tfg.screen.CalendarScreen
+import com.example.interfaz_tfg.screen.CoverScreen
+import com.example.interfaz_tfg.screen.DailyScreen
+import com.example.interfaz_tfg.screen.HomeScreen
+import com.example.interfaz_tfg.screen.LoadScreen
+import com.example.interfaz_tfg.screen.LoginScreen
+import com.example.interfaz_tfg.screen.PremiumScreen
+import com.example.interfaz_tfg.screen.RegisterScreen
+import com.example.interfaz_tfg.screen.StatsScreen
+import com.example.interfaz_tfg.screen.UserScreen
+import com.example.interfaz_tfg.screen.settings.CycleSettingsScreen
+import com.example.interfaz_tfg.screen.settings.SettingsScreen
+import com.example.interfaz_tfg.screen.settings.UserSettingsScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 

@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.screen
+package com.example.interfaz_tfg.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,10 +32,10 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.R
-import com.example.interfaz_mesames.compose.Footer
-import com.example.interfaz_mesames.compose.calendario.Month
-import com.example.interfaz_mesames.navigation.AppScreen
+import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.compose.Footer
+import com.example.interfaz_tfg.compose.calendario.Month
+import com.example.interfaz_tfg.navigation.AppScreen
 import java.time.LocalDate
 
 

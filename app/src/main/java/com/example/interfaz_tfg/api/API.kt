@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.api
+package com.example.interfaz_tfg.api
 
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit

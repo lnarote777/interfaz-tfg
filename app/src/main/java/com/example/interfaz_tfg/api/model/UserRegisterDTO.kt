@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.api.model
+package com.example.interfaz_tfg.api.model
 
 data class UserRegisterDTO (
     val email: String,

@@ -1,5 +1,7 @@
-package com.example.interfaz_mesames.compose.calendario
+package com.example.interfaz_tfg.compose.calendario
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -10,11 +12,12 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import com.example.interfaz_mesames.R
+import com.example.interfaz_tfg.R
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CustomDatePickerDialog(

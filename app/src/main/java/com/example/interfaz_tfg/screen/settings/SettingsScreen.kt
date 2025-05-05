@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.screen.settings
+package com.example.interfaz_tfg.screen.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,10 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.R
-import com.example.interfaz_mesames.compose.Header
-import com.example.interfaz_mesames.compose.configuraciones.SettingItem
-import com.example.interfaz_mesames.navigation.AppScreen
+import com.example.interfaz_tfg.compose.Header
+import com.example.interfaz_tfg.compose.configuraciones.SettingItem
+import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.R
 
 @Composable
 fun SettingsScreen(navController: NavController){

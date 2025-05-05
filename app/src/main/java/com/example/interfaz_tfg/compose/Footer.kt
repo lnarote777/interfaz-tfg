@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.compose
+package com.example.interfaz_tfg.compose
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
@@ -32,8 +32,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.R
-import com.example.interfaz_mesames.navigation.AppScreen
+import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.navigation.AppScreen
 
 
 @Composable

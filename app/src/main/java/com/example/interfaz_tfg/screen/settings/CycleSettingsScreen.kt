@@ -1,8 +1,8 @@
-package com.example.interfaz_mesames.screen.settings
+package com.example.interfaz_tfg.screen.settings
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.compose.Header
+import com.example.interfaz_tfg.compose.Header
 
 @Composable
 fun CycleSettingsScreen(navController: NavController){

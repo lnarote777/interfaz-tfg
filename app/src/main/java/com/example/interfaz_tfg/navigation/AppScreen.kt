@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.navigation
+package com.example.interfaz_tfg.navigation
 
 /**
  * Clase sellada que define las pantallas principales de la aplicación y sus rutas asociadas.

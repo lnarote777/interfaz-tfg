@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.compose.configuraciones
+package com.example.interfaz_tfg.compose.configuraciones
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row

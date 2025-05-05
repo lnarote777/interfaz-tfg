@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.compose.premium
+package com.example.interfaz_tfg.compose.premium
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.interfaz_mesames.R
+import com.example.interfaz_tfg.R
 
 @Composable
 fun CaracteristicasBox() {

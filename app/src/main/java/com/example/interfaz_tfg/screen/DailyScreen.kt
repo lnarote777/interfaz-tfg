@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.screen
+package com.example.interfaz_tfg.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,9 +18,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.R
-import com.example.interfaz_mesames.compose.Card
-import com.example.interfaz_mesames.compose.Header
+import com.example.interfaz_tfg.compose.Card
+import com.example.interfaz_tfg.compose.Header
+import com.example.interfaz_tfg.R
 
 @Composable
 fun DailyScreen(navController: NavController){

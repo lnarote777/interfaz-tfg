@@ -1,4 +1,4 @@
-package com.example.interfaz_mesames.viewModel
+package com.example.interfaz_tfg.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -6,9 +6,9 @@ import androidx.navigation.NavController
 import com.auth0.jwt.JWT.decode
 import com.auth0.jwt.interfaces.DecodedJWT
 
-import com.example.interfaz_mesames.api.API
-import com.example.interfaz_mesames.api.model.UserLoginDTO
-import com.example.interfaz_mesames.navigation.AppScreen
+import com.example.interfaz_tfg.api.API
+import com.example.interfaz_tfg.api.model.UserLoginDTO
+import com.example.interfaz_tfg.navigation.AppScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -38,7 +38,7 @@ class LoginViewModel: ViewModel() {
                 if (response.isSuccessful) {
                     response.body()?.token?.let { token ->
                         _uiState.value = token
-                        val userRol = obtenerRolDesdeToken(token)
+                        val userRol = getRolFromToken(token)
                         navController.navigate(route = AppScreen.HomeScreen.route + "/$user/$userRol/$token")
                     } ?: run { _uiState.value = "Token no recibido" }
                 } else {
@@ -58,12 +58,12 @@ class LoginViewModel: ViewModel() {
      * @param token El token JWT del usuario.
      * @return El rol del usuario, que puede ser "ADMIN" o "USER".
      */
-    fun obtenerRolDesdeToken(token: String): String? {
+    fun getRolFromToken(token: String): String? {
         return try {
             val decodedJWT: DecodedJWT = decode(token)
             val roles = decodedJWT.getClaim("roles").asString()
             roles?.let {
-                if (it == "ROLE_ADMIN") "ADMIN" else "USER"
+                if (it == "ROLE_PREMIUM") "PREMIUM" else "USER"
             } ?: "USER" //
         } catch (e: Exception) {
             "USER"

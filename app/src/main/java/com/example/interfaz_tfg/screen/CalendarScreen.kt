@@ -1,5 +1,7 @@
-package com.example.interfaz_mesames.screen
+package com.example.interfaz_tfg.screen
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,13 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.interfaz_mesames.R
-import com.example.interfaz_mesames.compose.calendario.CalendarHeader
-import com.example.interfaz_mesames.compose.calendario.Month
+import com.example.interfaz_tfg.compose.calendario.CalendarHeader
+import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.compose.calendario.Month
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Month
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalendarScreen(navController: NavController){
     val currentDate = LocalDate.now()
