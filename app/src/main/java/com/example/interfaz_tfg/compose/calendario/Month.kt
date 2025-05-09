@@ -47,12 +47,13 @@ fun Month(
     val firstDayOfWeek = firstDayOfMonth.dayOfWeek
     val today = currentDate
     val isCurrentMonth = year == today.year && month == today.month
+    val color = MaterialTheme.colorScheme
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp)
-            .background(color = Color.White)
+            .background(color = color.surface)
     ) {
         // Header del mes
         Text(
@@ -63,7 +64,8 @@ fun Month(
                 .padding(vertical = 8.dp),
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.SemiBold,
-            fontFamily = FontFamily(Font(R.font.lexend, FontWeight.SemiBold))
+            fontFamily = FontFamily(Font(R.font.lexend, FontWeight.SemiBold)),
+            color = color.onPrimary
         )
 
         // Días de la semana

@@ -15,11 +15,11 @@ package com.example.interfaz_tfg.navigation
  */
 sealed class AppScreen (val route: String) {
 
-    object PortadaScreen: AppScreen("PortadaScreen")
+    object CoverScreen: AppScreen("CoverScreen")
 
     object LoginScreen: AppScreen("LoginScreen")
 
-    object RegistroScreen: AppScreen("RegistroScreen")
+    object RegisterScreen: AppScreen("RegisterScreen")
 
     object HomeScreen: AppScreen("HomeScreen")
 
@@ -27,9 +27,9 @@ sealed class AppScreen (val route: String) {
 
     object CalendarScreen: AppScreen("CalendarScree")
 
-    object CicloAjustesScreen: AppScreen("CicloAjustesScreen")
+    object CycleSettingsScreen: AppScreen("CycleSettingsScreen")
 
-    object ConfiguracionScreen: AppScreen("ConfiguracionScreen")
+    object SettingsScreen: AppScreen("SettingsScreen")
 
     object DailyScreen: AppScreen("DailyScreen")
 
@@ -39,6 +39,6 @@ sealed class AppScreen (val route: String) {
 
     object StatsScreen: AppScreen("StatsScreen")
 
-    object UsuarioAjustesScreen: AppScreen("UsuarioAjustesScreen")
+    object UserSettingsScreen: AppScreen("UserSettingsScreen")
 
 }

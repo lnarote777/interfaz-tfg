@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,14 +30,15 @@ import com.example.interfaz_tfg.R
 @Composable
 fun Header(navController: NavController, title: String, back: Boolean = true, route: String = ""){
 
+    val color = MaterialTheme.colorScheme
     Box(
         modifier = Modifier.fillMaxWidth()
-            .background(color = Color.White)
+            .background(color = color.surface)
             .height(80.dp)
             .drawBehind {
                 val strokeWidth = 2.dp.toPx()
                 drawLine(
-                color = Color.Black,
+                color = color.onBackground,
                 start = Offset(0f, size.height - strokeWidth / 2),
                 end = Offset(size.width, size.height - strokeWidth / 2),
                 strokeWidth = strokeWidth
@@ -48,7 +50,8 @@ fun Header(navController: NavController, title: String, back: Boolean = true, ro
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .padding(horizontal = 10.dp)
-                .clickable { if (back) navController.popBackStack() else navController.navigate(route = route)}
+                .clickable { if (back) navController.popBackStack() else navController.navigate(route = route)},
+            tint = color.onBackground
         )
 
         Text( title,
@@ -58,7 +61,8 @@ fun Header(navController: NavController, title: String, back: Boolean = true, ro
             textAlign = TextAlign.Center,
             fontFamily = FontFamily(Font(R.font.lexend)),
             fontWeight = FontWeight.Bold,
-            fontSize = 20.sp
+            fontSize = 20.sp,
+            color = color.onBackground
         )
 
     }

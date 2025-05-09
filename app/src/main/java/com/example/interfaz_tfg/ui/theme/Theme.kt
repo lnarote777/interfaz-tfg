@@ -9,35 +9,44 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import com.example.interfaz_tfg.R
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Color(0xFF840051), // Titulo
+    secondary = Color(0xFF34052D), // Eslogan
+    tertiary = Color(0xFF543585), // Botones1
+    background = Color(0xFF0A101D), // Fondo oscuro
+    surface = Color(0xFF1A284A), // Superficie más oscura para las tarjetas
+    onPrimary = Color.White, // Texto sobre el título
+    onSecondary = Color.White, // Texto sobre eslogan
+    onTertiary = Color.White, // Texto sobre botones
+    onBackground = Color.White, // Texto sobre el fondo
+    onSurface = Color.White, // Texto sobre la superficie
+    error = Color(0xFFB00020), // Rojo de error
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = Color(0xFF840051), // Titulo
+    secondary = Color(0xFF34052D), // Eslogan
+    tertiary = Color(0xFF543585), // Botones1
+    background = Color(0xFFF6F6F6), // Fondo
+    surface = Color(0xFFFFFFFF), // Superficie blanca
+    onPrimary = Color.White, // Texto sobre el título
+    onSecondary = Color.White, // Texto sobre eslogan
+    onTertiary = Color.White, // Texto sobre botones
+    onBackground = Color.Black, // Texto sobre el fondo
+    onSurface = Color.Black, // Texto sobre la superficie
+    error = Color(0xFFB00020), // Rojo de error
 )
 
 @Composable
 fun InterfaztfgTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -49,6 +58,7 @@ fun InterfaztfgTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+    val background = if (darkTheme) painterResource(R.drawable.fondo_load_dark) else painterResource(R.drawable.fondo_load)
 
     MaterialTheme(
         colorScheme = colorScheme,

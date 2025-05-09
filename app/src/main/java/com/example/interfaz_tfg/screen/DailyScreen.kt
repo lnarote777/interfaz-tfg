@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,8 +29,8 @@ fun DailyScreen(navController: NavController){
     //provisional la lista asi
     val sintomas = listOf<Pair<String, List<String>>>(
         Pair("Nombres", listOf("Juan", "Lucas", "Matias")),
-        Pair("Nombres", listOf("Juan", "Lucas", "Matias")),
-        Pair("Nombres", listOf("Juan", "Lucas", "Matias")),
+        Pair("Nombres", listOf("Juan", "Lucas", "Aron")),
+        Pair("Nombres", listOf("Marta", "Marcos", "Matias")),
         Pair("Nombres", listOf("Juan", "Lucas", "Matias")),
         Pair("Nombres", listOf("Juan", "Lucas", "Matias")),
         Pair("Nombres", listOf("Juan", "Lucas", "Matias")),
@@ -46,29 +48,33 @@ fun DailyScreen(navController: NavController){
     ) // para el view model
 
     val (selectedSymptoms, setSelectedSymptoms) = remember { mutableStateOf(listOf<String>()) }
+    val color = MaterialTheme.colorScheme
 
-    Box {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize().padding(top = 35.dp, bottom = 18.dp)
-                .background(color = colorResource(R.color.fondo))
-        ) {
-            Header(navController, "Registro diario")
-            Spacer(Modifier.height(20.dp))
-            LazyColumn {
-                items(sintomas.count()){index ->
-                    val pair = sintomas[index]
-                    Card(title = pair.first,
-                        emojis = pair.second,
-                        selectedEmojis = selectedSymptoms,
-                        onSelectionChange = setSelectedSymptoms,
-                        color = Color.Red
-                    )
-                    Spacer(Modifier.height(20.dp))
+    Scaffold { innerpadding ->
+        Box {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(innerpadding)
+                    .background(color = color.background)
+            ) {
+                Header(navController, "Registro diario")
+                Spacer(Modifier.height(20.dp))
+                LazyColumn {
+                    items(sintomas.count()){index ->
+                        val pair = sintomas[index]
+                        Card(title = pair.first,
+                            emojis = pair.second,
+                            selectedEmojis = selectedSymptoms,
+                            onSelectionChange = setSelectedSymptoms,
+                            color = Color.Red
+                        )
+                        Spacer(Modifier.height(20.dp))
+                    }
                 }
             }
         }
     }
+
 
 
 }

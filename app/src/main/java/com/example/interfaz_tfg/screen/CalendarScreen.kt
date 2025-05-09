@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,45 +53,47 @@ fun CalendarScreen(navController: NavController){
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-            .padding(top = 30.dp, bottom = 18.dp)
-            .background(color = colorResource(R.color.fondo))
-    ) {
-        CalendarHeader(navController, "Calendario",
-            onTodayClick = {
-                selectedDate = currentDate
-                val currentMonthIndex = months.indexOfFirst {
-                    it.year == currentDate.year && it.month == currentDate.month
-                }
-                if (currentMonthIndex != -1) {
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(currentMonthIndex)
-                    }
-                }
-            }
-        )
-
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            reverseLayout = true, // ← Esto invierte la dirección del scroll
-            state = listState
+    Scaffold {innerpadding ->
+        Column(
+            modifier = Modifier.padding(innerpadding)
+                .background(color = colorResource(R.color.fondo))
         ) {
-            items(months) { monthYear ->
-                Month(
-                    year = monthYear.year,
-                    month = monthYear.month,
-                    selectedDate = selectedDate,
-                    currentDate = currentDate,
-                    onDateSelected = { date ->
-                        selectedDate = date
+            CalendarHeader(navController, "Calendario",
+                onTodayClick = {
+                    selectedDate = currentDate
+                    val currentMonthIndex = months.indexOfFirst {
+                        it.year == currentDate.year && it.month == currentDate.month
                     }
-                )
-            }
-        }
+                    if (currentMonthIndex != -1) {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(currentMonthIndex)
+                        }
+                    }
+                }
+            )
 
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                reverseLayout = true, // ← Esto invierte la dirección del scroll
+                state = listState
+            ) {
+                items(months) { monthYear ->
+                    Month(
+                        year = monthYear.year,
+                        month = monthYear.month,
+                        selectedDate = selectedDate,
+                        currentDate = currentDate,
+                        onDateSelected = { date ->
+                            selectedDate = date
+                        }
+                    )
+                }
+            }
+
+        }
     }
+
 }
 
 data class YearMonth(val year: Int, val month: Month)

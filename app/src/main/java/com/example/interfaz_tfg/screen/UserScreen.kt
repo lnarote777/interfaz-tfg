@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,6 +35,7 @@ import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.compose.Header
 import com.example.interfaz_tfg.compose.configuraciones.SettingItem
 import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.screen.settings.UserSettingsScreen
 
 @Composable
 fun UserScreen(
@@ -42,109 +44,115 @@ fun UserScreen(
     periodDuration: Int = 6,
     cycleDuration: Int = 31
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize()
-            .padding(top = 30.dp, bottom = 18.dp)
-            .background(color = colorResource(R.color.fondo))
-    ) {
-        Header(navController, "Perfil")
-
+    Scaffold { innerpadding ->
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize().padding(top = 30.dp)
+            modifier = Modifier.fillMaxSize()
+                .padding(innerpadding)
+                .background(color = colorResource(R.color.fondo))
         ) {
+            Header(navController, "Perfil")
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .shadow(
-                        elevation = 10.dp,
-                        shape = RoundedCornerShape(30.dp)
-                    )
-                    .clip(RoundedCornerShape(30.dp))
-                    .background(color = Color.White)
-                    .height(250.dp)
-            ){
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    //
-                    Icon(
-                        imageVector = Icons.Default.AccountCircle,
-                        contentDescription = "",
-                        modifier = Modifier.size(130.dp)
-                    )
-                    Text("Username",
-                        fontSize = 25.sp)
-                    Text("email@gmail.com",
-                        fontSize = 20.sp)
-                }
-            }
-            Spacer(Modifier.height(20.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .shadow(
-                        elevation = 10.dp,
-                        shape = RoundedCornerShape(30.dp)
-                    )
-                    .clip(RoundedCornerShape(30.dp))
-                    .background(color = Color.White)
-                    .height(250.dp)
-            ){
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    SettingItem(title = "Mi objetivo", "Seguimiento") // cambiar
-                    SettingItem(title = "Duración periodo", "6") // cambiar
-                    SettingItem(title = "Duración ciclo", "31") // cambiar
-                    Button(
-                        onClick = {navController.navigate(route = AppScreen.CicloAjustesScreen.route)},
-                        colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.botones2)),
-                        modifier = Modifier.width(150.dp).padding(top = 15.dp)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxSize().padding(top = 30.dp)
+            ) {
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .shadow(
+                            elevation = 10.dp,
+                            shape = RoundedCornerShape(30.dp)
+                        )
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(color = Color.White)
+                        .height(250.dp)
+                ){
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        Text("Editar",
-                            fontSize = 20.sp)
+                        //
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "",
+                            modifier = Modifier.size(130.dp).clickable { navController.navigate(route = AppScreen.UserSettingsScreen.route) },
+                            tint = Color.Black
+                        )
+                        Text("Username",
+                            fontSize = 25.sp,
+                            color = Color.Black)
+                        Text("email@gmail.com",
+                            fontSize = 20.sp,
+                            color = Color.Black)
                     }
-
                 }
-            }
-            Spacer(Modifier.height(20.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .shadow(
-                        elevation = 10.dp,
-                        shape = RoundedCornerShape(30.dp)
-                    )
-                    .clip(RoundedCornerShape(30.dp))
-                    .background(color = Color.White)
-                    .height(90.dp)
-            ){
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text("Cerrar sesión",
-                        fontSize = 20.sp,
-                        modifier = Modifier.clickable { navController.navigate(AppScreen.PortadaScreen.route) }
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    Text("Eliminar cuenta",
-                        fontSize = 20.sp,
-                        color = Color.Red,
-                        modifier = Modifier.clickable {  }
-                    )
+                Spacer(Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .shadow(
+                            elevation = 10.dp,
+                            shape = RoundedCornerShape(30.dp)
+                        )
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(color = Color.White)
+                        .height(250.dp)
+                ){
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        SettingItem(title = "Mi objetivo", "Seguimiento") // cambiar
+                        SettingItem(title = "Duración periodo", "6") // cambiar
+                        SettingItem(title = "Duración ciclo", "31") // cambiar
+                        Button(
+                            onClick = {navController.navigate(route = AppScreen.CycleSettingsScreen.route)},
+                            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.botones2)),
+                            modifier = Modifier.width(150.dp).padding(top = 15.dp)
+                        ) {
+                            Text("Editar",
+                                fontSize = 20.sp)
+                        }
 
+                    }
                 }
-            }
+                Spacer(Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .shadow(
+                            elevation = 10.dp,
+                            shape = RoundedCornerShape(30.dp)
+                        )
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(color = Color.White)
+                        .height(90.dp)
+                ){
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text("Cerrar sesión",
+                            fontSize = 20.sp,
+                            modifier = Modifier.clickable { navController.navigate(AppScreen.CoverScreen.route) }
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        Text("Eliminar cuenta",
+                            fontSize = 20.sp,
+                            color = Color.Red,
+                            modifier = Modifier.clickable {  }
+                        )
 
+                    }
+                }
+
+            }
         }
     }
+
 
 }

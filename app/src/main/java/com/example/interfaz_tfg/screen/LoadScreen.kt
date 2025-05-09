@@ -1,6 +1,7 @@
 package com.example.interfaz_tfg.screen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,16 +33,24 @@ fun LoadScreen(navController: NavController){
 
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(1000) //Para pruebas. Original 5000
-        navController.navigate(route = AppScreen.PortadaScreen.route)
+        navController.navigate(route = AppScreen.CoverScreen.route)
     }
 
     Box(){
-        Image(painter = painterResource(R.drawable.fondo_load),
-            contentDescription = "Fondo",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.padding(top = 35.dp)
-                .fillMaxSize()
-        )
+        if(isSystemInDarkTheme()){
+            Image(painter = painterResource(R.drawable.fondo_load_dark),
+                contentDescription = "Fondo",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }else{
+            Image(painter = painterResource(R.drawable.fondo_load),
+                contentDescription = "Fondo",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

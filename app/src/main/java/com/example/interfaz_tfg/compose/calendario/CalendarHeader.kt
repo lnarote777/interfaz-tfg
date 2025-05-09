@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,10 +29,10 @@ import com.example.interfaz_tfg.R
 
 @Composable
 fun CalendarHeader(navController: NavController, title: String, back: Boolean = true, route: String = "", onTodayClick: () -> Unit){
-
+    val color = MaterialTheme.colorScheme
     Box(
         modifier = Modifier.fillMaxWidth()
-            .background(color = Color.White)
+            .background(color = color.surface)
             .height(80.dp)
             .drawBehind {
                 val strokeWidth = 2.dp.toPx()

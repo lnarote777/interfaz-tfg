@@ -3,6 +3,7 @@ package com.example.interfaz_tfg.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,12 +63,20 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewMo
     }
 
     Box(){
-        Image(painter = painterResource(R.drawable.fondo_login),
-            contentDescription = "Fondo",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.padding(top = 35.dp)
-                .fillMaxSize()
-        )
+        if(isSystemInDarkTheme()){
+            Image(painter = painterResource(R.drawable.fondo_load_dark),
+                contentDescription = "Fondo",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }else{
+            Image(painter = painterResource(R.drawable.fondo_login),
+                contentDescription = "Fondo",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
 
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom,
@@ -144,7 +153,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewMo
                         modifier =  Modifier
                             .fillMaxWidth()
                             .padding(bottom = 30.dp)
-                            .clickable { navController.navigate(route = AppScreen.RegistroScreen.route) }
+                            .clickable { navController.navigate(route = AppScreen.RegisterScreen.route) }
                     )
 
                 }

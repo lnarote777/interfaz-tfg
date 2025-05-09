@@ -103,7 +103,7 @@ fun CoverScreen(navController: NavController){
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { navController.navigate(route = AppScreen.RegistroScreen.route) },
+                onClick = { navController.navigate(route = AppScreen.RegisterScreen.route) },
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(50.dp),

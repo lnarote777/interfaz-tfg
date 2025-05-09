@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun Textfield(value: String, placeholder: String, valueChange: (String) -> Unit){
 
+    val color = MaterialTheme.colorScheme
     TextField(
         value = value,
         onValueChange = valueChange ,
@@ -36,11 +38,14 @@ fun Textfield(value: String, placeholder: String, valueChange: (String) -> Unit)
             .height(60.dp),
         textStyle = TextStyle(fontSize = 16.sp),
         colors = TextFieldDefaults.textFieldColors(
-            containerColor = Color.Transparent, // sin fondo
-            focusedIndicatorColor = Color(0xFF6A1B9A), // línea morada intensa
-            unfocusedIndicatorColor = Color(0xFF9C27B0), // línea morada suave
+            containerColor = Color.Transparent,
+            focusedIndicatorColor = Color(0xFF6A1B9A),
+            unfocusedIndicatorColor = Color(0xFF9C27B0),
             disabledIndicatorColor = Color.Transparent,
-            cursorColor = Color(0xFF6A1B9A)
+            cursorColor = Color(0xFF6A1B9A),
+            focusedTextColor = Color.Black,
+            unfocusedLabelColor = Color.Black,
+            unfocusedTextColor = Color.Black
         ),
         label = { Text(placeholder) },
         singleLine = true

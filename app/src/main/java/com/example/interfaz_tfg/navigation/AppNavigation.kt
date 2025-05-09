@@ -48,7 +48,7 @@ fun AppNavigation(){
             slideOutVertically(targetOffsetY = { it }) + fadeOut()
         }
     ) {
-        composable(AppScreen.PortadaScreen.route){
+        composable(AppScreen.CoverScreen.route){
             CoverScreen(navController)
         }
 
@@ -56,7 +56,7 @@ fun AppNavigation(){
             LoginScreen(navController)
         }
 
-        composable(AppScreen.RegistroScreen.route){
+        composable(AppScreen.RegisterScreen.route){
             RegisterScreen(navController)
         }
 
@@ -64,7 +64,7 @@ fun AppNavigation(){
             CalendarScreen(navController)
         }
 
-        composable(AppScreen.ConfiguracionScreen.route){
+        composable(AppScreen.SettingsScreen.route){
             SettingsScreen(navController)
         }
 
@@ -105,7 +105,7 @@ fun AppNavigation(){
             UserScreen(navController)
         }
 
-        composable(AppScreen.UsuarioAjustesScreen.route+ "/{username}/{email}",
+        composable(AppScreen.UserSettingsScreen.route+ "/{username}/{email}",
             arguments = listOf(
                 navArgument(name = "username"){
                     type = NavType.StringType
@@ -126,7 +126,7 @@ fun AppNavigation(){
             StatsScreen(navController)
         }
 
-        composable(AppScreen.CicloAjustesScreen.route){
+        composable(AppScreen.CycleSettingsScreen.route){
             CycleSettingsScreen(navController)
         }
 

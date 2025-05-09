@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -35,6 +36,8 @@ import com.example.interfaz_tfg.R
 @Composable
 fun TextFielPassword(password: String, passVisible: Boolean, placeholder: String, valueChange: (String) -> Unit, onclick: () -> Unit){
 
+    val color = MaterialTheme.colorScheme
+
     TextField(
         value = password,
         onValueChange = valueChange,
@@ -44,11 +47,14 @@ fun TextFielPassword(password: String, passVisible: Boolean, placeholder: String
             .height(60.dp),
         visualTransformation = if (passVisible) VisualTransformation.None else PasswordVisualTransformation(),
         colors = TextFieldDefaults.textFieldColors(
-            containerColor = Color.Transparent, // sin fondo
-            focusedIndicatorColor = Color(0xFF6A1B9A), // línea morada intensa
-            unfocusedIndicatorColor = Color(0xFF9C27B0), // línea morada suave
+            containerColor = Color.Transparent,
+            focusedIndicatorColor = Color(0xFF6A1B9A),
+            unfocusedIndicatorColor = Color(0xFF9C27B0),
             disabledIndicatorColor = Color.Transparent,
-            cursorColor = Color(0xFF6A1B9A)
+            cursorColor = Color(0xFF6A1B9A),
+            focusedTextColor = Color.Black,
+            unfocusedLabelColor = Color.Black,
+            unfocusedTextColor = Color.Black
         ),
         singleLine = true,
         trailingIcon ={

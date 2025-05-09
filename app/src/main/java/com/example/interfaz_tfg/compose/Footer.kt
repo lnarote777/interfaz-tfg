@@ -32,13 +32,17 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.screen.HomeScreen
 
 
 @Composable
 fun Footer(navController: NavController, modifier: Modifier = Modifier) {
     val navColor = colorResource(R.color.navMenu)
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -90,7 +94,12 @@ fun Footer(navController: NavController, modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            IconButton(onClick = {navController.navigate(route = AppScreen.HomeScreen.route)}) {
+            IconButton(onClick = {
+                if (currentRoute != AppScreen.HomeScreen.route){
+                    navController.navigate(route = AppScreen.HomeScreen.route)
+                }
+
+            }) {
                 Icon(Icons.Default.Home,
                     contentDescription = "Home",
                     tint = colorResource(R.color.iconosNav),
@@ -112,7 +121,7 @@ fun Footer(navController: NavController, modifier: Modifier = Modifier) {
                     modifier = Modifier.size(40.dp)
                 )
             }
-            IconButton(onClick = {navController.navigate(route = AppScreen.ConfiguracionScreen.route)}) {
+            IconButton(onClick = {navController.navigate(route = AppScreen.SettingsScreen.route)}) {
                 Icon(Icons.Default.Settings,
                     contentDescription = "Settings",
                     tint = colorResource(R.color.iconosNav),
