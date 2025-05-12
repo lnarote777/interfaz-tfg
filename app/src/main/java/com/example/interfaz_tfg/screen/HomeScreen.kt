@@ -1,5 +1,6 @@
 package com.example.interfaz_tfg.screen
 
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -16,9 +17,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,23 +44,39 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.compose.Footer
 import com.example.interfaz_tfg.compose.calendario.Month
 import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.viewModel.UserViewModel
 import java.time.LocalDate
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeScreen(navController: NavController, user: String?, userRol: String?, token: String?, ){
-    val diasPeriodo = 7 //cambiar llamada a la api
+fun HomeScreen(
+    navController: NavController,
+    username: String?,
+    userRol: String?,
+    token: String?,
+    periodDays: Int?,
+    viewModel: UserViewModel = viewModel()
+){
+    val diasPeriodo = periodDays //cambiar llamada a la api
     val scrollState = rememberScrollState()
     val color = MaterialTheme.colorScheme
+    val user = viewModel.user.collectAsState()
+
     LaunchedEffect(Unit) {
         scrollState.scrollTo(0)
+        if (username != null) {
+            viewModel.getUserByUsername(username)
+        }
     }
     LaunchedEffect(scrollState.value) {
         if (scrollState.value == scrollState.maxValue) {
@@ -90,22 +112,27 @@ fun HomeScreen(navController: NavController, user: String?, userRol: String?, to
                         .fillMaxWidth()
                         .padding(horizontal = 25.dp, vertical = 30.dp)
                 ) {
-                    IconButton(
-                        onClick = { navController.navigate(route = AppScreen.PremiumScreen.route) },
-                        modifier = Modifier.size(50.dp)
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            Image(
-                                painter = painterResource(R.drawable.corona_home),
-                                contentDescription = "VIP",
-                                modifier = Modifier.fillMaxSize()
-                            )
+                    if (userRol != "PREMIUM"){
+                        IconButton(
+                            onClick = { navController.navigate(route = AppScreen.PremiumScreen.route) },
+                            modifier = Modifier.size(50.dp)
+                        ) {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                Image(
+                                    painter = painterResource(R.drawable.corona_home),
+                                    contentDescription = "VIP",
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
                         }
                     }
+
                     Spacer(Modifier.weight(1f))
 
+                    val encodedUsername = Uri.encode(user.value?.username)
+                    val encodedEmail = Uri.encode(user.value?.email)
                     IconButton(
-                        onClick = {navController.navigate(route = AppScreen.UserScreen.route)}
+                        onClick = {navController.navigate(route = AppScreen.UserScreen.route + "/$encodedUsername/$encodedEmail")}
                     ) {
                         Image(painter = painterResource(R.drawable.user_icon),
                             contentDescription = "Profile",
@@ -123,22 +150,34 @@ fun HomeScreen(navController: NavController, user: String?, userRol: String?, to
                 ) {
                     Box(contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .size(270.dp)
+                            .size(230.dp)
                             .clip(CircleShape)
                             .background(colorResource(R.color.rosa_55))
                             .border(
-                                width = 20.dp,
+                                width = 10.dp,
                                 color = colorResource(R.color.bordeMorado),
                                 shape = CircleShape
                             )
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center) {
-                            Text("$diasPeriodo") // cambiar segun lo de la api
-                            Text("Dias hasta el próx. período")
+                            Text("Periodo en:")
+                            Text("$diasPeriodo",
+                                fontSize = 60.sp,
+                                fontWeight = FontWeight.ExtraBold) // cambiar segun lo de la api
+                            Button(
+                                modifier = Modifier.padding(top = 10.dp)
+                                    .height(35.dp),
+                                onClick = {},
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = colorResource(R.color.botones2)
+                                )
+                            ) {
+                                Text("Registrar periodo")
+                            }
                         }
                     }
-                    Spacer(Modifier.height(70.dp))
+                    Spacer(Modifier.height(60.dp))
                     val currentDate = LocalDate.now()
                     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
                     Month(

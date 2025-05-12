@@ -34,7 +34,7 @@ fun AppNavigation(){
     val navController = rememberNavController()
     AnimatedNavHost(
         navController = navController,
-        startDestination = AppScreen.LoadScreen.route,
+        startDestination = AppScreen.LoginScreen.route,
         enterTransition = {
             slideInVertically(initialOffsetY = { it }) + fadeIn()
         },
@@ -72,9 +72,9 @@ fun AppNavigation(){
             DailyScreen(navController)
         }
 
-        composable(AppScreen.HomeScreen.route + "/{user}/{userRol}/{token}",
+        composable(AppScreen.HomeScreen.route + "/{username}/{userRol}/{token}",
             arguments = listOf(
-                navArgument(name = "user"){
+                navArgument(name = "username"){
                     type = NavType.StringType
                 },
                 navArgument(name = "userRol"){
@@ -87,9 +87,10 @@ fun AppNavigation(){
         ){
             HomeScreen(
                 navController = navController,
-                user = it.arguments?.getString("user"),
+                username = it.arguments?.getString("username"),
                 token = it.arguments?.getString("token") ?: "",
-                userRol = it.arguments?.getString("userRol")
+                userRol = it.arguments?.getString("userRol"),
+                periodDays = TODO(),
             )
         }
 
@@ -101,8 +102,20 @@ fun AppNavigation(){
             PremiumScreen(navController)
         }
 
-        composable(AppScreen.UserScreen.route){
-            UserScreen(navController)
+        composable(AppScreen.UserScreen.route + "/{username}/{email}",
+            arguments = listOf(
+                navArgument(name = "username"){
+                    type = NavType.StringType
+                },
+                navArgument(name = "email"){
+                    type = NavType.StringType
+                }
+            )){
+
+            UserScreen(navController,
+                username = it.arguments?.getString("username") ?: "",
+                email = it.arguments?.getString("email") ?: ""
+            )
         }
 
         composable(AppScreen.UserSettingsScreen.route+ "/{username}/{email}",

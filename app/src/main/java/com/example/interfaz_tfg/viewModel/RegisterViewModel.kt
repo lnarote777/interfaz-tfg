@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.api.API
-import com.example.interfaz_tfg.api.model.UserRegisterDTO
+import com.example.interfaz_tfg.api.model.user.UserRegisterDTO
 import com.example.interfaz_tfg.navigation.AppScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

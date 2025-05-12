@@ -31,6 +31,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.api_tfg.model.Goal
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.compose.Header
 import com.example.interfaz_tfg.compose.configuraciones.SettingItem
@@ -40,10 +41,21 @@ import com.example.interfaz_tfg.screen.settings.UserSettingsScreen
 @Composable
 fun UserScreen(
     navController: NavController,
-    email: String = "usuario@gmail.com",
-    periodDuration: Int = 6,
-    cycleDuration: Int = 31
+    username: String?,
+    email: String?
 ) {
+    val periodDuration: Int = 6
+    val cycleDuration: Int = 31
+    val goal: Goal = Goal.TRACK_PERIOD
+    var goalStr: String = ""
+
+    if (goal == Goal.GET_PREGNANT){
+        goalStr = "Quedar embarazada"
+    }else if (goal == Goal.TRACK_PERIOD){
+        goalStr = "Seguimiento general"
+    }else if (goal == Goal.AVOID_PREGNANCY){
+        goalStr = "Evitar embarazo"
+    }
     Scaffold { innerpadding ->
         Column(
             modifier = Modifier.fillMaxSize()
@@ -76,16 +88,22 @@ fun UserScreen(
                         //
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
-                            contentDescription = "",
+                            contentDescription = "Profile image",
                             modifier = Modifier.size(130.dp).clickable { navController.navigate(route = AppScreen.UserSettingsScreen.route) },
                             tint = Color.Black
                         )
-                        Text("Username",
-                            fontSize = 25.sp,
-                            color = Color.Black)
-                        Text("email@gmail.com",
-                            fontSize = 20.sp,
-                            color = Color.Black)
+                        username?.let {
+                            Text(it,
+                                fontSize = 25.sp,
+                                color = Color.Black)
+                        }
+
+                        email?.let {
+                            Text(it,
+                                fontSize = 20.sp,
+                                color = Color.Black)
+                        }
+
                     }
                 }
                 Spacer(Modifier.height(20.dp))
@@ -105,9 +123,9 @@ fun UserScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        SettingItem(title = "Mi objetivo", "Seguimiento") // cambiar
-                        SettingItem(title = "Duración periodo", "6") // cambiar
-                        SettingItem(title = "Duración ciclo", "31") // cambiar
+                        SettingItem(title = "Mi objetivo", goalStr) // cambiar
+                        SettingItem(title = "Duración periodo", periodDuration.toString())
+                        SettingItem(title = "Duración ciclo", cycleDuration.toString()) //
                         Button(
                             onClick = {navController.navigate(route = AppScreen.CycleSettingsScreen.route)},
                             colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.botones2)),

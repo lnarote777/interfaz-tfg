@@ -7,7 +7,7 @@ import com.auth0.jwt.JWT.decode
 import com.auth0.jwt.interfaces.DecodedJWT
 
 import com.example.interfaz_tfg.api.API
-import com.example.interfaz_tfg.api.model.UserLoginDTO
+import com.example.interfaz_tfg.api.model.user.UserLoginDTO
 import com.example.interfaz_tfg.navigation.AppScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,19 +26,19 @@ class LoginViewModel: ViewModel() {
      * Si el inicio de sesión es exitoso, guarda el token y navega a la pantalla principal.
      * En caso de error, actualiza el estado con el mensaje correspondiente.
      *
-     * @param user El nombre de usuario para el inicio de sesión.
+     * @param username El nombre de usuario para el inicio de sesión.
      * @param password La contraseña para el inicio de sesión.
      * @param navController El controlador de navegación que permite navegar a otras pantallas.
      */
-    fun login(user: String, password: String, navController: NavController) {
+    fun login(username: String, password: String, navController: NavController) {
         viewModelScope.launch {
             try {
                 // Realiza la solicitud de registro a la API
-                val response = API.retrofitService.login(UserLoginDTO(user, password))
+                val response = API.retrofitService.login(UserLoginDTO(username, password))
                 if (response.isSuccessful) {
                     response.body()?.token?.let { token ->
                         val userRol = getRolFromToken(token)
-                        navController.navigate(route = AppScreen.HomeScreen.route + "/$user/$userRol/$token")
+                        navController.navigate(route = AppScreen.HomeScreen.route + "/$username/$userRol/$token")
                     } ?: run { _uiState.value = "Token no recibido" }
                 } else {
                     _uiState.value = "Credenciales incorrectas."
