@@ -1,5 +1,6 @@
 package com.example.interfaz_tfg.screen
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -35,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,7 +59,7 @@ import com.example.interfaz_tfg.viewModel.UserViewModel
 import java.time.LocalDate
 
 
-@RequiresApi(Build.VERSION_CODES.O)
+@SuppressLint("NewApi")
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -71,6 +73,9 @@ fun HomeScreen(
     val scrollState = rememberScrollState()
     val color = MaterialTheme.colorScheme
     val user = viewModel.user.collectAsState()
+    var isBleeding by rememberSaveable { mutableStateOf(false) }
+    val encodedUsername = Uri.encode(user.value?.username)
+    val encodedEmail = Uri.encode(user.value?.email)
 
     LaunchedEffect(Unit) {
         scrollState.scrollTo(0)
@@ -79,8 +84,12 @@ fun HomeScreen(
         }
     }
     LaunchedEffect(scrollState.value) {
-        if (scrollState.value == scrollState.maxValue) {
-            navController.navigate(route = AppScreen.DailyScreen.route)
+        if (scrollState.value == scrollState.maxValue &&
+            !encodedEmail.isNullOrBlank() &&
+            !token.isNullOrBlank()
+            
+        ) {
+            navController.navigate("${AppScreen.DailyScreen.route}/$encodedEmail/$token/$isBleeding")
         }
     }
 
@@ -97,7 +106,6 @@ fun HomeScreen(
                     contentDescription = "Fondo",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .padding(top = 15.dp)
                         .fillMaxSize()
                 )
             }
@@ -129,8 +137,7 @@ fun HomeScreen(
 
                     Spacer(Modifier.weight(1f))
 
-                    val encodedUsername = Uri.encode(user.value?.username)
-                    val encodedEmail = Uri.encode(user.value?.email)
+
                     IconButton(
                         onClick = {navController.navigate(route = AppScreen.UserScreen.route + "/$encodedUsername/$encodedEmail")}
                     ) {
@@ -164,11 +171,11 @@ fun HomeScreen(
                             Text("Periodo en:")
                             Text("$diasPeriodo",
                                 fontSize = 60.sp,
-                                fontWeight = FontWeight.ExtraBold) // cambiar segun lo de la api
+                                fontWeight = FontWeight.ExtraBold)
                             Button(
                                 modifier = Modifier.padding(top = 10.dp)
                                     .height(35.dp),
-                                onClick = {},
+                                onClick = {isBleeding = true},
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = colorResource(R.color.botones2)
                                 )

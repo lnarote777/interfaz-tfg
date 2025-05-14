@@ -1,7 +1,7 @@
 package com.example.interfaz_tfg.api
 
 import com.example.interfaz_tfg.api.model.cycle.DailyLog
-import com.example.interfaz_tfg.api.model.cycle.MenstrualCycle
+import com.example.interfaz_tfg.api.model.cycle.DailyLogDTO
 import com.example.interfaz_tfg.api.model.cycle.MenstrualCycleDTO
 import com.example.interfaz_tfg.api.model.user.LogInResponse
 import com.example.interfaz_tfg.api.model.user.Subscription
@@ -67,7 +67,7 @@ interface ApiService {
     suspend fun createLog(
         @Header("Authorization") token: String,
         @Path("email") email: String,
-        @Body log: DailyLog
+        @Body log: DailyLogDTO
     ): Response<DailyLog>
 
     @GET("/daily-log/user/{email}/date/{date}")
@@ -82,7 +82,7 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("email") email: String,
         @Path("date") date: LocalDate,
-        @Body log: DailyLog
+        @Body log: DailyLogDTO
     ): Response<DailyLog>
 
     //------------Cyclo Menstrual---------------

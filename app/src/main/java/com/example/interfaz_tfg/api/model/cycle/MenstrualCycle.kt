@@ -1,9 +1,11 @@
 package com.example.interfaz_tfg.api.model.cycle
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import java.time.LocalDate
 import java.time.LocalDate.now
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 data class MenstrualCycle(
     val id: String? = null,
     val userId: String,

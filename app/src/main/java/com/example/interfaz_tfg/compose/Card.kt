@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun Card(
     title: String,
-    emojis: List<String>,
-    selectedEmojis: List<String>,
+    emojis: Map<String, EmojiItem>,
+    selectedLabels: List<String>,
     onSelectionChange: (List<String>) -> Unit,
     color: Color
 ) {
@@ -52,31 +52,40 @@ fun Card(
                 modifier = Modifier.fillMaxWidth(0.9f)
             )
 
-            val chunkedEmojis = emojis.chunked(5)
+            val chunkedEmojis = emojis.entries.chunked(5)
             chunkedEmojis.forEach { rowEmojis ->
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    rowEmojis.forEach { emoji ->
-                        val isSelected = selectedEmojis.contains(emoji)
-                        Text(
-                            text = emoji,
-                            fontSize = 28.sp,
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(if (isSelected) Color.LightGray else Color.Transparent)
-                                .clickable {
-                                    val newSelection = if (isSelected) {
-                                        selectedEmojis - emoji
-                                    } else {
-                                        selectedEmojis + emoji
+                    rowEmojis.forEach { item ->
+                        val isSelected = selectedLabels.contains(item.key)
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = item.value.emoji,
+                                fontSize = 28.sp,
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(if (isSelected) Color.LightGray else Color.Transparent)
+                                    .clickable {
+                                        val newSelection = if (isSelected) {
+                                            selectedLabels - item.key
+                                        } else {
+                                            selectedLabels + item.key
+                                        }
+                                        onSelectionChange(newSelection)
                                     }
-                                    onSelectionChange(newSelection)
-                                }
-                                .padding(6.dp)
-                        )
+                                    .padding(6.dp)
+                            )
+                            Text(
+                                text = item.key,
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
             }

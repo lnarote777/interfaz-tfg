@@ -5,7 +5,7 @@ import java.time.LocalDate
 data class DailyLog(
     val id: String? = null,                       // MongoDB ID
     val userId: String,                           // Reference to the user
-    val date: LocalDate,                          // Log date
+    val date: String,                          // Log date
     val hasMenstruation: Boolean = false,
     val menstrualFlow: MenstrualFlowLevel? = null,
     val sexualActivity: List<String> = listOf(),  // e.g., "Intercourse", "Desire", "Masturbation"
@@ -14,7 +14,7 @@ data class DailyLog(
     val vaginalDischarge: List<String> = listOf(),// e.g., "Clear", "Sticky", "Creamy"
     val physicalActivity: List<String> = listOf(),// e.g., "Yoga", "Running"
     val pillsTaken: List<String> = listOf(),      // e.g., "Painkiller", "Contraceptive"
-    val waterIntake: Double? = null,              // Liters of water (e.g., 1.5)
+    val waterIntake: Int? = null,              // Liters of water (e.g., 1.5)
     val weight: Double? = null,                   // Weight in kg
     val notes: String? = null
 )

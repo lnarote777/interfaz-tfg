@@ -68,8 +68,25 @@ fun AppNavigation(){
             SettingsScreen(navController)
         }
 
-        composable(AppScreen.DailyScreen.route){
-            DailyScreen(navController)
+        composable(AppScreen.DailyScreen.route + "/{email}/{token}/{isBleeding}",
+            arguments = listOf(
+                navArgument(name = "email"){
+                    type = NavType.StringType
+                },
+                navArgument(name = "token"){
+                    type = NavType.StringType
+                },
+                navArgument(name = "isBleeding") {
+                    type = NavType.StringType
+                }
+            )
+        ){
+            DailyScreen(
+                navController = navController,
+                email = it.arguments?.getString("email")?: "",
+                token = it.arguments?.getString("token") ?: "",
+                isBleeding = it.arguments?.getString("isBleeding") ?: ""
+            )
         }
 
         composable(AppScreen.HomeScreen.route + "/{username}/{userRol}/{token}",
@@ -90,7 +107,7 @@ fun AppNavigation(){
                 username = it.arguments?.getString("username"),
                 token = it.arguments?.getString("token") ?: "",
                 userRol = it.arguments?.getString("userRol"),
-                periodDays = TODO(),
+                periodDays = 4
             )
         }
 
