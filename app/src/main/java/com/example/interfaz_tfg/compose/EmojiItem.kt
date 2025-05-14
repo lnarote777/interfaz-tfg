@@ -8,7 +8,7 @@ val moodEmojis = mapOf(
     "Feliz" to EmojiItem("😊", "Feliz"),
     "Triste" to EmojiItem("😢", "Triste"),
     "Irritada" to EmojiItem("😠", "Irritada"),
-    "Cansada" to EmojiItem("https://imgur.com/yu1er90", "Cansada"),
+    "Cansada" to EmojiItem("😩", "Cansada"),
     "Enamorada" to EmojiItem("🥰", "Enamorada"),
     "Ansiosa" to EmojiItem("😰", "Ansiosa"),
     "Segura de sí" to EmojiItem("😎", "Segura de sí"),
@@ -27,23 +27,23 @@ val symptomEmojis = mapOf(
 
 val menstrualflow = mapOf(
     "light" to EmojiItem("🩸", "Flujo leve"),
-    "heavy" to EmojiItem("https://imgur.com/Zu9EVrt", "Flujo abundante"),
-    "moderate" to EmojiItem("https://imgur.com/b9Vs37q", "Manchado"),
-    "clots" to EmojiItem("https://imgur.com/WN4e1QP", "Coágulos")
+    "heavy" to EmojiItem("💉", "Flujo abundante"),
+    "moderate" to EmojiItem("🔴", "Manchado"),
+    "clots" to EmojiItem("🧬", "Coágulos")
 )
 
 val vaginalDischarge = mapOf(
-    "transparente y elástico" to EmojiItem("https://imgur.com/ZapUivZ", "Transparente y elástico"),
-    "blanco" to EmojiItem("https://imgur.com/lbz6KE6", "Blanco"),
-    "espeso" to EmojiItem("🚫", "espeso"),
-    "cremoso" to EmojiItem("https://imgur.com/5TLy6Bi", "cremoso"),
-    "acuoso" to EmojiItem("https://imgur.com/C0fvGeh", "acuoso"),
-    "amarillo" to EmojiItem("https://imgur.com/OocWcoN", "amarillo verdoso"),
-    "grisáceo" to EmojiItem("https://imgur.com/YPYV4uz", "grisáceo"),
-    "olor fuerte" to EmojiItem("https://imgur.com/Y3WjPaJ", "olor fuerte"),
-    "grumoso" to EmojiItem("🚫", "grumoso"),
-    "marron" to EmojiItem("🚫", "marrón o con sangre"),
-    "sin flujo" to EmojiItem("🚫", "sin flujo")
+    "transparente y elástico" to EmojiItem("💧", "Transparente y elástico"),
+    "blanco" to EmojiItem("⚪", "Blanco"),
+    "espeso" to EmojiItem("🧊", "Espeso"),
+    "cremoso" to EmojiItem("🍦", "Cremoso"),
+    "acuoso" to EmojiItem("💦", "Acuoso"),
+    "amarillo" to EmojiItem("🟡", "Amarillo verdoso"),
+    "grisáceo" to EmojiItem("🌫️", "Grisáceo"),
+    "olor fuerte" to EmojiItem("👃💨", "Olor fuerte"),
+    "grumoso" to EmojiItem("🥣", "Grumoso"),
+    "marron" to EmojiItem("🟤", "Marrón o con sangre"),
+    "sin flujo" to EmojiItem("🚫", "Sin flujo")
 )
 
 val sexEmojis = mapOf(

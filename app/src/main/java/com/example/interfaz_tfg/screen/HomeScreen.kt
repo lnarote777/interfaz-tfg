@@ -2,8 +2,6 @@ package com.example.interfaz_tfg.screen
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,14 +16,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -45,7 +40,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,6 +49,7 @@ import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.compose.Footer
 import com.example.interfaz_tfg.compose.calendario.Month
 import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.viewModel.CycleViewModel
 import com.example.interfaz_tfg.viewModel.UserViewModel
 import java.time.LocalDate
 
@@ -67,29 +62,34 @@ fun HomeScreen(
     userRol: String?,
     token: String?,
     periodDays: Int?,
-    viewModel: UserViewModel = viewModel()
+
 ){
-    val diasPeriodo = periodDays //cambiar llamada a la api
+    val viewModel: UserViewModel = viewModel()
     val scrollState = rememberScrollState()
     val color = MaterialTheme.colorScheme
-    val user = viewModel.user.collectAsState()
+    val user by viewModel.user.collectAsState()
     var isBleeding by rememberSaveable { mutableStateOf(false) }
-    val encodedUsername = Uri.encode(user.value?.username)
-    val encodedEmail = Uri.encode(user.value?.email)
+    val cycleViewModel : CycleViewModel = viewModel()
+    val cycles by cycleViewModel.cycles.collectAsState()
+    val currentDate = LocalDate.now()
+    var selectedDate by remember { mutableStateOf(currentDate) }
 
     LaunchedEffect(Unit) {
         scrollState.scrollTo(0)
-        if (username != null) {
-            viewModel.getUserByUsername(username)
-        }
+        username?.let { viewModel.getUserByUsername(it) }
     }
-    LaunchedEffect(scrollState.value) {
-        if (scrollState.value == scrollState.maxValue &&
-            !encodedEmail.isNullOrBlank() &&
+    LaunchedEffect(user?.email) {
+        user?.email?.let { cycleViewModel.loadCycles(it) }
+    }
+
+    LaunchedEffect(scrollState.value, user, token) {
+        if (
+            scrollState.value == scrollState.maxValue &&
+            user?.email != null &&
             !token.isNullOrBlank()
-            
         ) {
-            navController.navigate("${AppScreen.DailyScreen.route}/$encodedEmail/$token/$isBleeding")
+            val email = Uri.encode(user!!.email)
+            navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
         }
     }
 
@@ -139,7 +139,11 @@ fun HomeScreen(
 
 
                     IconButton(
-                        onClick = {navController.navigate(route = AppScreen.UserScreen.route + "/$encodedUsername/$encodedEmail")}
+                        onClick = {
+                            val encodedUsername = Uri.encode(user?.username ?: "")
+                            val encodedEmail = Uri.encode(user?.email ?: "")
+                            navController.navigate(route = AppScreen.UserScreen.route + "/$encodedUsername/$encodedEmail")
+                        }
                     ) {
                         Image(painter = painterResource(R.drawable.user_icon),
                             contentDescription = "Profile",
@@ -169,7 +173,8 @@ fun HomeScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center) {
                             Text("Periodo en:")
-                            Text("$diasPeriodo",
+                            Text(
+                                "$periodDays",
                                 fontSize = 60.sp,
                                 fontWeight = FontWeight.ExtraBold)
                             Button(
@@ -185,13 +190,13 @@ fun HomeScreen(
                         }
                     }
                     Spacer(Modifier.height(60.dp))
-                    val currentDate = LocalDate.now()
-                    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+                    val phases = cycles.find { it.startDate <= currentDate.toString() && it.endDate >= currentDate.toString() }?.phases ?: emptyList()
                     Month(
                         year = currentDate.year,
                         month = currentDate.month,
                         selectedDate = selectedDate,
-                        currentDate = currentDate
+                        currentDate = currentDate,
+                        phases = phases
                     ) { date -> selectedDate = date }
                     Spacer(Modifier.height(100.dp))
                 }

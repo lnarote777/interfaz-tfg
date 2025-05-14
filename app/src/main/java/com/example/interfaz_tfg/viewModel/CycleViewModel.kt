@@ -1,8 +1,11 @@
 package com.example.interfaz_tfg.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.interfaz_tfg.api.API
 import com.example.interfaz_tfg.api.ApiService
+import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
 import com.example.interfaz_tfg.api.model.cycle.MenstrualCycle
 import com.example.interfaz_tfg.api.model.cycle.MenstrualCycleDTO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,37 +13,48 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-//class CycleViewModel : ViewModel(){
-//    private val _cycles = MutableStateFlow<List<MenstrualCycle>>(emptyList())
-//    val cycles: StateFlow<List<MenstrualCycle>> get() = _cycles
-//
-//    private val _predictionDate = MutableStateFlow<LocalDate?>(null)
-//    val predictionDate: StateFlow<LocalDate?> get() = _predictionDate
-//
-//    private val _error = MutableStateFlow<String?>(null)
-//    val error: StateFlow<String?> get() = _error
-//
-//    fun loadCycles(userId: String) {
-//        viewModelScope.launch {
-//            try {
-//                _cycles.value = ApiService.getCyclesByUser(userId)
-//            } catch (e: Exception) {
-//                _error.value = "Error loading cycles: ${e.message}"
-//            }
-//        }
-//    }
-//
-//    fun createCycle(dto: MenstrualCycleDTO) {
-//        viewModelScope.launch {
-//            try {
-//                ApiService.createCycle(dto)
-//                loadCycles(dto.userId)
-//            } catch (e: Exception) {
-//                _error.value = "Error creating cycle: ${e.message}"
-//            }
-//        }
-//    }
-//
+class CycleViewModel : ViewModel(){
+     private val _cycles = MutableStateFlow<List<MenstrualCycle>>(emptyList())
+    val cycles: StateFlow<List<MenstrualCycle>> = _cycles
+
+    private val _selectedCycle = MutableStateFlow<MenstrualCycle?>(null)
+    val selectedCycle: StateFlow<MenstrualCycle?> = _selectedCycle
+
+    private val _phases = MutableStateFlow<List<CyclePhaseDay>>(emptyList())
+    val phases: StateFlow<List<CyclePhaseDay>> = _phases
+
+    fun loadCycles(userId: String) {
+        viewModelScope.launch {
+            try {
+                val response = API.retrofitService.getCyclesUser(userId)
+                if (response.isSuccessful){
+                    _cycles.value = response.body() ?: emptyList()
+                }
+            }catch (e: Exception){
+                Log.d("EXCEPCION", "loadCycles: ${e.message}")
+            }
+
+
+        }
+    }
+
+    fun createCycle(dto: MenstrualCycleDTO) {
+        viewModelScope.launch {
+            try {
+                val response = API.retrofitService.createCycle( dto)
+                if (response.isSuccessful){
+                    val cycle = response.body()!!
+                    loadCycles(cycle.userId)
+                }else{
+                    Log.d("ERROR", "createCycle: error ${response.code()}")
+                }
+
+            } catch (e: Exception) {
+                Log.d("ERROR EXCEPCION", "createCycle: error ${e.message}")
+            }
+        }
+    }
+
 //    fun updateCycle(id: String, dto: MenstrualCycleDTO) {
 //        viewModelScope.launch {
 //            try {
@@ -61,4 +75,4 @@ import java.time.LocalDate
 //            }
 //        }
 //    }
-//}
+}

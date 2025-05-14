@@ -124,8 +124,8 @@ fun DailyScreen(
                 },
                 enabled = hasChanges,
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(bottom = 18.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 18.dp)
 
             ) {
                 Text("Guardar")
@@ -182,7 +182,7 @@ fun DailyScreen(
                             value = logState.notes ?: "",
                             onValueChange = { viewModel.setNotes(it) },
                             label = { Text("Notas") },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(0.9f)
                         )
                         Spacer(Modifier.height(24.dp))
                     }

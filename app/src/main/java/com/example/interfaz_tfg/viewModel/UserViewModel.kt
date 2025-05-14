@@ -18,12 +18,18 @@ class UserViewModel: ViewModel() {
 
     fun getUserByUsername(username: String){
         viewModelScope.launch {
-            val response = API.retrofitService.getUserByUsername(username)
-            if (response.isSuccessful) {
-                _user.value = response.body()!!
-                Log.d("TAG", "Lista ")
-            }else{
-                Log.d("Error", "Error al obtener usuario ")
+            try {
+                val response = API.retrofitService.getUserByUsername(username)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        _user.value = it
+                        Log.d("TAG", "Usuario cargado correctamente")
+                    } ?: Log.e("API", "Body vacío en respuesta exitosa")
+                } else {
+                    Log.e("API", "Error: ${response.code()} - ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("API", "Excepción en getUserByUsername", e)
             }
         }
     }

@@ -64,7 +64,8 @@ fun RegisterScreen(navController: NavController, viewModel: RegistrerViewModel =
     var passVisible by rememberSaveable { mutableStateOf(false) }
     var passwordRepeat by rememberSaveable { mutableStateOf("") }
     var passVisibleRepeat by rememberSaveable { mutableStateOf(false) }
-    var birthdate by rememberSaveable { mutableStateOf("") }
+    var birthdate by rememberSaveable { mutableStateOf("") } // para mostrar en el campo
+    var birthdateRaw by rememberSaveable { mutableStateOf("") }
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsState()
     var errorMessage by remember { mutableStateOf("") }
@@ -92,6 +93,7 @@ fun RegisterScreen(navController: NavController, viewModel: RegistrerViewModel =
             onDismiss = { showDatePicker = false },
             onDateSelected = {
                 birthdate = it.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                birthdateRaw = it.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             }
         )
     }
@@ -207,7 +209,7 @@ fun RegisterScreen(navController: NavController, viewModel: RegistrerViewModel =
                         passRepeat = passwordRepeat,
                         username = username,
                         email = email,
-                        birthdate = birthdate,
+                        birthdate = birthdateRaw,
                         navController = navController
                     )
                     errorMessage = ""

@@ -1,15 +1,19 @@
 package com.example.interfaz_tfg.viewModel
 
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.api.API
+import com.example.interfaz_tfg.api.model.cycle.MenstrualCycleDTO
+import com.example.interfaz_tfg.api.model.cycle.MenstrualFlowLevel
 import com.example.interfaz_tfg.api.model.user.UserRegisterDTO
 import com.example.interfaz_tfg.navigation.AppScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 /**
  * ViewModel para gestionar el registro de un nuevo usuario.
@@ -18,6 +22,8 @@ import kotlinx.coroutines.launch
 class RegistrerViewModel: ViewModel() {
     private val _uiState = MutableStateFlow("")
     val uiState: StateFlow<String> = _uiState
+
+    val cycleViewModel = CycleViewModel()
 
     /**
      * Registra un nuevo usuario en la aplicación.
@@ -31,6 +37,7 @@ class RegistrerViewModel: ViewModel() {
      * @param passRepeat La confirmación de la contraseña.
      * @param navController El controlador de navegación que permite navegar a otras pantallas.
      */
+    @SuppressLint("NewApi")
     fun registerUser(
         name: String,
         username:String,
@@ -49,6 +56,13 @@ class RegistrerViewModel: ViewModel() {
             passwordRepeat = passRepeat,
             birthDate = birthdate
         )
+        val menstrualCycle = MenstrualCycleDTO(
+            userId = email,
+            startDate = LocalDate.now().toString(),
+            cycleLength = 28,        //28 y 5 son lo mas comun luego el usuario lo puede modificar
+            bleedingDuration = 5,
+            averageFlow = MenstrualFlowLevel.MODERATE
+        )
 
         viewModelScope.launch {
             try {
@@ -59,6 +73,7 @@ class RegistrerViewModel: ViewModel() {
                     val usuarioDTO = response.body()
                     if (usuarioDTO != null) {
                         _uiState.value = "Registro exitoso."
+                        cycleViewModel.createCycle(menstrualCycle)
                         navController.navigate(route = AppScreen.LoginScreen.route)
                     } else {
                         _uiState.value = "Error: No se recibió un usuario válido"

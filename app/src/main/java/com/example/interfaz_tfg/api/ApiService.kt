@@ -2,6 +2,7 @@ package com.example.interfaz_tfg.api
 
 import com.example.interfaz_tfg.api.model.cycle.DailyLog
 import com.example.interfaz_tfg.api.model.cycle.DailyLogDTO
+import com.example.interfaz_tfg.api.model.cycle.MenstrualCycle
 import com.example.interfaz_tfg.api.model.cycle.MenstrualCycleDTO
 import com.example.interfaz_tfg.api.model.user.LogInResponse
 import com.example.interfaz_tfg.api.model.user.Subscription
@@ -86,10 +87,15 @@ interface ApiService {
     ): Response<DailyLog>
 
     //------------Cyclo Menstrual---------------
-    @PUT("/cycles/new")
+    @POST("/cycles/new")
     suspend fun createCycle(
         @Body cycle: MenstrualCycleDTO
-    )
+    ): Response<MenstrualCycle>
+
+    @GET("/cycles/user/{email}")
+    suspend fun getCyclesUser(
+        @Path("email") email: String
+    ): Response<List<MenstrualCycle>>
 
     @GET("/cycles/user/{email}/prediction")
     suspend fun getPrediction(

@@ -3,6 +3,7 @@ package com.example.interfaz_tfg.compose.calendario
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.api.model.cycle.CyclePhase
+import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
@@ -40,6 +43,7 @@ fun Month(
     month: Month,
     selectedDate: LocalDate,
     currentDate: LocalDate,
+    phases: List<CyclePhaseDay> = listOf(),
     onDateSelected: (LocalDate) -> Unit
 ) {
     val firstDayOfMonth = LocalDate.of(year, month, 1)
@@ -105,13 +109,15 @@ fun Month(
                             val date = LocalDate.of(year, month, day)
                             val isSelected = date == selectedDate
                             val isToday = date == today
+                            val phaseForDate = phases.find { it.date == date.toString() }
+                            val isPredicted = phaseForDate?.isPredicted == true
 
+                            val baseColor = getPhaseColor(phaseForDate?.phase)
                             val backgroundColor = when {
                                 isSelected -> colorResource(R.color.botones2)
                                 isToday -> colorResource(R.color.botones2).copy(alpha = 0.3f)
-                                else -> Color.Transparent
+                                else -> baseColor
                             }
-
                             val textColor = when {
                                 isSelected -> MaterialTheme.colorScheme.onPrimary
                                 isToday -> colorResource(R.color.botones2)
@@ -124,6 +130,13 @@ fun Month(
                                     .background(
                                         color = backgroundColor,
                                         shape = CircleShape
+                                    )
+                                    .then(
+                                        if (isPredicted) Modifier
+                                            .padding(1.dp)
+                                            .background(Color.Transparent, CircleShape)
+                                            .border(2.dp, Color.Gray, CircleShape)
+                                        else Modifier
                                     )
                                     .clickable { onDateSelected(date) },
                                 contentAlignment = Alignment.Center
@@ -143,5 +156,15 @@ fun Month(
                 currentWeek++
             }
         }
+    }
+}
+
+fun getPhaseColor(phase: CyclePhase?): Color {
+    return when (phase) {
+        CyclePhase.MENSTRUATION -> Color(0xFFFF6B6B) // rojo
+        CyclePhase.OVULATION -> Color(0xFF7E57C2)    // morado
+        CyclePhase.FOLLICULAR -> Color(0xFF64B5F6)   // azul claro
+        CyclePhase.LUTEAL -> Color(0xFFFFD54F)       // amarillo
+        else -> Color.Transparent
     }
 }
