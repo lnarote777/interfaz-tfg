@@ -34,12 +34,15 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
 import com.example.interfaz_tfg.navigation.AppScreen
-import com.example.interfaz_tfg.screen.HomeScreen
+import com.google.gson.Gson
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 
 @Composable
-fun Footer(navController: NavController, modifier: Modifier = Modifier) {
+fun Footer(navController: NavController, modifier: Modifier = Modifier, phases: List<CyclePhaseDay>) {
     val navColor = colorResource(R.color.navMenu)
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
@@ -106,7 +109,13 @@ fun Footer(navController: NavController, modifier: Modifier = Modifier) {
                     modifier = Modifier.size(40.dp)
                 )
             }
-            IconButton(onClick = {navController.navigate(route = AppScreen.CalendarScreen.route)}) {
+            IconButton(onClick = {
+                val gson = Gson()
+                val json = gson.toJson(phases)
+                val encoded = URLEncoder.encode(json, StandardCharsets.UTF_8.toString())
+
+                navController.navigate(AppScreen.CalendarScreen.route + "/$encoded")
+            }) {
                 Icon(Icons.Default.DateRange,
                     contentDescription = "Calendar",
                     tint = colorResource(R.color.iconosNav),

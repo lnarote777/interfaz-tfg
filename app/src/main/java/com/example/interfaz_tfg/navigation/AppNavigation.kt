@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
+import com.example.interfaz_tfg.api.model.cycle.MenstrualCycle
 import com.example.interfaz_tfg.screen.CalendarScreen
 import com.example.interfaz_tfg.screen.CoverScreen
 import com.example.interfaz_tfg.screen.DailyScreen
@@ -26,6 +28,9 @@ import com.example.interfaz_tfg.screen.settings.SettingsScreen
 import com.example.interfaz_tfg.screen.settings.UserSettingsScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAnimationApi::class)
@@ -60,8 +65,21 @@ fun AppNavigation(){
             RegisterScreen(navController)
         }
 
-        composable(AppScreen.CalendarScreen.route){
-            CalendarScreen(navController)
+        composable(AppScreen.CalendarScreen.route + "/{phases}",
+            arguments = listOf(
+                navArgument(name = "phases"){
+                    type = NavType.StringType
+                }
+            )
+        ){
+            val json = it.arguments?.getString("phases") ?: "[]"
+            val gson = Gson()
+            val type = object : TypeToken<List<CyclePhaseDay>>() {}.type
+            val phases: List<CyclePhaseDay> = gson.fromJson(json, type)
+            CalendarScreen(
+                navController = navController,
+                phases = phases
+            )
         }
 
         composable(AppScreen.SettingsScreen.route){

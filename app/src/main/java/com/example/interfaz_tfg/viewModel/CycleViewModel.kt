@@ -23,6 +23,9 @@ class CycleViewModel : ViewModel(){
     private val _phases = MutableStateFlow<List<CyclePhaseDay>>(emptyList())
     val phases: StateFlow<List<CyclePhaseDay>> = _phases
 
+    private val _cycleState = MutableStateFlow<MenstrualCycle?>(null)
+    val cycleState: StateFlow<MenstrualCycle?> = _cycleState
+
     fun loadCycles(userId: String) {
         viewModelScope.launch {
             try {
@@ -51,6 +54,22 @@ class CycleViewModel : ViewModel(){
 
             } catch (e: Exception) {
                 Log.d("ERROR EXCEPCION", "createCycle: error ${e.message}")
+            }
+        }
+    }
+
+    fun recalculateCycle(userId: String, date: LocalDate? = null) {
+        viewModelScope.launch {
+            try {
+                val response = API.retrofitService.recalculateCycle(userId, date?.toString())
+                if (response.isSuccessful) {
+                    val updatedCycle = response.body()
+                    _cycleState.value = updatedCycle
+                } else {
+                    Log.e("API", "Error: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e("API", "Exception: ${e.message}")
             }
         }
     }

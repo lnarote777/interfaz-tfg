@@ -17,6 +17,7 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 import java.time.LocalDate
 
 /**
@@ -78,6 +79,11 @@ interface ApiService {
         @Path("date") date: LocalDate
     ): Response<DailyLog>
 
+    @GET("/daily-log/user/{userId}")
+    suspend fun getLogsByUser(
+        @Path("userId") userId: String
+    ): Response<List<DailyLog>>
+
     @PUT("daily-log//user/{userId}/date/{date}")
     suspend fun updateLog(
         @Header("Authorization") token: String,
@@ -96,6 +102,12 @@ interface ApiService {
     suspend fun getCyclesUser(
         @Path("email") email: String
     ): Response<List<MenstrualCycle>>
+
+    @GET("/cycles/recalculate")
+    suspend fun recalculateCycle(
+        @Path("userId") userId: String,
+        @Query("date") date: String? = null
+    ): Response<MenstrualCycle>
 
     @GET("/cycles/user/{email}/prediction")
     suspend fun getPrediction(

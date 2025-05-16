@@ -50,8 +50,11 @@ import com.example.interfaz_tfg.compose.Footer
 import com.example.interfaz_tfg.compose.calendario.Month
 import com.example.interfaz_tfg.navigation.AppScreen
 import com.example.interfaz_tfg.viewModel.CycleViewModel
+import com.example.interfaz_tfg.viewModel.DailyLogViewModel
 import com.example.interfaz_tfg.viewModel.UserViewModel
 import java.time.LocalDate
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 
 
 @SuppressLint("NewApi")
@@ -68,6 +71,8 @@ fun HomeScreen(
     val scrollState = rememberScrollState()
     val color = MaterialTheme.colorScheme
     val user by viewModel.user.collectAsState()
+    val dailyLogViewModel: DailyLogViewModel = viewModel()
+    val logs by dailyLogViewModel.logs.collectAsState()
     var isBleeding by rememberSaveable { mutableStateOf(false) }
     val cycleViewModel : CycleViewModel = viewModel()
     val cycles by cycleViewModel.cycles.collectAsState()
@@ -79,7 +84,31 @@ fun HomeScreen(
         username?.let { viewModel.getUserByUsername(it) }
     }
     LaunchedEffect(user?.email) {
-        user?.email?.let { cycleViewModel.loadCycles(it) }
+        user?.email?.let {
+            cycleViewModel.loadCycles(it)
+            viewModel.getUserByUsername(user!!.username)
+            dailyLogViewModel.loadLogs(it)
+        }
+
+    }
+
+    LaunchedEffect(logs) {
+        val today = LocalDate.now().toString()
+        isBleeding = logs.find { it.date == today }?.hasMenstruation ?: false
+    }
+
+    LaunchedEffect(user?.email, logs) {
+        val today = LocalDate.now().toString()
+        val email = user?.email ?: return@LaunchedEffect
+
+        val todayLog = logs.find { it.date == today }
+        val hasLoggedToday = todayLog != null
+        val hasMenstruationToday = todayLog?.hasMenstruation ?: false
+        isBleeding = hasMenstruationToday
+
+        if ((hasLoggedToday && !hasMenstruationToday) || !hasLoggedToday) {
+            cycleViewModel.recalculateCycle(email, LocalDate.now())
+        }
     }
 
     LaunchedEffect(scrollState.value, user, token) {
@@ -90,6 +119,13 @@ fun HomeScreen(
         ) {
             val email = Uri.encode(user!!.email)
             navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
+        }
+    }
+    val phases by remember(cycles, currentDate) {
+        derivedStateOf {
+            cycles.find {
+                it.startDate <= currentDate.toString() && it.endDate >= currentDate.toString()
+            }?.phases ?: emptyList()
         }
     }
 
@@ -190,7 +226,6 @@ fun HomeScreen(
                         }
                     }
                     Spacer(Modifier.height(60.dp))
-                    val phases = cycles.find { it.startDate <= currentDate.toString() && it.endDate >= currentDate.toString() }?.phases ?: emptyList()
                     Month(
                         year = currentDate.year,
                         month = currentDate.month,
@@ -205,7 +240,9 @@ fun HomeScreen(
             Footer(navController = navController,
                 modifier = Modifier
                     .align(alignment = Alignment.BottomCenter)
-                    .padding(vertical = 18.dp) )
+                    .padding(vertical = 18.dp),
+                phases = phases
+            )
         }
 
     }

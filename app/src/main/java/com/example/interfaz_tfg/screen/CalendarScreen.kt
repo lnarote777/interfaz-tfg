@@ -24,6 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.compose.calendario.CalendarHeader
 import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.api.model.cycle.CyclePhase
+import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
+import com.example.interfaz_tfg.api.model.cycle.MenstrualCycle
 import com.example.interfaz_tfg.compose.calendario.Month
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -31,7 +34,7 @@ import java.time.Month
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CalendarScreen(navController: NavController){
+fun CalendarScreen(navController: NavController, phases: List<CyclePhaseDay>){
     val currentDate = LocalDate.now()
     val currentYear = currentDate.year
     val minYear = 2010
@@ -86,7 +89,8 @@ fun CalendarScreen(navController: NavController){
                         currentDate = currentDate,
                         onDateSelected = { date ->
                             selectedDate = date
-                        }
+                        },
+                        phases = phases
                     )
                 }
             }
