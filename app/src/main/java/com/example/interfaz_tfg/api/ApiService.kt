@@ -103,7 +103,7 @@ interface ApiService {
         @Path("email") email: String
     ): Response<List<MenstrualCycle>>
 
-    @GET("/cycles/recalculate")
+    @GET("/cycles/recalculate/{userId}")
     suspend fun recalculateCycle(
         @Path("userId") userId: String,
         @Query("date") date: String? = null
@@ -114,4 +114,9 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("email") email: String
     )
+
+    @PUT()
+    suspend fun updateCycle(
+        @Body cycle: MenstrualCycleDTO
+    ): Response<MenstrualCycle>
 }

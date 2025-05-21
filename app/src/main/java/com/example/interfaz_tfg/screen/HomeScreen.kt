@@ -55,6 +55,9 @@ import com.example.interfaz_tfg.viewModel.UserViewModel
 import java.time.LocalDate
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("NewApi")
@@ -78,6 +81,11 @@ fun HomeScreen(
     val cycles by cycleViewModel.cycles.collectAsState()
     val currentDate = LocalDate.now()
     var selectedDate by remember { mutableStateOf(currentDate) }
+    val today = LocalDate.now()
+    var lastRecalculationDate by rememberSaveable { mutableStateOf<LocalDate?>(null) }
+    val scope = rememberCoroutineScope()
+    var phasesUpdateTrigger by remember { mutableIntStateOf(0) }
+
 
     LaunchedEffect(Unit) {
         scrollState.scrollTo(0)
@@ -93,21 +101,24 @@ fun HomeScreen(
     }
 
     LaunchedEffect(logs) {
-        val today = LocalDate.now().toString()
-        isBleeding = logs.find { it.date == today }?.hasMenstruation ?: false
+        isBleeding = logs.find { it.date == today.toString() }?.hasMenstruation ?: false
     }
 
     LaunchedEffect(user?.email, logs) {
-        val today = LocalDate.now().toString()
         val email = user?.email ?: return@LaunchedEffect
 
-        val todayLog = logs.find { it.date == today }
+        val todayLog = logs.find { it.date == today.toString() }
         val hasLoggedToday = todayLog != null
         val hasMenstruationToday = todayLog?.hasMenstruation ?: false
         isBleeding = hasMenstruationToday
 
-        if ((hasLoggedToday && !hasMenstruationToday) || !hasLoggedToday) {
-            cycleViewModel.recalculateCycle(email, LocalDate.now())
+        val shouldRecalculate = (!hasLoggedToday || !hasMenstruationToday) &&
+                lastRecalculationDate != today
+
+        if (shouldRecalculate) {
+            cycleViewModel.recalculateCycle(email, today)
+            cycleViewModel.loadCycles(email)
+            lastRecalculationDate = today
         }
     }
 
@@ -121,11 +132,9 @@ fun HomeScreen(
             navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
         }
     }
-    val phases by remember(cycles, currentDate) {
+    val phases by remember(cycles, currentDate, phasesUpdateTrigger) {
         derivedStateOf {
-            cycles.find {
-                it.startDate <= currentDate.toString() && it.endDate >= currentDate.toString()
-            }?.phases ?: emptyList()
+            cycles.maxByOrNull { it.startDate }?.phases ?: emptyList()
         }
     }
 
@@ -216,7 +225,19 @@ fun HomeScreen(
                             Button(
                                 modifier = Modifier.padding(top = 10.dp)
                                     .height(35.dp),
-                                onClick = {isBleeding = true},
+                                onClick = {
+                                    phasesUpdateTrigger++
+                                    isBleeding = true
+                                    val email = user?.email
+                                    if (email != null) {
+                                        scope.launch {
+                                            cycleViewModel.recalculateCycle(email, today)
+                                            cycleViewModel.loadCycles(email)
+                                            lastRecalculationDate = today
+                                            navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
+                                        }
+                                    }
+                                },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = colorResource(R.color.botones2)
                                 )

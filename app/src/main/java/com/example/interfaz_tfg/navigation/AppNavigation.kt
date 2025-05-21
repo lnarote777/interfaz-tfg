@@ -174,8 +174,19 @@ fun AppNavigation(){
             StatsScreen(navController)
         }
 
-        composable(AppScreen.CycleSettingsScreen.route){
-            CycleSettingsScreen(navController)
+        composable(AppScreen.CycleSettingsScreen.route+ "/{periodDuration}/{cycleDuration}",
+            arguments = listOf(
+                navArgument(name = "periodDuration"){
+                    type = NavType.StringType
+                },
+                navArgument(name = "cycleDuration"){
+                    type = NavType.StringType
+                }
+            )){
+            CycleSettingsScreen(navController,
+                periodDays = it.arguments?.getString("periodDuration") ?: "",
+                cycleDays = it.arguments?.getString("cycleDuration") ?: ""
+            )
         }
 
 
