@@ -6,6 +6,7 @@ import com.example.interfaz_tfg.api.model.cycle.MenstrualCycle
 import com.example.interfaz_tfg.api.model.cycle.MenstrualCycleDTO
 import com.example.interfaz_tfg.api.model.user.LogInResponse
 import com.example.interfaz_tfg.api.model.user.Subscription
+import com.example.interfaz_tfg.api.model.user.SubscriptionResponse
 import com.example.interfaz_tfg.api.model.user.UserDTO
 import com.example.interfaz_tfg.api.model.user.UserLoginDTO
 import com.example.interfaz_tfg.api.model.user.UserRegisterDTO
@@ -62,9 +63,8 @@ interface ApiService {
     //------------Pagos---------------
     @POST("/pay/create-subscription")
     suspend fun createSubscription(
-        @Header("Authorization") token: String,
         @Body request: Subscription
-    ): Response<String>
+    ): Response<SubscriptionResponse>
 
     //------------Log Diarios---------------
     @POST("/daily-log/new/{email}")

@@ -31,10 +31,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -44,16 +47,32 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.api.model.user.SubscriptionType
 import com.example.interfaz_tfg.compose.Header
 import com.example.interfaz_tfg.compose.premium.CaracteristicasBox
+import com.example.interfaz_tfg.viewModel.PagoViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
-fun PremiumScreen(navController: NavController){
+fun PremiumScreen(navController: NavController, email: String){
     val scrollState = rememberScrollState()
     val color = MaterialTheme.colorScheme
+    val pagoViewModel : PagoViewModel = viewModel()
+    val uriHandler = LocalUriHandler.current
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(pagoViewModel.checkoutUrl) {
+        pagoViewModel.checkoutUrl.collect { url ->
+            // Abrir URL de Stripe Checkout en navegador
+            if (url != null) {
+                uriHandler.openUri(url)
+            }
+        }
+    }
     Scaffold {innerpadding ->
         Column(
             modifier = Modifier.fillMaxSize()
@@ -135,7 +154,11 @@ fun PremiumScreen(navController: NavController){
                             modifier = Modifier.fillMaxWidth(0.85f),
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.botones1)),
-                            onClick = {}
+                            onClick = {
+                                scope.launch {
+                                    pagoViewModel.iniciarPago(email, SubscriptionType.ONE_TIME) // Para 1 año
+                                }
+                            }
                         ) {
                             Text("Continuar",
                                 fontFamily = FontFamily(Font(R.font.inter)))
@@ -194,7 +217,11 @@ fun PremiumScreen(navController: NavController){
                             modifier = Modifier.fillMaxWidth(0.85f),
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.botones2)),
-                            onClick = {}
+                            onClick = {
+                                scope.launch {
+                                    pagoViewModel.iniciarPago(email, SubscriptionType.MONTHLY)
+                                }
+                            }
                         ) {
                             Text("Continuar",
                                 fontFamily = FontFamily(Font(R.font.inter)))
