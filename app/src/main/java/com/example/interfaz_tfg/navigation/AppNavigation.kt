@@ -125,7 +125,6 @@ fun AppNavigation(){
                 username = it.arguments?.getString("username"),
                 token = it.arguments?.getString("token") ?: "",
                 userRol = it.arguments?.getString("userRol"),
-                periodDays = 4
             )
         }
 
@@ -188,30 +187,6 @@ fun AppNavigation(){
                 cycleDays = it.arguments?.getString("cycleDuration") ?: ""
             )
         }
-
-
-/*
-        composable(AppScreen.HomeScreen.route + "/{user}/{userRol}/{token}",
-            arguments = listOf(
-                navArgument(name = "user"){
-                type = NavType.StringType
-                },
-                navArgument(name = "userRol"){
-                type = NavType.StringType
-                },
-                navArgument(name = "token") {
-                type = NavType.StringType
-                }
-            )
-        ){
-            HomeScreen(
-                navController = navController,
-                user = it.arguments?.getString("user"),
-                token = it.arguments?.getString("token") ?: "",
-                userRol = it.arguments?.getString("userRol")
-            )
-        }
-*/
 
     }
 }

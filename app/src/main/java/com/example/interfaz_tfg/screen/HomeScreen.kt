@@ -1,5 +1,6 @@
 package com.example.interfaz_tfg.screen
 
+import java.time.temporal.ChronoUnit
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -57,6 +58,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import com.example.interfaz_tfg.api.model.cycle.CyclePhase
 import kotlinx.coroutines.launch
 
 
@@ -66,9 +68,7 @@ fun HomeScreen(
     navController: NavController,
     username: String?,
     userRol: String?,
-    token: String?,
-    periodDays: Int?,
-
+    token: String?
 ){
     val viewModel: UserViewModel = viewModel()
     val scrollState = rememberScrollState()
@@ -138,7 +138,21 @@ fun HomeScreen(
             cycles.maxByOrNull { it.startDate }?.phases ?: emptyList()
         }
     }
+    val daysUntilNextPeriod by remember(phases, currentDate) {
+        derivedStateOf {
+            phases
+                .mapNotNull {
+                    if (it.phase == CyclePhase.MENSTRUATION) {
+                        runCatching { LocalDate.parse(it.date) }.getOrNull()
+                    } else null
+                }
+                .firstOrNull { it.isAfter(currentDate) }
+                ?.let { ChronoUnit.DAYS.between(currentDate, it).toInt() }
+                ?: -1 // -1 si no se encuentra una futura fase de menstruación
+        }
+    }
 
+    val periodIn = daysUntilNextPeriod
     Scaffold {innerpadding ->
         Box(modifier = Modifier.padding(innerpadding)) {
             if(isSystemInDarkTheme()){
@@ -220,7 +234,7 @@ fun HomeScreen(
                             verticalArrangement = Arrangement.Center) {
                             Text("Periodo en:")
                             Text(
-                                "$periodDays",
+                                "$periodIn",
                                 fontSize = 60.sp,
                                 fontWeight = FontWeight.ExtraBold)
                             Button(
