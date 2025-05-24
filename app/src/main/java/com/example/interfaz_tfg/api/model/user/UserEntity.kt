@@ -1,4 +1,4 @@
-package com.example.api_tfg.model
+package com.example.interfaz_tfg.api.model.user
 
 import java.util.Date
 

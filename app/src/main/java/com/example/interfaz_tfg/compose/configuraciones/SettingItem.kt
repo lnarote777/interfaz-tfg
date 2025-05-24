@@ -24,12 +24,15 @@ fun SettingItem(
     isClickable: Boolean = false,
     icon: ImageVector? = null,
     route: String =  "",
-    navController: NavController? = null
+    navController: NavController? = null,
+    onClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = isClickable) { navController?.navigate(route = route) }
+            .clickable(enabled = isClickable) {
+                onClick?.invoke() ?: navController?.navigate(route)
+            }
             .padding(vertical = 10.dp, horizontal = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

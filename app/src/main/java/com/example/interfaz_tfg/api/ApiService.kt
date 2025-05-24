@@ -9,6 +9,7 @@ import com.example.interfaz_tfg.api.model.user.Subscription
 import com.example.interfaz_tfg.api.model.user.UserDTO
 import com.example.interfaz_tfg.api.model.user.UserLoginDTO
 import com.example.interfaz_tfg.api.model.user.UserRegisterDTO
+import com.example.interfaz_tfg.api.model.user.UserUpdateDTO
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -49,12 +50,13 @@ interface ApiService {
     suspend fun getUserByUsername(@Path("username") username: String): Response<UserDTO>
 
     @PUT("/users/update")
-    suspend fun update(): Response<UserDTO>
+    suspend fun update(
+        @Body user: UserUpdateDTO
+    ): Response<UserDTO>
 
-    @DELETE("/user/delete/{email}")
-    suspend fun deleteByEmail(
-        @Header("Authorization") token: String,
-        @Path("email") email: String
+    @DELETE("/users/delete")
+    suspend fun deleteUser(
+        @Query("email") email: String
     ): Response<UserDTO>
 
     //------------Pagos---------------

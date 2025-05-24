@@ -91,6 +91,7 @@ fun HomeScreen(
         scrollState.scrollTo(0)
         username?.let { viewModel.getUserByUsername(it) }
     }
+
     LaunchedEffect(user?.email) {
         user?.email?.let {
             cycleViewModel.loadCycles(it)
