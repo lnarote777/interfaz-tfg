@@ -28,6 +28,36 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Nueva Activity para manejar resultado del pago -->
+        <activity
+            android:name=".PaymentResultActivity"
+            android:exported="true"
+            android:label="Resultado Pago"
+            android:theme="@style/Theme.Interfaztfg">
+
+            <!-- Deep link para pago exitoso -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="com.example.interfaz_tfg"
+                    android:host="payment-success" />
+            </intent-filter>
+
+            <!-- Deep link para pago cancelado -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="com.example.interfaz_tfg"
+                    android:host="payment-cancel" />
+            </intent-filter>
+
+        </activity>
+
     </application>
 
 </manifest>

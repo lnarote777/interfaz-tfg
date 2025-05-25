@@ -132,8 +132,16 @@ fun AppNavigation(){
             LoadScreen(navController)
         }
 
-        composable(AppScreen.PremiumScreen.route){
-            PremiumScreen(navController)
+        composable(AppScreen.PremiumScreen.route + "/{email}",
+            arguments = listOf(
+                navArgument(name = "email"){
+                    type = NavType.StringType
+                }
+            )
+        ){
+            PremiumScreen(navController,
+                email = it.arguments?.getString("email") ?: ""
+            )
         }
 
         composable(AppScreen.UserScreen.route + "/{username}/{email}",
