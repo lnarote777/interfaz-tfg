@@ -152,7 +152,24 @@ fun HomeScreen(
         }
     }
 
-    val periodIn = daysUntilNextPeriod
+    val menstruationStartDate = phases
+        .mapNotNull {
+            if (it.phase == CyclePhase.MENSTRUATION) {
+                runCatching { LocalDate.parse(it.date) }.getOrNull()
+            } else null
+        }
+        .filter { !it.isAfter(currentDate) }
+        .maxOrNull()  // Último inicio de menstruación igual o anterior a hoy
+
+    val dayInPeriod = menstruationStartDate?.let {
+        ChronoUnit.DAYS.between(it, currentDate).toInt() + 1
+    }
+
+    val periodText = if (dayInPeriod != null && isBleeding) {
+        "Día $dayInPeriod"
+    } else {
+        "$daysUntilNextPeriod"
+    }
     Scaffold {innerpadding ->
         Box(modifier = Modifier.padding(innerpadding)) {
             if(isSystemInDarkTheme()){
@@ -181,8 +198,9 @@ fun HomeScreen(
                         .padding(horizontal = 25.dp, vertical = 30.dp)
                 ) {
                     if (userRol != "PREMIUM"){
+                        val encodedEmail = Uri.encode(user?.email ?: "")
                         IconButton(
-                            onClick = { navController.navigate(route = AppScreen.PremiumScreen.route) },
+                        onClick = { navController.navigate(route = AppScreen.PremiumScreen.route + "/$encodedEmail") },
                             modifier = Modifier.size(50.dp)
                         ) {
                             Box(modifier = Modifier.fillMaxSize()) {
@@ -232,11 +250,11 @@ fun HomeScreen(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center) {
-                            Text("Periodo en:")
                             Text(
-                                "$periodIn",
+                                periodText,
                                 fontSize = 60.sp,
-                                fontWeight = FontWeight.ExtraBold)
+                                fontWeight = FontWeight.ExtraBold
+                            )
                             Button(
                                 modifier = Modifier.padding(top = 10.dp)
                                     .height(35.dp),

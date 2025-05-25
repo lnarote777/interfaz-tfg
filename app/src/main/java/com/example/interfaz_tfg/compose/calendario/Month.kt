@@ -115,7 +115,8 @@ fun Month(
                             val baseColor = getPhaseColor(phaseForDate?.phase)
                             val backgroundColor = when {
                                 isSelected -> colorResource(R.color.botones2)
-                                isToday -> colorResource(R.color.botones2).copy(alpha = 0.3f)
+                                !isSelected && isToday && baseColor != Color.Transparent -> baseColor
+                                !isSelected && isToday -> colorResource(R.color.botones2).copy(alpha = 0.3f)
                                 else -> baseColor
                             }
                             val textColor = when {
