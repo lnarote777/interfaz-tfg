@@ -3,6 +3,8 @@ package com.example.interfaz_tfg.screen
 import java.time.temporal.ChronoUnit
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -138,37 +140,40 @@ fun HomeScreen(
             cycles.maxByOrNull { it.startDate }?.phases ?: emptyList()
         }
     }
-    val daysUntilNextPeriod by remember(phases, currentDate) {
-        derivedStateOf {
-            phases
-                .mapNotNull {
-                    if (it.phase == CyclePhase.MENSTRUATION) {
-                        runCatching { LocalDate.parse(it.date) }.getOrNull()
-                    } else null
-                }
-                .firstOrNull { it.isAfter(currentDate) }
-                ?.let { ChronoUnit.DAYS.between(currentDate, it).toInt() }
-                ?: -1 // -1 si no se encuentra una futura fase de menstruación
-        }
+
+
+    val menstruationDates = phases
+        .filter { it.phase == CyclePhase.MENSTRUATION }
+        .mapNotNull { runCatching { LocalDate.parse(it.date) }.getOrNull() }
+        .sorted()
+
+    val menstruationRanges = groupContinuousDates(menstruationDates)
+
+// Saber si hoy está dentro de un bloque de menstruación
+    val menstruationBlockToday = menstruationRanges.find { range ->
+        currentDate in range.first..range.second
     }
 
-    val menstruationStartDate = phases
-        .mapNotNull {
-            if (it.phase == CyclePhase.MENSTRUATION) {
-                runCatching { LocalDate.parse(it.date) }.getOrNull()
-            } else null
-        }
-        .filter { !it.isAfter(currentDate) }
-        .maxOrNull()  // Último inicio de menstruación igual o anterior a hoy
+    val isTodayInMenstruation = menstruationBlockToday != null
+
+    val menstruationStartDate =  if (isTodayInMenstruation && isBleeding) {
+        menstruationBlockToday?.first
+    } else null
 
     val dayInPeriod = menstruationStartDate?.let {
         ChronoUnit.DAYS.between(it, currentDate).toInt() + 1
     }
 
-    val periodText = if (dayInPeriod != null && isBleeding) {
-        "Día $dayInPeriod"
-    } else {
-        "$daysUntilNextPeriod"
+    val nextMenstruationDate = menstruationDates.firstOrNull { it.isAfter(currentDate) }
+
+    val daysUntilNextPeriod = nextMenstruationDate?.let {
+        ChronoUnit.DAYS.between(currentDate, it).toInt()
+    } ?: -1
+
+    val periodText = when{
+        dayInPeriod != null && isTodayInMenstruation && isBleeding -> "Día $dayInPeriod"
+        daysUntilNextPeriod >= 0 -> "Faltan $daysUntilNextPeriod días"
+        else -> "Sin datos"
     }
     Scaffold {innerpadding ->
         Box(modifier = Modifier.padding(innerpadding)) {
@@ -302,4 +307,28 @@ fun HomeScreen(
     }
 
 
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun groupContinuousDates(dates: List<LocalDate>): List<Pair<LocalDate, LocalDate>> {
+    if (dates.isEmpty()) return emptyList()
+    val sortedDates = dates.sorted()
+    val result = mutableListOf<Pair<LocalDate, LocalDate>>()
+
+    var start = sortedDates[0]
+    var end = start
+
+    for (i in 1 until sortedDates.size) {
+        val current = sortedDates[i]
+        if (ChronoUnit.DAYS.between(end, current) <= 1) {
+            end = current
+        } else {
+            result.add(start to end)
+            start = current
+            end = current
+        }
+    }
+    result.add(start to end)
+    return result
 }
