@@ -57,7 +57,6 @@ import com.example.interfaz_tfg.viewModel.DailyLogViewModel
 import com.example.interfaz_tfg.viewModel.UserViewModel
 import java.time.LocalDate
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.interfaz_tfg.api.model.cycle.CyclePhase
@@ -72,109 +71,97 @@ fun HomeScreen(
     userRol: String?,
     token: String?
 ){
-    val viewModel: UserViewModel = viewModel()
-    val scrollState = rememberScrollState()
-    val color = MaterialTheme.colorScheme
-    val user by viewModel.user.collectAsState()
+    // ViewModels
+    val userViewModel: UserViewModel = viewModel()
+    val cycleViewModel: CycleViewModel = viewModel()
     val dailyLogViewModel: DailyLogViewModel = viewModel()
+
+    // Estados
+    val scrollState = rememberScrollState()
+    val user by userViewModel.user.collectAsState()
     val logs by dailyLogViewModel.logs.collectAsState()
-    var isBleeding by rememberSaveable { mutableStateOf(false) }
-    val cycleViewModel : CycleViewModel = viewModel()
+    val isBleeding by dailyLogViewModel.isBleeding
     val cycles by cycleViewModel.cycles.collectAsState()
     val currentDate = LocalDate.now()
     var selectedDate by remember { mutableStateOf(currentDate) }
-    val today = LocalDate.now()
     var lastRecalculationDate by rememberSaveable { mutableStateOf<LocalDate?>(null) }
-    val scope = rememberCoroutineScope()
     var phasesUpdateTrigger by remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
+    val color = MaterialTheme.colorScheme
 
-
+    // Lógica reactiva
     LaunchedEffect(Unit) {
         scrollState.scrollTo(0)
-        username?.let { viewModel.getUserByUsername(it) }
+        username?.let { userViewModel.getUserByUsername(it) }
     }
 
     LaunchedEffect(user?.email) {
         user?.email?.let {
             cycleViewModel.loadCycles(it)
-            viewModel.getUserByUsername(user!!.username)
+            userViewModel.getUserByUsername(user!!.username)
             dailyLogViewModel.loadLogs(it)
+            cycleViewModel.getPrediction(it)
         }
-
     }
 
     LaunchedEffect(logs) {
-        isBleeding = logs.find { it.date == today.toString() }?.hasMenstruation ?: false
+        dailyLogViewModel.updateBleedingStatusForToday(logs, currentDate)
     }
 
     LaunchedEffect(user?.email, logs) {
         val email = user?.email ?: return@LaunchedEffect
-
-        val todayLog = logs.find { it.date == today.toString() }
-        val hasLoggedToday = todayLog != null
-        val hasMenstruationToday = todayLog?.hasMenstruation ?: false
-        isBleeding = hasMenstruationToday
-
-        val shouldRecalculate = (!hasLoggedToday || !hasMenstruationToday) &&
-                lastRecalculationDate != today
+        val todayLog = logs.find { it.date == currentDate.toString() }
+        val shouldRecalculate = (todayLog == null || !todayLog.hasMenstruation) &&
+                lastRecalculationDate != currentDate
 
         if (shouldRecalculate) {
-            cycleViewModel.recalculateCycle(email, today)
+            cycleViewModel.recalculateCycle(email, currentDate)
             cycleViewModel.loadCycles(email)
-            lastRecalculationDate = today
+            lastRecalculationDate = currentDate
         }
     }
 
     LaunchedEffect(scrollState.value, user, token) {
-        if (
-            scrollState.value == scrollState.maxValue &&
-            user?.email != null &&
-            !token.isNullOrBlank()
-        ) {
+        if (scrollState.value == scrollState.maxValue && user?.email != null && !token.isNullOrBlank()) {
             val email = Uri.encode(user!!.email)
             navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
         }
     }
+
+
+    // Fases y fechas
     val phases by remember(cycles, currentDate, phasesUpdateTrigger) {
-        derivedStateOf {
-            cycles.maxByOrNull { it.startDate }?.phases ?: emptyList()
-        }
+        derivedStateOf { cycles.maxByOrNull { it.startDate }?.phases ?: emptyList() }
     }
 
+    val confirmedPhases = cycles
+        .filter { !it.isPredicted }
+        .maxByOrNull { LocalDate.parse(it.startDate) }
+        ?.phases ?: emptyList()
 
-    val menstruationDates = phases
+    val predictedPhases = cycles
+        .filter { it.isPredicted }
+        .flatMap { it.phases }
+
+    val menstruationDates = confirmedPhases
         .filter { it.phase == CyclePhase.MENSTRUATION }
         .mapNotNull { runCatching { LocalDate.parse(it.date) }.getOrNull() }
-        .sorted()
 
     val menstruationRanges = groupContinuousDates(menstruationDates)
-
-// Saber si hoy está dentro de un bloque de menstruación
-    val menstruationBlockToday = menstruationRanges.find { range ->
-        currentDate in range.first..range.second
-    }
-
+    val menstruationBlockToday = menstruationRanges.find { currentDate in it.first..it.second }
     val isTodayInMenstruation = menstruationBlockToday != null
-
-    val menstruationStartDate =  if (isTodayInMenstruation && isBleeding) {
-        menstruationBlockToday?.first
-    } else null
-
-    val dayInPeriod = menstruationStartDate?.let {
-        ChronoUnit.DAYS.between(it, currentDate).toInt() + 1
-    }
-
+    val menstruationStartDate = if (isTodayInMenstruation && isBleeding) menstruationBlockToday?.first else null
+    val dayInPeriod = menstruationStartDate?.let { ChronoUnit.DAYS.between(it, currentDate).toInt() + 1 }
     val nextMenstruationDate = menstruationDates.firstOrNull { it.isAfter(currentDate) }
+    val daysUntilNextPeriod = nextMenstruationDate?.let { ChronoUnit.DAYS.between(currentDate, it).toInt() } ?: -1
 
-    val daysUntilNextPeriod = nextMenstruationDate?.let {
-        ChronoUnit.DAYS.between(currentDate, it).toInt()
-    } ?: -1
-
-    val periodText = when{
-        dayInPeriod != null && isTodayInMenstruation && isBleeding -> "Día $dayInPeriod"
+    val periodText = when {
+        dayInPeriod != null -> "Día $dayInPeriod"
         daysUntilNextPeriod >= 0 -> "Faltan $daysUntilNextPeriod días"
         else -> "Sin datos"
     }
+
+
     Scaffold {innerpadding ->
         Box(modifier = Modifier.padding(innerpadding)) {
             if(isSystemInDarkTheme()){
@@ -255,6 +242,7 @@ fun HomeScreen(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center) {
+                            Text(if (periodText == daysUntilNextPeriod.toString()) "Periodo en: " else "Periodo:")
                             Text(
                                 periodText,
                                 fontSize = 60.sp,
@@ -265,13 +253,13 @@ fun HomeScreen(
                                     .height(35.dp),
                                 onClick = {
                                     phasesUpdateTrigger++
-                                    isBleeding = true
+                                    dailyLogViewModel.setIsBleeding(true)
                                     val email = user?.email
                                     if (email != null) {
                                         scope.launch {
-                                            cycleViewModel.recalculateCycle(email, today)
+                                            cycleViewModel.recalculateCycle(email, currentDate)
                                             cycleViewModel.loadCycles(email)
-                                            lastRecalculationDate = today
+                                            lastRecalculationDate = currentDate
                                             navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
                                         }
                                     }
@@ -290,7 +278,8 @@ fun HomeScreen(
                         month = currentDate.month,
                         selectedDate = selectedDate,
                         currentDate = currentDate,
-                        phases = phases
+                        confirmedPhases = confirmedPhases,
+                        predictedPhases = predictedPhases
                     ) { date -> selectedDate = date }
                     Spacer(Modifier.height(100.dp))
                 }
@@ -300,7 +289,8 @@ fun HomeScreen(
                 modifier = Modifier
                     .align(alignment = Alignment.BottomCenter)
                     .padding(vertical = 18.dp),
-                phases = phases
+                confirmedPhases,
+                predictedPhases
             )
         }
 

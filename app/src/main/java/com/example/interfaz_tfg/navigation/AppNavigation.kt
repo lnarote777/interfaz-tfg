@@ -65,20 +65,29 @@ fun AppNavigation(){
             RegisterScreen(navController)
         }
 
-        composable(AppScreen.CalendarScreen.route + "/{phases}",
+        composable(AppScreen.CalendarScreen.route + "/{confirmedCycle}/{predictedCycle}",
             arguments = listOf(
-                navArgument(name = "phases"){
+                navArgument(name = "confirmedCycle") {
+                    type = NavType.StringType
+                },
+                navArgument(name = "predictedCycle") {
                     type = NavType.StringType
                 }
             )
         ){
-            val json = it.arguments?.getString("phases") ?: "[]"
             val gson = Gson()
             val type = object : TypeToken<List<CyclePhaseDay>>() {}.type
-            val phases: List<CyclePhaseDay> = gson.fromJson(json, type)
+
+            val confirmedJson = it.arguments?.getString("confirmedCycle") ?: "[]"
+            val predictedJson = it.arguments?.getString("predictedCycle") ?: "[]"
+
+            val confirmedPhases: List<CyclePhaseDay> = gson.fromJson(confirmedJson, type)
+            val predictedPhases: List<CyclePhaseDay> = gson.fromJson(predictedJson, type)
+
             CalendarScreen(
                 navController = navController,
-                phases = phases
+                confirmedPhases = confirmedPhases,
+                predictedPhases = predictedPhases
             )
         }
 

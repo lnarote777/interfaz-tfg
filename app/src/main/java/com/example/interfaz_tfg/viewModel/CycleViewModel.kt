@@ -41,6 +41,27 @@ class CycleViewModel : ViewModel(){
         }
     }
 
+    fun getPrediction(email: String){
+        viewModelScope.launch {
+            try {
+                val response = API.retrofitService.getPrediction(email)
+                if (response.isSuccessful) {
+                    val predictedCycle = response.body()
+                    if (predictedCycle != null) {
+                        _cycles.value += predictedCycle
+
+                        val predictedPhases = predictedCycle.phases ?: emptyList()
+                        _phases.value += predictedPhases
+                    }
+                } else {
+                    Log.e("API", "Error en getPrediction: ${response.code()} ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("API", "Excepción en getPrediction: ${e.message}")
+            }
+        }
+    }
+
     fun createCycle(dto: MenstrualCycleDTO) {
         viewModelScope.launch {
             try {
@@ -66,7 +87,7 @@ class CycleViewModel : ViewModel(){
                     val updatedCycle = response.body()
                     _cycleState.value = updatedCycle
                 } else {
-                    Log.e("API", "Error: ${response.code()}")
+                    Log.e("API", "Error: ${response.code()} - ${response.errorBody()?.toString()}")
                 }
             } catch (e: Exception) {
                 Log.e("API", "Exception: ${e.message}")
@@ -74,17 +95,6 @@ class CycleViewModel : ViewModel(){
         }
     }
 
-//    fun updateCycle(id: String, dto: MenstrualCycleDTO) {
-//        viewModelScope.launch {
-//            try {
-//                ApiService.updateCycle(id, dto)
-//                loadCycles(dto.userId)
-//            } catch (e: Exception) {
-//                _error.value = "Error updating cycle: ${e.message}"
-//            }
-//        }
-//    }
-//
 //    fun predictNextCycle(userId: String) {
 //        viewModelScope.launch {
 //            try {

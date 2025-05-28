@@ -5,7 +5,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,9 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.compose.calendario.CalendarHeader
 import com.example.interfaz_tfg.R
-import com.example.interfaz_tfg.api.model.cycle.CyclePhase
 import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
-import com.example.interfaz_tfg.api.model.cycle.MenstrualCycle
 import com.example.interfaz_tfg.compose.calendario.Month
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -34,7 +31,7 @@ import java.time.Month
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CalendarScreen(navController: NavController, phases: List<CyclePhaseDay>){
+fun CalendarScreen(navController: NavController,confirmedPhases: List<CyclePhaseDay>, predictedPhases: List<CyclePhaseDay> ){
     val currentDate = LocalDate.now()
     val currentYear = currentDate.year
     val minYear = 2010
@@ -87,10 +84,13 @@ fun CalendarScreen(navController: NavController, phases: List<CyclePhaseDay>){
                         month = monthYear.month,
                         selectedDate = selectedDate,
                         currentDate = currentDate,
+
+                        confirmedPhases = confirmedPhases,
+                        predictedPhases = predictedPhases,
                         onDateSelected = { date ->
                             selectedDate = date
-                        },
-                        phases = phases
+                        }
+
                     )
                 }
             }

@@ -1,5 +1,6 @@
 package com.example.interfaz_tfg.compose
 
+import android.net.Uri
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -42,10 +44,18 @@ import java.nio.charset.StandardCharsets
 
 
 @Composable
-fun Footer(navController: NavController, modifier: Modifier = Modifier, phases: List<CyclePhaseDay>) {
+fun Footer(navController: NavController, modifier: Modifier = Modifier, confirmedPhases: List<CyclePhaseDay>, predictedPhases: List<CyclePhaseDay>) {
     val navColor = colorResource(R.color.navMenu)
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
+    val gson = Gson()
+
+    val confirmedJson = remember(confirmedPhases) {
+        Uri.encode(gson.toJson(confirmedPhases))
+    }
+    val predictedJson = remember(predictedPhases) {
+        Uri.encode(gson.toJson(predictedPhases))
+    }
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -110,11 +120,8 @@ fun Footer(navController: NavController, modifier: Modifier = Modifier, phases: 
                 )
             }
             IconButton(onClick = {
-                val gson = Gson()
-                val json = gson.toJson(phases)
-                val encoded = URLEncoder.encode(json, StandardCharsets.UTF_8.toString())
 
-                navController.navigate(AppScreen.CalendarScreen.route + "/$encoded")
+                navController.navigate(AppScreen.CalendarScreen.route + "/$confirmedJson/$predictedJson")
             }) {
                 Icon(Icons.Default.DateRange,
                     contentDescription = "Calendar",

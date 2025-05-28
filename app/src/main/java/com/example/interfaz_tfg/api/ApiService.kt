@@ -113,9 +113,8 @@ interface ApiService {
 
     @GET("/cycles/user/{email}/prediction")
     suspend fun getPrediction(
-        @Header("Authorization") token: String,
         @Path("email") email: String
-    )
+    ):Response<MenstrualCycle>
 
     @PUT()
     suspend fun updateCycle(
