@@ -12,7 +12,14 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.api.model.cycle.CyclePhase
 import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
+import com.example.interfaz_tfg.navigation.AppScreen
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
@@ -51,7 +59,6 @@ fun Month(
     val daysInMonth = month.length(Year.of(year).isLeap)
     val firstDayOfWeek = firstDayOfMonth.dayOfWeek
     val today = currentDate
-    val isCurrentMonth = year == today.year && month == today.month
     val color = MaterialTheme.colorScheme
 
     Column(
@@ -61,17 +68,41 @@ fun Month(
             .background(color = color.surface)
     ) {
         // Header del mes
-        Text(
-            text = "${month.getDisplayName(TextStyle.FULL, Locale.getDefault())} $year".capitalize(),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.SemiBold,
-            fontFamily = FontFamily(Font(R.font.lexend, FontWeight.SemiBold)),
-            color = color.onSurface
-        )
+        //Row {
+        //    IconButton(onClick = {
+        //        //navController.navigate(AppScreen.CalendarScreen.route + "/$confirmedJson/$predictedJson")
+        //    }) {
+        //        Icon(
+        //            Icons.Default.KeyboardArrowLeft,
+        //            contentDescription = "Mes anterior",
+        //            tint = color.onSurface,
+        //            modifier = Modifier.size(40.dp)
+        //        )
+        //    }
+//
+            Text(
+                text = "${month.getDisplayName(TextStyle.FULL, Locale.getDefault())} $year".capitalize(),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = FontFamily(Font(R.font.lexend, FontWeight.SemiBold)),
+                color = color.onSurface
+            )
+
+      //      IconButton(onClick = {
+      //          //navController.navigate(AppScreen.CalendarScreen.route + "/$confirmedJson/$predictedJson")
+      //      }) {
+      //          Icon(Icons.Default.KeyboardArrowRight,
+      //              contentDescription = "Siguiente mes",
+      //              tint = color.onSurface,
+      //              modifier = Modifier.size(40.dp)
+      //          )
+      //      }
+      //  }
+
 
         // Días de la semana
         Row(
