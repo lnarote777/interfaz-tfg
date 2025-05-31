@@ -1,8 +1,10 @@
 package com.example.interfaz_tfg.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.auth0.jwt.JWT
 import com.auth0.jwt.JWT.decode
 import com.auth0.jwt.interfaces.DecodedJWT
 
@@ -12,6 +14,7 @@ import com.example.interfaz_tfg.navigation.AppScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 /**
  * ViewModel para gestionar la lógica de inicio de sesión del usuario.
@@ -52,21 +55,22 @@ class LoginViewModel: ViewModel() {
 
     /**
      * Extrae el rol del usuario desde el token JWT.
-     * Si el token contiene el rol "ROLE_ADMIN", se devuelve "ADMIN", de lo contrario "USER".
+     * Si el token contiene el rol "ROLE_PREMIUM", se devuelve "PREMIUM", de lo contrario "USER".
      * Si ocurre un error al decodificar el token, se devuelve "USER".
      *
      * @param token El token JWT del usuario.
-     * @return El rol del usuario, que puede ser "ADMIN" o "USER".
+     * @return El rol del usuario, que puede ser "PREMIUM" o "USER".
      */
-    fun getRolFromToken(token: String): String? {
+    private fun getRolFromToken(token: String): String? {
         return try {
-            val decodedJWT: DecodedJWT = decode(token)
+            val decodedJWT: DecodedJWT = JWT.decode(token)
             val roles = decodedJWT.getClaim("roles").asString()
             roles?.let {
                 if (it == "ROLE_PREMIUM") "PREMIUM" else "USER"
-            } ?: "USER" //
+            } ?: "NO ROl" //
         } catch (e: Exception) {
-            "USER"
+            Log.e("GET ROL", "Error: ${e.localizedMessage}")
+            "NO ROL"
         }
     }
 }
