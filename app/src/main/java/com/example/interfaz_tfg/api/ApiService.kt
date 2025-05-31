@@ -12,14 +12,7 @@ import com.example.interfaz_tfg.api.model.user.UserLoginDTO
 import com.example.interfaz_tfg.api.model.user.UserRegisterDTO
 import com.example.interfaz_tfg.api.model.user.UserUpdateDTO
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 import java.time.LocalDate
 
 /**
@@ -74,23 +67,21 @@ interface ApiService {
         @Body log: DailyLogDTO
     ): Response<DailyLog>
 
-    @GET("/daily-log/user/{email}/date/{date}")
+    @GET("/daily-log/user/{userId}/date/{date}")
     suspend fun getLogByDate(
-        @Header("Authorization") token: String,
-        @Path("email") email: String,
-        @Path("date") date: LocalDate
-    ): Response<DailyLog>
+        @Path("userId") userId: String,
+        @Path("date") date: String
+    ): Response<DailyLog?>
 
     @GET("/daily-log/user/{userId}")
     suspend fun getLogsByUser(
         @Path("userId") userId: String
     ): Response<List<DailyLog>>
 
-    @PUT("daily-log//user/{userId}/date/{date}")
+    @PUT("daily-log/user/{userId}/date/{date}")
     suspend fun updateLog(
-        @Header("Authorization") token: String,
-        @Path("email") email: String,
-        @Path("date") date: LocalDate,
+        @Path("userId") email: String,
+        @Path("date") date: String,
         @Body log: DailyLogDTO
     ): Response<DailyLog>
 

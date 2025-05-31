@@ -34,9 +34,13 @@ class DailyLogViewModel : ViewModel(){
     private val _isBleeding = mutableStateOf(false)
     val isBleeding: State<Boolean> get() = _isBleeding
 
+    private val _isEditing = MutableStateFlow(false)
+    val isEditing: StateFlow<Boolean> = _isEditing
+
     fun setIsBleeding(value: Boolean) {
         _isBleeding.value = value
     }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setSelectedDate(date: LocalDate, email: String, token: String) {
@@ -110,11 +114,10 @@ class DailyLogViewModel : ViewModel(){
         viewModelScope.launch {
             try {
                 val cleanedEmail = email.trim('"')
-                val encodedEmail = cleanedEmail
-                Log.d("DAILYLOG - URL", "Email codificado: $encodedEmail")
-                val result = API.retrofitService.getLogsByUser(encodedEmail)
+                val result = API.retrofitService.getLogsByUser(cleanedEmail)
                 if (result.isSuccessful) {
                     _logs.value = result.body() ?: emptyList()
+
                     if (_logs.value.isEmpty()){
                         Log.e("DAILYLOG - A", "Error al cargar logs: ${result.code()}")
                     }
@@ -129,10 +132,11 @@ class DailyLogViewModel : ViewModel(){
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun loadLogForDate(token: String, email: String, date: LocalDate) {
+    fun loadLogForDate(email: String, date: LocalDate) {
         viewModelScope.launch {
             try {
-                val result = API.retrofitService.getLogByDate("Bearer $token", Uri.encode(email), date)
+                val cleanedEmail = email.trim('"')
+                val result = API.retrofitService.getLogByDate(cleanedEmail, date.toString())
                 if (result.isSuccessful) {
                     result.body()?.let { log ->
                         _logState.value = LogState(
@@ -147,25 +151,35 @@ class DailyLogViewModel : ViewModel(){
                             weight = log.weight,
                             notes = log.notes
                         )
+                        _isEditing.value = true
                     }
+                } else {
+                    _logState.value = LogState()
+                    _isEditing.value = false
                 }
+
             } catch (e: Exception) {
                 Log.e("API", "Error al cargar log del día: ${e.message}")
             }
         }
     }
 
-    fun updateLog(token: String, email: String, date: LocalDate, dto: DailyLogDTO, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun updateLog(email: String, date: LocalDate, dto: DailyLogDTO, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                val result = API.retrofitService.updateLog("Bearer $token", Uri.encode(email), date, dto)
+                val cleanedEmail = email.trim('"')
+                val result = API.retrofitService.updateLog(cleanedEmail, date.toString(), dto)
                 if (result.isSuccessful) {
                     onSuccess()
                 } else {
                     onError("Error actualizando log: ${result.code()}")
+                    Log.e("DAILY-LOG UPDATE", "Error actualizando log: ${result.code()} - body: ${result.body()}")
+
                 }
             } catch (e: Exception) {
                 onError("Error de red: ${e.localizedMessage}")
+                Log.e("DAILY-LOG UPDATE", "Error de red: ${e.localizedMessage}")
+
             }
         }
     }

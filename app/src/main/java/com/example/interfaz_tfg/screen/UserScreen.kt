@@ -45,6 +45,7 @@ import androidx.navigation.NavController
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.api.model.user.Goal
 import com.example.interfaz_tfg.compose.Header
+import com.example.interfaz_tfg.compose.ProfileImage
 import com.example.interfaz_tfg.compose.configuraciones.SettingItem
 import com.example.interfaz_tfg.navigation.AppScreen
 import com.example.interfaz_tfg.screen.settings.UserSettingsScreen
@@ -57,18 +58,20 @@ fun UserScreen(
     username: String?,
     email: String?
 ) {
+    val color = MaterialTheme.colorScheme
     val userViewModel: UserViewModel = viewModel()
     val viewModel : CycleViewModel = viewModel()
+    val user = userViewModel.user.collectAsState()
     val cycles = viewModel.cycles.collectAsState()
     val cycle = cycles.value.find { !it.isPredicted }
     val periodDuration = cycle?.bleedingDuration.toString()
     val cycleDuration = cycle?.cycleLength.toString()
-    val goal: Goal = Goal.TRACK_PERIOD
+    val goal: Goal? = user.value?.goal
     var goalStr = ""
     var showDeleteDialog by remember { mutableStateOf(false) }
     var confirmationEmail by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf(false) }
-
+    val selectedImageUri by userViewModel.selectedImageUri.collectAsState()
 
 
     if (goal == Goal.GET_PREGNANT){
@@ -82,6 +85,9 @@ fun UserScreen(
     LaunchedEffect(email) {
         email?.let {
             viewModel.loadCycles(it)
+            if (username != null) {
+                userViewModel.getUserByUsername(username)
+            }
         }
     }
 
@@ -90,7 +96,7 @@ fun UserScreen(
         Column(
             modifier = Modifier.fillMaxSize()
                 .padding(innerpadding)
-                .background(color = colorResource(R.color.fondo))
+                .background(color = color.background)
         ) {
             Header(navController, "Perfil")
 
@@ -116,12 +122,9 @@ fun UserScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         //
-                        Icon(
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = "Profile image",
-                            modifier = Modifier.size(130.dp).clickable { navController.navigate(route = AppScreen.UserSettingsScreen.route + "/$username/$email") },
-                            tint = Color.Black
-                        )
+                        if (username != null && email != null) {
+                                ProfileImage(uri = selectedImageUri, navController, username, email)
+                            }
                         username?.let {
                             Text(it,
                                 fontSize = 25.sp,
@@ -252,6 +255,4 @@ fun UserScreen(
 
         }
     }
-
-
 }

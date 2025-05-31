@@ -19,10 +19,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +55,7 @@ fun DailyScreen(
     isBleeding: String,
     viewModel: DailyLogViewModel = viewModel()
 ){
+
     val categorias = listOf(
         "Estado de ánimo" to moodEmojis,
         "Síntomas" to symptomEmojis,
@@ -66,15 +67,29 @@ fun DailyScreen(
         "Anticonceptivo Oral" to pillEmojis
     )
 
-    val selectedItems = remember { mutableStateOf(mapOf<String, List<String>>()) }
-    val color = MaterialTheme.colorScheme
-    var menstrualFlowLevel: MenstrualFlowLevel? = null
-    val selectedDate by viewModel.selectedDate.collectAsState()
     val logState by viewModel.logState.collectAsState()
-    val context = LocalContext.current
-    val hasChanges by remember(selectedItems.value, logState) {
+    val selectedItems = remember(logState) {
         derivedStateOf {
-            selectedItems.value.any { it.value.isNotEmpty() } ||
+            mapOf(
+                "Estado de ánimo" to logState.mood,
+                "Síntomas" to logState.symptoms,
+                "Flujo Menstrual" to if (logState.menstrualFlow?.isNotEmpty() == true) listOf(logState.menstrualFlow) else emptyList(),
+                "Flujo vaginal" to logState.vaginalDischarge,
+                "Actividad sexual" to logState.sexualActivity,
+                "Actividad física" to logState.physicalActivity,
+                "Anticonceptivo Oral" to logState.pillsTaken
+            )
+        }
+    }.value
+    val color = MaterialTheme.colorScheme
+    val selectedDate by viewModel.selectedDate.collectAsState()
+
+    LaunchedEffect (Unit) { viewModel.loadLogForDate(email, selectedDate )  }
+
+    val context = LocalContext.current
+    val isEditing by viewModel.isEditing.collectAsState()
+    val hasChanges by remember(selectedItems, logState) {
+        derivedStateOf {
             logState.mood.isNotEmpty() ||
             logState.symptoms.isNotEmpty() ||
             logState.sexualActivity.isNotEmpty() ||
@@ -87,12 +102,15 @@ fun DailyScreen(
         }
     }
 
-    when(logState.menstrualFlow){
-        "light" -> menstrualFlowLevel = MenstrualFlowLevel.LIGHT
-        "heavy" -> menstrualFlowLevel = MenstrualFlowLevel.HEAVY
-        "clots" -> menstrualFlowLevel = MenstrualFlowLevel.CLOTS
-        "moderate" -> menstrualFlowLevel = MenstrualFlowLevel.MODERATE
+    val menstrualFlowLevel = when (logState.menstrualFlow) {
+        "light" -> MenstrualFlowLevel.LIGHT
+        "heavy" -> MenstrualFlowLevel.HEAVY
+        "clots" -> MenstrualFlowLevel.CLOTS
+        "moderate" -> MenstrualFlowLevel.MODERATE
+        else -> null
     }
+
+
 
     Scaffold(
         bottomBar = {
@@ -112,15 +130,27 @@ fun DailyScreen(
                         weight = null,
                         notes = logState.notes
                     )
-                    viewModel.createLog(token, email, logDTO,
-                        onSuccess = {
-                            Toast.makeText(context, "Registro guardado", Toast.LENGTH_SHORT).show()
-                            navController.popBackStack()
-                        },
-                        onError = {
-                            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-                        }
-                    )
+                    if (isEditing) {
+                        viewModel.updateLog(email, selectedDate, logDTO,
+                            onSuccess = {
+                                Toast.makeText(context, "Registro actualizado", Toast.LENGTH_SHORT).show()
+                                navController.popBackStack()
+                            },
+                            onError = {
+                                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                            }
+                        )
+                    } else {
+                        viewModel.createLog(token, email, logDTO,
+                            onSuccess = {
+                                Toast.makeText(context, "Registro guardado", Toast.LENGTH_SHORT).show()
+                                navController.popBackStack()
+                            },
+                            onError = {
+                                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                            }
+                        )
+                    }
                 },
                 enabled = hasChanges,
                 modifier = Modifier
@@ -143,7 +173,7 @@ fun DailyScreen(
 
                 WeekCalendar(
                     selectedDate = selectedDate,
-                    onDateSelected = { date -> viewModel.setSelectedDate(date) }
+                    onDateSelected = { date -> viewModel.setSelectedDate(date, email, token) }
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -153,15 +183,15 @@ fun DailyScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     items(categorias) { (titulo, emojiList) ->
-                        val seleccionados = selectedItems.value[titulo] ?: emptyList()
+                        val seleccionados = selectedItems[titulo] ?: emptyList()
+                        if (titulo == "Flujo Menstrual" && !isBleeding.toBoolean()) {
+                            return@items
+                        }
                         Card(
                             title = titulo,
                             emojis = emojiList,
                             selectedLabels = seleccionados,
                             onSelectionChange = { updated ->
-                                selectedItems.value = selectedItems.value.toMutableMap().apply {
-                                    this[titulo] = updated
-                                }
                                 viewModel.updateCategory(titulo, updated)
                             },
                             color = when (titulo) {
@@ -171,7 +201,7 @@ fun DailyScreen(
                                 "Actividad sexual" -> Color(0xFFFFCC80)
                                 "Actividad física" -> Color(0xFFA5D6A7)
                                 "Agua" -> Color(0xFF80DEEA)
-                                "Pastilla tomada" -> Color(0xFFD7CCC8)
+                                "Anticonceptivo Oral" -> Color(0xFFD7CCC8)
                                 else -> Color.LightGray
                             }
                         )

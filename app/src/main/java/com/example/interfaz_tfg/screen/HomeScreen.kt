@@ -91,7 +91,7 @@ fun HomeScreen(
 
     // Lógica reactiva
     LaunchedEffect(Unit) {
-        scrollState.scrollTo(0)
+        //scrollState.scrollTo(0)
         username?.let { userViewModel.getUserByUsername(it) }
     }
 
@@ -143,22 +143,31 @@ fun HomeScreen(
         .filter { it.isPredicted }
         .flatMap { it.phases }
 
-    val menstruationDates = confirmedPhases
+    val confirmedMenstruationDates = confirmedPhases
         .filter { it.phase == CyclePhase.MENSTRUATION }
         .mapNotNull { runCatching { LocalDate.parse(it.date) }.getOrNull() }
 
-    val menstruationRanges = groupContinuousDates(menstruationDates)
+    val predictedMenstruationDates = predictedPhases
+        .filter { it.phase == CyclePhase.MENSTRUATION }
+        .mapNotNull { runCatching { LocalDate.parse(it.date) }.getOrNull() }
+
+    val allMenstruationDates = (confirmedMenstruationDates + predictedMenstruationDates)
+        .distinct()
+        .sorted()
+
+    val menstruationRanges = groupContinuousDates(allMenstruationDates)
     val menstruationBlockToday = menstruationRanges.find { currentDate in it.first..it.second }
     val isTodayInMenstruation = menstruationBlockToday != null
     val menstruationStartDate = if (isTodayInMenstruation && isBleeding) menstruationBlockToday?.first else null
     val dayInPeriod = menstruationStartDate?.let { ChronoUnit.DAYS.between(it, currentDate).toInt() + 1 }
-    val nextMenstruationDate = menstruationDates.firstOrNull { it.isAfter(currentDate) }
+    val nextMenstruationRange = menstruationRanges.firstOrNull { it.first.isAfter(currentDate) }
+    val nextMenstruationDate = nextMenstruationRange?.first
     val daysUntilNextPeriod = nextMenstruationDate?.let { ChronoUnit.DAYS.between(currentDate, it).toInt() } ?: -1
 
     val periodText = when {
         dayInPeriod != null -> "Día $dayInPeriod"
-        daysUntilNextPeriod >= 0 -> "Faltan $daysUntilNextPeriod días"
-        else -> "Sin datos"
+        daysUntilNextPeriod >= 0 -> daysUntilNextPeriod.toString()
+        else -> ""
     }
 
 
@@ -181,13 +190,12 @@ fun HomeScreen(
 
             Column(modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 80.dp)
-                .verticalScroll(scrollState)
+                //.verticalScroll(scrollState)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 25.dp, vertical = 30.dp)
+                        .padding(horizontal = 20.dp)
                 ) {
                     if (userRol != "PREMIUM"){
                         val encodedEmail = Uri.encode(user?.email ?: "")
@@ -285,13 +293,19 @@ fun HomeScreen(
                 }
             }
 
-            Footer(navController = navController,
-                modifier = Modifier
-                    .align(alignment = Alignment.BottomCenter)
-                    .padding(vertical = 18.dp),
-                confirmedPhases,
-                predictedPhases
-            )
+            user?.email?.let {
+                if (token != null) {
+                    Footer(navController = navController,
+                        modifier = Modifier
+                            .align(alignment = Alignment.BottomCenter),
+                        confirmedPhases,
+                        predictedPhases,
+                        it,
+                        token,
+                        isBleeding = isBleeding
+                    )
+                }
+            }
         }
 
     }

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.api.API
 import com.example.interfaz_tfg.api.model.user.UserDTO
+import com.example.interfaz_tfg.api.model.user.UserEntity
 import com.example.interfaz_tfg.api.model.user.UserUpdateDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,16 +21,13 @@ class UserViewModel: ViewModel() {
     private val _user = MutableStateFlow<UserDTO?>(null)
     val user: StateFlow<UserDTO?> = _user
 
-    val selectedImageUri = MutableStateFlow<Uri?>(null)
+    private val _selectedImageUri = MutableStateFlow<Uri?>(null)
+    val selectedImageUri: StateFlow<Uri?> = _selectedImageUri
 
-    val selectedImageName = MutableStateFlow<String?>(null)
 
-    fun setSelectedImageName(name: String?) {
-        selectedImageName.value = name
-    }
 
     fun setSelectedImage(uri: Uri?) {
-        selectedImageUri.value = uri
+        _selectedImageUri.value = uri
     }
 
     fun getUserByUsername(username: String){

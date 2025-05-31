@@ -44,7 +44,14 @@ import java.nio.charset.StandardCharsets
 
 
 @Composable
-fun Footer(navController: NavController, modifier: Modifier = Modifier, confirmedPhases: List<CyclePhaseDay>, predictedPhases: List<CyclePhaseDay>) {
+fun Footer(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    confirmedPhases: List<CyclePhaseDay>,
+    predictedPhases: List<CyclePhaseDay>,
+    email: String,
+    token: String,
+    isBleeding: Boolean) {
     val navColor = colorResource(R.color.navMenu)
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
@@ -147,7 +154,7 @@ fun Footer(navController: NavController, modifier: Modifier = Modifier, confirme
         }
 
         Button(
-            onClick = {navController.navigate(route = AppScreen.DailyScreen.route)},
+            onClick = {navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")},
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.botones2)),
             contentPadding = PaddingValues(0.dp),
