@@ -32,12 +32,7 @@ fun CaracteristicasBox() {
         Triple("Recordatorios", true, true),
         Triple("Modo oscuro", true, true),
         Triple("Registro diario", true, true),
-        Triple("Copia de seguridad", false, true),
-        Triple("Cambiar tema", false, true),
-        Triple("Exportar datos", false, true),
         Triple("Resumen mensual", false, true),
-        Triple("Informes", false, true),
-        Triple("Análisis de las fases del ciclo", false, true)
     )
 
     Column(

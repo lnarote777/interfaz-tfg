@@ -125,9 +125,11 @@ fun PremiumScreen(navController: NavController, email: String){
                         modifier = Modifier.fillMaxSize()
                     ) {
                         Spacer(Modifier.weight(1f))
-                        Text("1 Año",
+                        Text("De por vida",
                             fontSize = 24.sp,
-                            fontWeight = FontWeight.SemiBold)
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.Black
+                        )
                         Spacer(Modifier.weight(1f))
                         Row (
                             verticalAlignment = Alignment.Bottom
@@ -136,17 +138,14 @@ fun PremiumScreen(navController: NavController, email: String){
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.offset(y = (-25).dp),
-                                fontFamily = FontFamily(Font(R.font.inter))
+                                fontFamily = FontFamily(Font(R.font.inter)),
+                                color = Color.Black
                             )
-                            Text("2.99",
+                            Text("3.95",
                                 fontSize = 48.sp,
                                 fontWeight = FontWeight.ExtraBold,
-                                fontFamily = FontFamily(Font(R.font.inter))
-                            )
-                            Text("/mes",
-                                fontSize = 14.sp,
-                                modifier = Modifier.padding(start = 4.dp),
-                                fontFamily = FontFamily(Font(R.font.inter))
+                                fontFamily = FontFamily(Font(R.font.inter)),
+                                color = Color.Black
                             )
                         }
                         Spacer(Modifier.weight(1f))
