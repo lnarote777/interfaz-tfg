@@ -67,7 +67,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     navController: NavController,
-    username: String?,
+    username: String? ,
     userRol: String?,
     token: String?
 ){
@@ -130,10 +130,6 @@ fun HomeScreen(
 
 
     // Fases y fechas
-    val phases by remember(cycles, currentDate, phasesUpdateTrigger) {
-        derivedStateOf { cycles.maxByOrNull { it.startDate }?.phases ?: emptyList() }
-    }
-
     val confirmedPhases = cycles
         .filter { !it.isPredicted }
         .maxByOrNull { LocalDate.parse(it.startDate) }

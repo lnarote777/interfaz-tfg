@@ -13,6 +13,7 @@ import com.example.interfaz_tfg.api.API
 import com.example.interfaz_tfg.api.model.cycle.DailyLog
 import com.example.interfaz_tfg.api.model.cycle.DailyLogDTO
 import com.example.interfaz_tfg.api.model.cycle.LogState
+import com.example.interfaz_tfg.api.model.cycle.MonthlyStats
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -182,5 +183,53 @@ class DailyLogViewModel : ViewModel(){
 
             }
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getMonthlyStats(month: Int, year: Int): MonthlyStats {
+        val filteredLogs = logs.value.filter { log ->
+            val logDate = LocalDate.parse(log.date)
+            logDate.monthValue == month && logDate.year == year
+        }
+
+        val moodCounts = mutableMapOf<String, Int>()
+        val symptomCounts = mutableMapOf<String, Int>()
+        var exerciseDays = 0
+        var totalWater = 0f
+        var waterEntries = 0
+        var weightRecords = 0
+
+        filteredLogs.forEach { log ->
+            log.mood.forEach { mood ->
+                mood?.let {
+                    moodCounts[it] = moodCounts.getOrDefault(it, 0) + 1
+                }
+            }
+            log.symptoms.forEach { symptom ->
+                symptom?.let {
+                    symptomCounts[it] = symptomCounts.getOrDefault(it, 0) + 1
+                }
+            }
+            if (log.physicalActivity.isNotEmpty()) {
+                exerciseDays++
+            }
+            log.waterIntake?.let {
+                totalWater += it
+                waterEntries++
+            }
+            if (log.weight != null) {
+                weightRecords++
+            }
+        }
+
+        val averageWater = if (waterEntries > 0) totalWater / waterEntries else 0f
+
+        return MonthlyStats(
+            moodCounts = moodCounts,
+            symptomCounts = symptomCounts,
+            exerciseDays = exerciseDays,
+            averageWater = averageWater,
+            weightRecords = weightRecords
+        )
     }
 }
