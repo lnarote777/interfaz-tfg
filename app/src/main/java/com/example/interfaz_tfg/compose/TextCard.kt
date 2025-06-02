@@ -35,12 +35,14 @@ fun TextCard(
     value: String,
     onValueChange: (String) -> Unit
 ){
+
+    val colorScheme = MaterialTheme.colorScheme
     Column(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
             .border(4.dp, color, RoundedCornerShape(25.dp))
-            .background(Color.White)
+            .background(colorScheme.surface, RoundedCornerShape(25.dp))
             .padding(16.dp)
     ) {
         Text(text = title, style = MaterialTheme.typography.titleMedium,)

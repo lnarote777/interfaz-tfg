@@ -165,7 +165,8 @@ fun UserScreen(
                                     popUpTo(0) { inclusive = true }
                                 }
                             }
-                        }
+                        },
+                        color = Color.Black
                     )
                     Spacer(Modifier.height(10.dp))
                     Text(

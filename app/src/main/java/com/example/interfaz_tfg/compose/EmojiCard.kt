@@ -28,12 +28,13 @@ fun EmojiCard(
     onSelectionChange: (MutableList<String?>) -> Unit,
     color: Color = Color.LightGray
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
             .border(4.dp, color, RoundedCornerShape(25.dp))
-            .background(color = Color.White)
+            .background(color = colorScheme.surface, shape = RoundedCornerShape(25.dp) )
             .padding(16.dp)
     ) {
         Text(text = title, style = MaterialTheme.typography.titleMedium)
@@ -63,7 +64,8 @@ fun EmojiCard(
                         }
                         updatedSelection.value = newSelection
                         onSelectionChange( newSelection)
-                    }
+                    },
+
             )
         }
     }

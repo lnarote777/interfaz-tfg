@@ -6,6 +6,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -24,42 +25,44 @@ fun CustomDatePickerDialog(
     onDismiss: () -> Unit,
     onDateSelected: (LocalDate) -> Unit
 ) {
-        val datePickerState = rememberDatePickerState()
-        DatePickerDialog(
-            onDismissRequest = onDismiss,
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            val selectedDate = Instant.ofEpochMilli(millis)
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDate()
-                            onDateSelected(selectedDate)
-                        }
-                        onDismiss()
+    val datePickerState = rememberDatePickerState()
+    val colorScheme = MaterialTheme.colorScheme
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val selectedDate = Instant.ofEpochMilli(millis)
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+                        onDateSelected(selectedDate)
                     }
-                ) {
-                    Text("Aceptar", color = colorResource(R.color.botones1))
+                    onDismiss()
                 }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismiss) {
-                    Text("Cancelar", color = Color.Gray)
-                }
+            ) {
+                Text("Aceptar", color = colorResource(R.color.botones1))
             }
-        ) {
-            DatePicker(state = datePickerState,
-                colors = DatePickerDefaults.colors(
-                    containerColor = Color(0xFFEFB9E7), // Fondo rosa claro
-                    titleContentColor = colorResource(R.color.botones1), // Morado oscuro
-                    headlineContentColor = colorResource(R.color.botones1),
-                    weekdayContentColor = Color(0xFF8E24AA), // Letras de días
-                    subheadContentColor = Color.Gray,
-                    selectedDayContainerColor = Color(0xFFBA68C8), // Día seleccionado
-                    selectedDayContentColor = Color.White,
-                    todayContentColor = Color(0xFF6A1B9A),
-                    disabledDayContentColor = Color.LightGray
-                ))
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar", color = Color.Gray)
+            }
         }
+    ) {
+        DatePicker(state = datePickerState,
+            colors = DatePickerDefaults.colors(
+                containerColor = colorScheme.surface, // Fondo rosa claro
+                titleContentColor = colorScheme.onSurface, // Morado oscuro
+                headlineContentColor = colorScheme.onSurface,
+                weekdayContentColor = colorScheme.primary, // Letras de días
+                subheadContentColor = colorScheme.onSurfaceVariant,
+                selectedDayContainerColor = colorScheme.primary, // Día seleccionado
+                selectedDayContentColor = colorScheme.onPrimary,
+                todayContentColor = colorScheme.secondary,
+                disabledDayContentColor = colorScheme.onSurface.copy(alpha = 0.38f)
+            ))
+    }
 
 }

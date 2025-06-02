@@ -29,7 +29,7 @@ fun CalendarField(selectedDate: String, valueChange: (String)->Unit, onclick: ()
         placeholder = { Text("dd/mm/yyyy") },
         trailingIcon = {
             IconButton(onClick = { onclick() }) {
-                Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
+                Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha", tint = Color.Black)
             }
         },
         modifier = Modifier
@@ -42,8 +42,11 @@ fun CalendarField(selectedDate: String, valueChange: (String)->Unit, onclick: ()
             containerColor = Color.Transparent, // sin fondo
             focusedIndicatorColor = Color(0xFF6A1B9A), // línea morada intensa
             unfocusedIndicatorColor = Color(0xFF9C27B0), // línea morada suave
-            disabledIndicatorColor = Color.Transparent,
-            cursorColor = Color(0xFF6A1B9A)
+            disabledIndicatorColor = Color(0xFF9C27B0),
+            cursorColor = Color(0xFF6A1B9A),
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            unfocusedPlaceholderColor = Color.Black
         ),
     )
 
