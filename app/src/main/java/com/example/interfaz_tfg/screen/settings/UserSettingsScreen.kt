@@ -81,12 +81,14 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
     var showImageChoiceDialog by remember { mutableStateOf(false) }
     var showAvatarDialog by remember { mutableStateOf(false) }
     var showGalleryDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         if (username != null) {
             userViewModel.getUserByUsername(username)
         }
     }
+
 
     if(showDialog){
         AlertDialog(
@@ -186,7 +188,7 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
                                 .size(70.dp)
                                 .clip(CircleShape)
                                 .clickable {
-                                    userViewModel.setSelectedAvatar(resId)
+                                    userViewModel.setSelectedAvatar(context, resId)
                                     showAvatarDialog = false
                                 }
                                 .border(
@@ -209,7 +211,7 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
 
     if (showGalleryDialog) {
         GalleryImagePicker { uri ->
-            userViewModel.setSelectedImage(uri)
+            userViewModel.setSelectedImage(context, uri)
             showGalleryDialog = false
         }
     }

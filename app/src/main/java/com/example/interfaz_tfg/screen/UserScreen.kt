@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,7 +76,7 @@ fun UserScreen(
     var confirmationEmail by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf(false) }
     val selectedImageUri by userViewModel.selectedImageUri.collectAsState()
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
 
@@ -95,6 +96,9 @@ fun UserScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        userViewModel.initFromPreferences(context)
+    }
 
     Scaffold { innerpadding ->
         Column(
@@ -112,7 +116,13 @@ fun UserScreen(
                 SettingCard(height = 250.dp) {
                     username?.let { userName ->
                         email?.let { userEmail ->
-                            ProfileImage(uri = selectedImageUri, navController, userName, userEmail)
+                            ProfileImage(
+                                uri = selectedImageUri,
+                                avatarRes = userViewModel.selectedAvatarRes.collectAsState().value,
+                                navController,
+                                userName,
+                                userEmail
+                            )
                             Text(userName, fontSize = 25.sp, color = Color.Black)
                             Text(userEmail, fontSize = 20.sp, color = Color.Black)
                         }
@@ -190,7 +200,7 @@ fun UserScreen(
                     confirmButton = {
                         Button(onClick = {
                             if (email != null) {
-                                userViewModel.deleteUser(email, onSuccess = {
+                                userViewModel.deleteUser(context, email, onSuccess = {
                                     navController.navigate(AppScreen.CoverScreen.route) {
                                         popUpTo(AppScreen.UserScreen.route) { inclusive = true }
                                     }

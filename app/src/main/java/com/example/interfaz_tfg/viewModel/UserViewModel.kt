@@ -2,6 +2,7 @@ package com.example.interfaz_tfg.viewModel
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -16,25 +17,39 @@ import com.example.interfaz_tfg.api.model.user.UserEntity
 import com.example.interfaz_tfg.api.model.user.UserUpdateDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
-class UserViewModel(application: Application) : AndroidViewModel(application) {
-    @SuppressLint("StaticFieldLeak")
-    private val context = application.applicationContext
-
+class UserViewModel() : ViewModel() {
     private val _users = MutableStateFlow<List<UserDTO>>(emptyList())
+
     val users: StateFlow<List<UserDTO>> = _users
-
     private val _user = MutableStateFlow<UserDTO?>(null)
+
     val user: StateFlow<UserDTO?> = _user
-
     private val _selectedImageUri = MutableStateFlow<Uri?>(null)
-    val selectedImageUri: StateFlow<Uri?> = _selectedImageUri
 
+    val selectedImageUri: StateFlow<Uri?> = _selectedImageUri
     private val _selectedAvatarRes = MutableStateFlow<Int?>(null)
+
     val selectedAvatarRes: StateFlow<Int?> = _selectedAvatarRes
 
-    fun setSelectedAvatar(resId: Int?) {
+    fun initFromPreferences(context: Context) {
+        viewModelScope.launch {
+            runCatching {
+                val uriStr = UserPreferences.getImageUri(context).firstOrNull()
+                val avatarRes = UserPreferences.getAvatarRes(context).firstOrNull()
+                _selectedImageUri.value = uriStr?.let { Uri.parse(it) }
+                _selectedAvatarRes.value = avatarRes
+                Log.d("UserViewModel", "Loaded uri: $uriStr, avatar: $avatarRes")
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
+    }
+
+    fun setSelectedAvatar(context: Context, resId: Int?) {
         _selectedAvatarRes.value = resId
         _selectedImageUri.value = null
         viewModelScope.launch {
@@ -42,7 +57,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun setSelectedImage(uri: Uri?) {
+    fun setSelectedImage(context: Context, uri: Uri?) {
         _selectedImageUri.value = uri
         _selectedAvatarRes.value = null
         viewModelScope.launch {
@@ -84,7 +99,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun deleteUser(email: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun deleteUser(context: Context, email: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
 
