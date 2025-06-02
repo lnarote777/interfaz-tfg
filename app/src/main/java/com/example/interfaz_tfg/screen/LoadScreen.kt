@@ -24,16 +24,22 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.viewModel.LoadViewModel
 
 @Composable
 fun LoadScreen(navController: NavController){
+    val viewModel: LoadViewModel = viewModel()
 
     LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(1000) //Para pruebas. Original 5000
-        navController.navigate(route = AppScreen.CoverScreen.route)
+        viewModel.checkLogin { route ->
+            navController.navigate(route) {
+                popUpTo(AppScreen.LoadScreen.route) { inclusive = true }
+            }
+        }
     }
 
     Box(){

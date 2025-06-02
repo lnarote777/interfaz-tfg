@@ -1,20 +1,29 @@
 package com.example.interfaz_tfg.screen.settings
 
+import android.annotation.SuppressLint
+import androidx.activity.ComponentActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -36,24 +45,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.api.model.user.UserUpdateDTO
 import com.example.interfaz_tfg.compose.GalleryImagePicker
 import com.example.interfaz_tfg.compose.Header
-import com.example.interfaz_tfg.compose.ProfileImagePickerDialog
 import com.example.interfaz_tfg.compose.configuraciones.SettingItem
 import com.example.interfaz_tfg.navigation.AppScreen
 import com.example.interfaz_tfg.viewModel.UserViewModel
-import kotlinx.coroutines.launch
 
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun UserSettingsScreen(navController: NavController, username: String? ="", email: String? = ""){
 
     val userViewModel: UserViewModel = viewModel()
     val user = userViewModel.user.collectAsState()
+    val selectedImageUri by userViewModel.selectedImageUri.collectAsState()
+    val selectedAvatarRes by userViewModel.selectedAvatarRes.collectAsState()
     val color = MaterialTheme.colorScheme
     var newUsername by remember { mutableStateOf(username ?: "") }
     var newPass by remember { mutableStateOf("") }
@@ -63,6 +78,9 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
     var isUsername by rememberSaveable { mutableStateOf(true) }
     var cambio by rememberSaveable { mutableStateOf(false) }
     var cambioPass by rememberSaveable { mutableStateOf(false) }
+    var showImageChoiceDialog by remember { mutableStateOf(false) }
+    var showAvatarDialog by remember { mutableStateOf(false) }
+    var showGalleryDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if (username != null) {
@@ -113,6 +131,88 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
         )
     }
 
+    if (showImageChoiceDialog) {
+        AlertDialog(
+            onDismissRequest = { showImageChoiceDialog = false },
+            title = { Text("Seleccionar imagen de perfil") },
+            text = {
+                Column {
+                    Text(
+                        "Desde galería",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showImageChoiceDialog = false
+                                showGalleryDialog = true
+                            }
+                            .padding(8.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Elegir avatar",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showImageChoiceDialog = false
+                                showAvatarDialog = true
+                            }
+                            .padding(8.dp)
+                    )
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showImageChoiceDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    if (showAvatarDialog) {
+        AlertDialog(
+            onDismissRequest = { showAvatarDialog = false },
+            title = { Text("Selecciona un avatar") },
+            text = {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    listOf(R.drawable.avatar1, R.drawable.avatar2, R.drawable.avatar3, R.drawable.avatar4, R.drawable.avatar5).forEach { resId ->
+                        Image(
+                            painter = painterResource(id = resId),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(70.dp)
+                                .clip(CircleShape)
+                                .clickable {
+                                    userViewModel.setSelectedAvatar(resId)
+                                    showAvatarDialog = false
+                                }
+                                .border(
+                                    width = if (selectedAvatarRes == resId) 3.dp else 0.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = CircleShape
+                                )
+                        )
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showAvatarDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    if (showGalleryDialog) {
+        GalleryImagePicker { uri ->
+            userViewModel.setSelectedImage(uri)
+            showGalleryDialog = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -147,10 +247,49 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
             ){
                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
                     // Imagen de perfil
-                    GalleryImagePicker { uri ->
-                        userViewModel.setSelectedImage(uri)
-                        userViewModel.setSelectedImageName(null)
+                    Box(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        when {
+                            selectedImageUri != null -> {
+                                AsyncImage(
+                                    model = selectedImageUri,
+                                    contentDescription = "Imagen seleccionada",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            selectedAvatarRes != null -> {
+                                Image(
+                                    painter = painterResource(id = selectedAvatarRes!!),
+                                    contentDescription = "Avatar",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            else -> {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Avatar por defecto",
+                                    modifier = Modifier.size(60.dp),
+                                    tint = Color.White
+                                )
+                            }
+                        }
                     }
+
+                    SettingItem(
+                        title = "Cambiar imagen de perfil",
+                        value = "Selecciona desde galería o avatar",
+                        isClickable = true,
+                        onClick = { showImageChoiceDialog = true }
+                    )
+
                     Divider(modifier = Modifier.padding(horizontal = 16.dp))
 
                     SettingItem(

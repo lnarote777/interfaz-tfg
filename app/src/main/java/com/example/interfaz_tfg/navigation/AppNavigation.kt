@@ -39,7 +39,7 @@ fun AppNavigation(){
     val navController = rememberNavController()
     AnimatedNavHost(
         navController = navController,
-        startDestination = AppScreen.LoginScreen.route,
+        startDestination = AppScreen.LoadScreen.route,
         enterTransition = {
             slideInVertically(initialOffsetY = { it }) + fadeIn()
         },
@@ -139,6 +139,15 @@ fun AppNavigation(){
 
         composable(AppScreen.LoadScreen.route){
             LoadScreen(navController)
+        }
+        composable("cover") {
+            CoverScreen(navController = navController)
+        }
+        composable("home/{username}/{rol}/{token}") { backStackEntry ->
+            val username = backStackEntry.arguments?.getString("username") ?: ""
+            val rol = backStackEntry.arguments?.getString("rol") ?: ""
+            val token = backStackEntry.arguments?.getString("token") ?: ""
+            HomeScreen(navController, username, rol, token)
         }
 
         composable(AppScreen.PremiumScreen.route + "/{email}",

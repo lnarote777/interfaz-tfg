@@ -52,6 +52,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewMo
     val uiState by viewModel.uiState.collectAsState()
     var errorMessage by remember { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     LaunchedEffect(uiState) {
         if (uiState.isNotEmpty()) {
@@ -128,7 +129,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewMo
                                     error = true
                                 } else {
                                     // Si todo está bien, intentamos hacer login
-                                    viewModel.login(user, password, navController)
+                                    viewModel.login(context, user, password, navController)
                                     errorMessage = ""
                                 }
                             },

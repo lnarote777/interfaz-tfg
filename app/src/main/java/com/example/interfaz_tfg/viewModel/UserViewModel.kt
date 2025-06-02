@@ -1,11 +1,15 @@
 package com.example.interfaz_tfg.viewModel
 
+import android.annotation.SuppressLint
+import android.app.Application
 import android.net.Uri
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.interfaz_tfg.UserPreferences
 import com.example.interfaz_tfg.api.API
 import com.example.interfaz_tfg.api.model.user.UserDTO
 import com.example.interfaz_tfg.api.model.user.UserEntity
@@ -14,7 +18,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class UserViewModel: ViewModel() {
+class UserViewModel(application: Application) : AndroidViewModel(application) {
+    @SuppressLint("StaticFieldLeak")
+    private val context = application.applicationContext
+
     private val _users = MutableStateFlow<List<UserDTO>>(emptyList())
     val users: StateFlow<List<UserDTO>> = _users
 
@@ -24,10 +31,23 @@ class UserViewModel: ViewModel() {
     private val _selectedImageUri = MutableStateFlow<Uri?>(null)
     val selectedImageUri: StateFlow<Uri?> = _selectedImageUri
 
+    private val _selectedAvatarRes = MutableStateFlow<Int?>(null)
+    val selectedAvatarRes: StateFlow<Int?> = _selectedAvatarRes
 
+    fun setSelectedAvatar(resId: Int?) {
+        _selectedAvatarRes.value = resId
+        _selectedImageUri.value = null
+        viewModelScope.launch {
+            UserPreferences.saveAvatarRes(context, resId)
+        }
+    }
 
     fun setSelectedImage(uri: Uri?) {
         _selectedImageUri.value = uri
+        _selectedAvatarRes.value = null
+        viewModelScope.launch {
+            UserPreferences.saveImageUri(context, uri.toString())
+        }
     }
 
     fun getUserByUsername(username: String){
@@ -70,6 +90,7 @@ class UserViewModel: ViewModel() {
 
                 val response = API.retrofitService.deleteUser(email)
                 if (response.isSuccessful) {
+                    UserPreferences.clearToken(context)
                     onSuccess()
                     Log.d("API", "Usuario eliminado correctamente")
                 } else {
