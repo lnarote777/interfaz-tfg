@@ -216,29 +216,26 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
         }
     }
 
-    Scaffold(
-        topBar = {
-            Header(
-                navController = navController,
-                title = "Ajustes del perfil",
-                back = false,
-                route = AppScreen.UserScreen.route
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+    Scaffold() { innerpadding ->
 
-    ) { innerpadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerpadding)
                 .background(color = color.background)
         ) {
+            Header(
+                navController = navController,
+                title = "Ajustes del perfil",
+                back = false,
+                route = AppScreen.UserScreen.route + "/$username/$email"
+            )
+
             Box(
                 modifier = Modifier
                     .fillMaxSize(0.9f)
+                    .padding(top = 20.dp)
                     .shadow(
                         elevation = 10.dp,
                         shape = RoundedCornerShape(30.dp)
@@ -248,46 +245,8 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
 
             ){
                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                    // Imagen de perfil
-                    Box(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .size(100.dp)
-                            .clip(CircleShape)
-                            .background(Color.LightGray),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        when {
-                            selectedImageUri != null -> {
-                                AsyncImage(
-                                    model = selectedImageUri,
-                                    contentDescription = "Imagen seleccionada",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
-                            selectedAvatarRes != null -> {
-                                Image(
-                                    painter = painterResource(id = selectedAvatarRes!!),
-                                    contentDescription = "Avatar",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
-                            else -> {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Avatar por defecto",
-                                    modifier = Modifier.size(60.dp),
-                                    tint = Color.White
-                                )
-                            }
-                        }
-                    }
-
                     SettingItem(
                         title = "Cambiar imagen de perfil",
-                        value = "Selecciona desde galería o avatar",
                         isClickable = true,
                         onClick = { showImageChoiceDialog = true }
                     )

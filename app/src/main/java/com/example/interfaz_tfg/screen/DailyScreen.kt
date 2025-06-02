@@ -13,11 +13,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,6 +32,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -33,8 +41,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.api.model.cycle.DailyLogDTO
 import com.example.interfaz_tfg.api.model.cycle.MenstrualFlowLevel
-import com.example.interfaz_tfg.compose.Card
+import com.example.interfaz_tfg.compose.EmojiCard
 import com.example.interfaz_tfg.compose.Header
+import com.example.interfaz_tfg.compose.TextCard
 import com.example.interfaz_tfg.compose.calendario.WeekCalendar
 import com.example.interfaz_tfg.compose.menstrualflow
 import com.example.interfaz_tfg.compose.moodEmojis
@@ -46,6 +55,7 @@ import com.example.interfaz_tfg.compose.vaginalDischarge
 import com.example.interfaz_tfg.compose.waterEmojis
 import com.example.interfaz_tfg.viewModel.DailyLogViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DailyScreen(
@@ -127,7 +137,7 @@ fun DailyScreen(
                         physicalActivity = logState.physicalActivity,
                         pillsTaken = logState.pillsTaken,
                         waterIntake = logState.waterIntake,
-                        weight = null,
+                        weight = logState.weight,
                         notes = logState.notes
                     )
                     if (isEditing) {
@@ -158,7 +168,7 @@ fun DailyScreen(
                     .padding(horizontal = 16.dp, vertical = 18.dp)
 
             ) {
-                Text("Guardar")
+                Text(if (isEditing) "Actualizar" else "Guardar")
             }
         }
     ) { innerpadding ->
@@ -187,7 +197,7 @@ fun DailyScreen(
                         if (titulo == "Flujo Menstrual" && !isBleeding.toBoolean()) {
                             return@items
                         }
-                        Card(
+                        EmojiCard(
                             title = titulo,
                             emojis = emojiList,
                             selectedLabels = seleccionados,
@@ -208,13 +218,26 @@ fun DailyScreen(
                         Spacer(Modifier.height(16.dp))
                     }
                     item {
-                        OutlinedTextField(
-                            value = logState.notes ?: "",
-                            onValueChange = { viewModel.setNotes(it) },
-                            label = { Text("Notas") },
-                            modifier = Modifier.fillMaxWidth(0.9f)
-                        )
-                        Spacer(Modifier.height(24.dp))
+                        TextCard(
+                            title = "Peso (kg)",
+                            placeholder = "Ej. 60.5",
+                            color = Color(0xFF808DFF),
+                            value = logState.weight?.toString() ?: ""
+                        ) {
+                            viewModel.setWeight(it.toDoubleOrNull())
+                        }
+                        Spacer(Modifier.height(16.dp))
+                    }
+
+                    item {
+                        TextCard(
+                            title = "Notas",
+                            placeholder = "",
+                            color = Color(0xFFFFB980),
+                            value = logState.notes ?: ""
+                        ) {
+                            viewModel.setNotes(it)
+                        }
                     }
 
                 }

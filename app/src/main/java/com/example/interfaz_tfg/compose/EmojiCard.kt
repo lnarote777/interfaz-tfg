@@ -2,12 +2,14 @@ package com.example.interfaz_tfg.compose
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,7 +21,7 @@ import androidx.compose.ui.unit.dp
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun Card(
+fun EmojiCard(
     title: String,
     emojis: Map<String, EmojiItem>,
     selectedLabels: List<String?>,
@@ -30,7 +32,8 @@ fun Card(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .background(color = color, shape = MaterialTheme.shapes.medium)
+            .border(4.dp, color, RoundedCornerShape(25.dp))
+            .background(color = Color.White)
             .padding(16.dp)
     ) {
         Text(text = title, style = MaterialTheme.typography.titleMedium)
@@ -47,8 +50,8 @@ fun Card(
                 modifier = Modifier
                     .padding(4.dp)
                     .background(
-                        if (isSelected) Color.Gray else Color.Transparent,
-                        shape = MaterialTheme.shapes.small
+                        if (isSelected) color.copy(alpha = 0.4f) else Color.Transparent,
+                        shape = RoundedCornerShape(10.dp)
                     )
                     .padding(8.dp)
                     .clickable {

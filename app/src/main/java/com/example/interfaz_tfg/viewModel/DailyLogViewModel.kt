@@ -102,7 +102,8 @@ class DailyLogViewModel : ViewModel(){
                 if (response.isSuccessful) {
                     onSuccess()
                 } else {
-                    onError("Error: ${response.code()}")
+                    onError("Error: ${response.code()} - message: ${response.message()}")
+                    Log.d("ERROR", "Error: ${response.code()} - message: ${response.message()} - ${response.errorBody()}")
                 }
             } catch (e: Exception) {
                 onError("Error de red: ${e.localizedMessage}")

@@ -55,6 +55,9 @@ import com.example.interfaz_tfg.navigation.AppScreen
 import com.example.interfaz_tfg.screen.settings.UserSettingsScreen
 import com.example.interfaz_tfg.viewModel.CycleViewModel
 import com.example.interfaz_tfg.viewModel.UserViewModel
+import com.example.interfaz_tfg.viewModel.getRolFromToken
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @Composable
@@ -78,7 +81,11 @@ fun UserScreen(
     val selectedImageUri by userViewModel.selectedImageUri.collectAsState()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    var token by remember { mutableStateOf<String?>(null) }
 
+    LaunchedEffect(Unit) {
+        token = UserPreferences.getToken(context).firstOrNull()
+    }
 
     val goalStr = when (user.value?.goal) {
         Goal.GET_PREGNANT -> "Quedar embarazada"
@@ -106,7 +113,8 @@ fun UserScreen(
                 .padding(innerpadding)
                 .background(color = colorScheme.background)
         ) {
-            Header(navController, "Perfil")
+            val userRol = token?.let { getRolFromToken(it) }
+            Header(navController, "Perfil", back = false, route = AppScreen.HomeScreen.route + "/$username/$userRol/$token")
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,

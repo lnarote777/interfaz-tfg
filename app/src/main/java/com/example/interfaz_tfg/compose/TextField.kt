@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
  * Este componente permite al usuario ingresar y modificar texto.
  *
  * @param value El valor actual del campo de texto.
- * @param label La etiqueta que se muestra encima del campo de texto, indicando su propósito.
+ * @param placeholder La etiqueta que se muestra encima del campo de texto, indicando su propósito.
  * @param valueChange Función que se ejecuta cuando el valor del campo de texto cambia.
  * Recibe el nuevo valor como parámetro, permitiendo que se actualice el estado.
  */
