@@ -38,6 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
 import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.viewModel.getRolFromToken
 import com.google.gson.Gson
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -51,7 +52,8 @@ fun Footer(
     predictedPhases: List<CyclePhaseDay>,
     email: String,
     token: String,
-    isBleeding: Boolean) {
+    isBleeding: Boolean
+) {
     val navColor = colorResource(R.color.navMenu)
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
@@ -63,6 +65,8 @@ fun Footer(
     val predictedJson = remember(predictedPhases) {
         Uri.encode(gson.toJson(predictedPhases))
     }
+
+    val rol = getRolFromToken(token)
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -127,7 +131,6 @@ fun Footer(
                 )
             }
             IconButton(onClick = {
-
                 navController.navigate(AppScreen.CalendarScreen.route + "/$confirmedJson/$predictedJson")
             }) {
                 Icon(Icons.Default.DateRange,
@@ -137,7 +140,13 @@ fun Footer(
                 )
             }
             Spacer(modifier = Modifier.width(50.dp))
-            IconButton(onClick = {navController.navigate(route = AppScreen.StatsScreen.route)}) {
+            IconButton(onClick = {
+                if(rol != "PREMIUM"){
+                    navController.navigate(route = AppScreen.PremiumScreen.route + "/$email")
+                }else{
+                    navController.navigate(route = AppScreen.StatsScreen.route)
+                }
+            }) {
                 Icon(Icons.Default.Star,
                     contentDescription = "Stats",
                     tint = colorResource(R.color.iconosNav),
