@@ -130,6 +130,7 @@ fun Footer(
                     modifier = Modifier.size(40.dp)
                 )
             }
+
             IconButton(onClick = {
                 navController.navigate(AppScreen.CalendarScreen.route + "/$confirmedJson/$predictedJson")
             }) {
@@ -139,7 +140,9 @@ fun Footer(
                     modifier = Modifier.size(40.dp)
                 )
             }
+
             Spacer(modifier = Modifier.width(50.dp))
+
             IconButton(onClick = {
                 if(rol != "PREMIUM"){
                     navController.navigate(route = AppScreen.PremiumScreen.route + "/$email")
@@ -153,6 +156,7 @@ fun Footer(
                     modifier = Modifier.size(40.dp)
                 )
             }
+
             IconButton(onClick = {navController.navigate(route = AppScreen.SettingsScreen.route)}) {
                 Icon(Icons.Default.Settings,
                     contentDescription = "Settings",

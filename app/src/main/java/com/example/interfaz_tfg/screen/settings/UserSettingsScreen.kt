@@ -1,7 +1,9 @@
 package com.example.interfaz_tfg.screen.settings
 
 import android.annotation.SuppressLint
-import androidx.activity.ComponentActivity
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,16 +20,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,20 +43,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.UserPreferences
 import com.example.interfaz_tfg.api.model.user.UserUpdateDTO
-import com.example.interfaz_tfg.compose.GalleryImagePicker
 import com.example.interfaz_tfg.compose.Header
 import com.example.interfaz_tfg.compose.configuraciones.SettingItem
 import com.example.interfaz_tfg.navigation.AppScreen
 import com.example.interfaz_tfg.viewModel.UserViewModel
+import com.example.interfaz_tfg.viewModel.getRolFromToken
 
 
 @SuppressLint("ContextCastToActivity")
@@ -67,26 +64,31 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
 
     val userViewModel: UserViewModel = viewModel()
     val user = userViewModel.user.collectAsState()
-    val selectedImageUri by userViewModel.selectedImageUri.collectAsState()
     val selectedAvatarRes by userViewModel.selectedAvatarRes.collectAsState()
     val color = MaterialTheme.colorScheme
     var newUsername by remember { mutableStateOf(username ?: "") }
     var newPass by remember { mutableStateOf("") }
-    val coroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var isUsername by rememberSaveable { mutableStateOf(true) }
     var cambio by rememberSaveable { mutableStateOf(false) }
     var cambioPass by rememberSaveable { mutableStateOf(false) }
     var showImageChoiceDialog by remember { mutableStateOf(false) }
     var showAvatarDialog by remember { mutableStateOf(false) }
-    var showGalleryDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    var token = ""
+    val rol = getRolFromToken(token)
 
     LaunchedEffect(Unit) {
         if (username != null) {
             userViewModel.getUserByUsername(username)
         }
+        token = UserPreferences.getToken(context).toString()
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        userViewModel.setSelectedImage(context, uri)
     }
 
 
@@ -139,17 +141,19 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
             title = { Text("Seleccionar imagen de perfil") },
             text = {
                 Column {
-                    Text(
-                        "Desde galería",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                showImageChoiceDialog = false
-                                showGalleryDialog = true
-                            }
-                            .padding(8.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    if (rol == "PREMIUM"){
+                        Text(
+                            "Desde galería",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    launcher.launch("image/*")
+                                    showImageChoiceDialog = false
+                                }
+                                .padding(8.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                     Text(
                         "Elegir avatar",
                         modifier = Modifier
@@ -207,13 +211,6 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
                 }
             }
         )
-    }
-
-    if (showGalleryDialog) {
-        GalleryImagePicker { uri ->
-            userViewModel.setSelectedImage(context, uri)
-            showGalleryDialog = false
-        }
     }
 
     Scaffold() { innerpadding ->

@@ -33,6 +33,7 @@ fun CaracteristicasBox() {
         Triple("Modo oscuro", true, true),
         Triple("Registro diario", true, true),
         Triple("Resumen mensual", false, true),
+        Triple("Foto de perfil propio", false, true),
     )
 
     Column(
