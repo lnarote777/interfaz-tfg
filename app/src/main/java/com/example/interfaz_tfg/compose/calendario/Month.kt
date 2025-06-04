@@ -3,7 +3,6 @@ package com.example.interfaz_tfg.compose.calendario
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,14 +11,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.api.model.cycle.CyclePhase
 import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
-import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.api.model.cycle.DailyLog
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
@@ -53,12 +45,12 @@ fun Month(
     currentDate: LocalDate,
     confirmedPhases: List<CyclePhaseDay>,
     predictedPhases: List<CyclePhaseDay>,
+    logs: List<DailyLog>,
     onDateSelected: (LocalDate) -> Unit
 ) {
     val firstDayOfMonth = LocalDate.of(year, month, 1)
     val daysInMonth = month.length(Year.of(year).isLeap)
     val firstDayOfWeek = firstDayOfMonth.dayOfWeek
-    val today = currentDate
     val color = MaterialTheme.colorScheme
 
     Column(
@@ -140,15 +132,30 @@ fun Month(
                         if (day in 1..daysInMonth) {
                             val date = LocalDate.of(year, month, day)
                             val isSelected = date == selectedDate
-                            val isToday = date == today
+                            val isToday = date == currentDate
                             val confirmedPhase = confirmedPhases.find { it.date == date.toString() }
                             val predictedPhase = predictedPhases.find { it.date == date.toString() }
+                            val hasConfirmedBleeding =
+                                logs.any { it.date == date.toString() && it.hasMenstruation }
 
                             val baseColor = when {
-                                confirmedPhase != null -> getPhaseColor(confirmedPhase.phase)
-                                predictedPhase != null -> if (getPhaseColor(predictedPhase.phase) != Color.Transparent) getPhaseColor(predictedPhase.phase).copy(alpha = 0.3f) else getPhaseColor(predictedPhase.phase)
+                                confirmedPhase != null -> {
+                                    if (confirmedPhase.phase == CyclePhase.MENSTRUATION) {
+                                        if (hasConfirmedBleeding) {
+                                            getPhaseColor(CyclePhase.MENSTRUATION)
+                                        } else {
+                                            getPhaseColor(CyclePhase.MENSTRUATION).copy(alpha = 0.3f)
+                                        }
+                                    } else {
+                                        getPhaseColor(confirmedPhase.phase)
+                                    }
+                                }
+                                predictedPhase != null -> {
+                                    getPhaseColor(predictedPhase.phase).copy(alpha = 0.3f)
+                                }
                                 else -> Color.Transparent
                             }
+
                             val backgroundColor = when {
                                 isSelected -> colorResource(R.color.botones2)
                                 !isSelected && isToday && baseColor != Color.Transparent -> baseColor

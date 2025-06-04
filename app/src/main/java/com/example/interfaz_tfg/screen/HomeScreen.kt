@@ -306,7 +306,8 @@ fun HomeScreen(
                         selectedDate = selectedDate,
                         currentDate = currentDate,
                         confirmedPhases = confirmedPhases,
-                        predictedPhases = predictedPhases
+                        predictedPhases = predictedPhases,
+                        logs = logs
                     ) { date -> selectedDate = date }
                     Spacer(Modifier.height(100.dp))
                 }
