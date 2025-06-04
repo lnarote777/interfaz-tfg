@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
@@ -27,6 +28,7 @@ import com.example.interfaz_tfg.screen.UserScreen
 import com.example.interfaz_tfg.screen.settings.CycleSettingsScreen
 import com.example.interfaz_tfg.screen.settings.SettingsScreen
 import com.example.interfaz_tfg.screen.settings.UserSettingsScreen
+import com.example.interfaz_tfg.viewModel.CalendarSharedViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.gson.Gson
@@ -36,7 +38,7 @@ import java.time.LocalDate
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AppNavigation(){
+fun AppNavigation(calendarSharedViewModel: CalendarSharedViewModel){
     val navController = rememberNavController()
     AnimatedNavHost(
         navController = navController,
@@ -54,6 +56,7 @@ fun AppNavigation(){
             slideOutVertically(targetOffsetY = { it }) + fadeOut()
         }
     ) {
+
         composable(AppScreen.CoverScreen.route){
             CoverScreen(navController)
         }
@@ -66,35 +69,36 @@ fun AppNavigation(){
             RegisterScreen(navController)
         }
 
-        composable(AppScreen.CalendarScreen.route + "/{confirmedCycle}/{predictedCycle}/{logs}",
+        composable(AppScreen.CalendarScreen.route + "/{logs}",
             arguments = listOf(
-                navArgument(name = "confirmedCycle") {
-                    type = NavType.StringType
-                },
-                navArgument(name = "predictedCycle") {
-                    type = NavType.StringType
-                },
+                //navArgument(name = "confirmedCycle") {
+                //    type = NavType.StringType
+                //},
+                //navArgument(name = "predictedCycle") {
+                //    type = NavType.StringType
+                //},
                 navArgument(name = "logs") {
                     type = NavType.StringType
                 }
             )
         ){
             val gson = Gson()
-            val type = object : TypeToken<List<CyclePhaseDay>>() {}.type
+            val type = object : TypeToken<List<DailyLog>>() {}.type
 
-            val confirmedJson = it.arguments?.getString("confirmedCycle") ?: "[]"
-            val predictedJson = it.arguments?.getString("predictedCycle") ?: "[]"
+            //val confirmedJson = it.arguments?.getString("confirmedCycle") ?: "[]"
+            //val predictedJson = it.arguments?.getString("predictedCycle") ?: "[]"
             val logsJson = it.arguments?.getString("logs") ?: "[]"
 
-            val confirmedPhases: List<CyclePhaseDay> = gson.fromJson(confirmedJson, type)
-            val predictedPhases: List<CyclePhaseDay> = gson.fromJson(predictedJson, type)
+            //val confirmedPhases: List<CyclePhaseDay> = gson.fromJson(confirmedJson, type)
+            //val predictedPhases: List<CyclePhaseDay> = gson.fromJson(predictedJson, type)
             val logs: List<DailyLog> = gson.fromJson(logsJson, type)
 
             CalendarScreen(
                 navController = navController,
-                confirmedPhases = confirmedPhases,
-                predictedPhases = predictedPhases,
-                logs = logs
+                //confirmedPhases = confirmedPhases,
+                //predictedPhases = predictedPhases,
+                logs = logs,
+                calendarSharedViewModel
             )
         }
 
@@ -141,6 +145,7 @@ fun AppNavigation(){
                 username = it.arguments?.getString("username"),
                 token = it.arguments?.getString("token") ?: "",
                 userRol = it.arguments?.getString("userRol"),
+                calendarSharedViewModel = calendarSharedViewModel
             )
         }
 
@@ -154,7 +159,7 @@ fun AppNavigation(){
             val username = backStackEntry.arguments?.getString("username") ?: ""
             val rol = backStackEntry.arguments?.getString("rol") ?: ""
             val token = backStackEntry.arguments?.getString("token") ?: ""
-            HomeScreen(navController, username, rol, token)
+            HomeScreen(navController, username, rol, token, calendarSharedViewModel)
         }
 
         composable(AppScreen.PremiumScreen.route + "/{email}",

@@ -37,6 +37,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
+import com.example.interfaz_tfg.api.model.cycle.DailyLog
 import com.example.interfaz_tfg.navigation.AppScreen
 import com.example.interfaz_tfg.viewModel.getRolFromToken
 import com.google.gson.Gson
@@ -52,7 +53,8 @@ fun Footer(
     predictedPhases: List<CyclePhaseDay>,
     email: String,
     token: String,
-    isBleeding: Boolean
+    isBleeding: Boolean,
+    logs: List<DailyLog>
 ) {
     val navColor = colorResource(R.color.navMenu)
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
@@ -64,6 +66,9 @@ fun Footer(
     }
     val predictedJson = remember(predictedPhases) {
         Uri.encode(gson.toJson(predictedPhases))
+    }
+    val logsJson = remember(logs) {
+        Uri.encode(gson.toJson(logs))
     }
 
     val rol = getRolFromToken(token)
@@ -132,7 +137,7 @@ fun Footer(
             }
 
             IconButton(onClick = {
-                navController.navigate(AppScreen.CalendarScreen.route + "/$confirmedJson/$predictedJson")
+                navController.navigate(AppScreen.CalendarScreen.route + "/$logsJson")
             }) {
                 Icon(Icons.Default.DateRange,
                     contentDescription = "Calendar",

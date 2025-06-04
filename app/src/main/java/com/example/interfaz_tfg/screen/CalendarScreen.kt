@@ -20,12 +20,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.compose.calendario.CalendarHeader
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
 import com.example.interfaz_tfg.api.model.cycle.DailyLog
 import com.example.interfaz_tfg.compose.calendario.Month
+import com.example.interfaz_tfg.viewModel.CalendarSharedViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Month
@@ -34,10 +36,10 @@ import java.time.Month
 @Composable
 fun CalendarScreen(
     navController: NavController,
-    confirmedPhases: List<CyclePhaseDay>,
-    predictedPhases: List<CyclePhaseDay>,
-    logs: List<DailyLog>
+    logs: List<DailyLog>,
+    calendarSharedViewModel: CalendarSharedViewModel
 ){
+
     val currentDate = LocalDate.now()
     val currentYear = currentDate.year
     val minYear = 2010
@@ -58,6 +60,9 @@ fun CalendarScreen(
             listState.scrollToItem(currentMonthIndex)
         }
     }
+
+    val confirmedPhases = calendarSharedViewModel.confirmedPhases
+    val predictedPhases = calendarSharedViewModel.predictedPhases
 
     Scaffold {innerpadding ->
         Column(

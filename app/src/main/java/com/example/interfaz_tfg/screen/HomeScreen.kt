@@ -62,6 +62,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.interfaz_tfg.api.model.cycle.CyclePhase
 import com.example.interfaz_tfg.utils.groupContinuousDates
+import com.example.interfaz_tfg.viewModel.CalendarSharedViewModel
 import kotlinx.coroutines.launch
 
 
@@ -71,7 +72,8 @@ fun HomeScreen(
     navController: NavController,
     username: String? ,
     userRol: String?,
-    token: String?
+    token: String?,
+    calendarSharedViewModel: CalendarSharedViewModel
 ){
     // ViewModels
     val userViewModel: UserViewModel = viewModel()
@@ -83,13 +85,15 @@ fun HomeScreen(
     val user by userViewModel.user.collectAsState()
     val logs by dailyLogViewModel.logs.collectAsState()
     val isBleeding by dailyLogViewModel.isBleeding.collectAsState()
-    val cycles by cycleViewModel.cycles.collectAsState()
+    val cycles by cycleViewModel.cycles.collectAsState(initial = emptyList())
+
     val currentDate = LocalDate.now()
     var selectedDate by remember { mutableStateOf(currentDate) }
     var lastRecalculationDate by rememberSaveable { mutableStateOf<LocalDate?>(null) }
     var phasesUpdateTrigger by remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
     val color = MaterialTheme.colorScheme
+
 
     // Lógica reactiva
     LaunchedEffect(Unit) {
@@ -102,9 +106,17 @@ fun HomeScreen(
             cycleViewModel.getPrediction(it)
             cycleViewModel.loadCycles(it)
             dailyLogViewModel.loadLogs(it)
-            cycleViewModel.getPrediction(it)
             userViewModel.getUserByUsername(user!!.username)
         }
+    }
+
+    LaunchedEffect(selectedDate) {
+        user?.email?.let {
+            if (token != null) {
+                dailyLogViewModel.setSelectedDate(selectedDate, it, token)
+            }
+        }
+        dailyLogViewModel.updateBleedingStatusForToday(logs, selectedDate)
     }
 
     LaunchedEffect(logs) {
@@ -123,16 +135,16 @@ fun HomeScreen(
             ?: emptyList()
 
         val menstruationRanges = groupContinuousDates(menstruationDates)
-        val currentMenstruationRange = menstruationRanges.find { currentDate in it.first..it.second }
+        val currentMenstruationRange = menstruationRanges.find { selectedDate in it.first..it.second }
 
         val actualLength = currentMenstruationRange?.let {
-            ChronoUnit.DAYS.between(it.first, currentDate).toInt() + 1
+            ChronoUnit.DAYS.between(it.first, selectedDate).toInt() + 1
         } ?: 0
 
         val shouldRecalculate = (
                 todayLog == null || !todayLog.hasMenstruation ||
                         (actualLength > 0 && actualLength != lastConfirmedCycle?.cycleLength)
-                ) && lastRecalculationDate != currentDate
+                ) && lastRecalculationDate != selectedDate
 
         if (shouldRecalculate) {
             cycleViewModel.recalculateCycle(email, currentDate)
@@ -174,11 +186,11 @@ fun HomeScreen(
     val menstruationBlockToday = menstruationRanges.find { currentDate in it.first..it.second }
     val isTodayInMenstruation = menstruationBlockToday != null
     val menstruationStartDate = if (isTodayInMenstruation && isBleeding) menstruationBlockToday?.first else null
-    val dayInPeriod = menstruationStartDate?.let { ChronoUnit.DAYS.between(it, currentDate).toInt() + 1 }
+    val dayInPeriod = menstruationStartDate?.let { ChronoUnit.DAYS.between(it, selectedDate).toInt() + 1 }
     val nextMenstruationRange = menstruationRanges.firstOrNull { it.first.isAfter(currentDate) }
     val nextMenstruationDate = nextMenstruationRange?.first
     val daysUntilNextPeriod = nextMenstruationDate?.let {
-        val days = ChronoUnit.DAYS.between(currentDate, it).toInt()
+        val days = ChronoUnit.DAYS.between(selectedDate, it).toInt()
         if (days >= 0) days else -1
     } ?: -1
 
@@ -188,6 +200,8 @@ fun HomeScreen(
         else -> ""
     }
 
+    calendarSharedViewModel.confirmedPhases = confirmedPhases
+    calendarSharedViewModel.predictedPhases = predictedPhases
 
     Scaffold {innerpadding ->
         Box(modifier = Modifier.padding(innerpadding)) {
@@ -322,7 +336,8 @@ fun HomeScreen(
                         predictedPhases,
                         it,
                         token,
-                        isBleeding = isBleeding
+                        isBleeding = isBleeding,
+                        logs
                     )
                 }
             }

@@ -5,8 +5,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.interfaz_tfg.navigation.AppNavigation
 import com.example.interfaz_tfg.ui.theme.InterfaztfgTheme
+import com.example.interfaz_tfg.viewModel.CalendarSharedViewModel
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("NewApi")
@@ -16,7 +18,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             InterfaztfgTheme {
-                AppNavigation()
+                val calendarSharedViewModel: CalendarSharedViewModel = viewModel()
+                AppNavigation(calendarSharedViewModel)
             }
         }
     }

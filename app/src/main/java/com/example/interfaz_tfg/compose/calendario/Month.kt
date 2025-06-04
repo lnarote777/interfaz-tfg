@@ -142,16 +142,16 @@ fun Month(
                                 confirmedPhase != null -> {
                                     if (confirmedPhase.phase == CyclePhase.MENSTRUATION) {
                                         if (hasConfirmedBleeding) {
-                                            getPhaseColor(CyclePhase.MENSTRUATION)
+                                            getPhaseColor(CyclePhase.MENSTRUATION, false)
                                         } else {
-                                            getPhaseColor(CyclePhase.MENSTRUATION).copy(alpha = 0.3f)
+                                            getPhaseColor(CyclePhase.MENSTRUATION, true)
                                         }
                                     } else {
-                                        getPhaseColor(confirmedPhase.phase)
+                                        getPhaseColor(confirmedPhase.phase, false)
                                     }
                                 }
                                 predictedPhase != null -> {
-                                    getPhaseColor(predictedPhase.phase).copy(alpha = 0.3f)
+                                    getPhaseColor(predictedPhase.phase, true)
                                 }
                                 else -> Color.Transparent
                             }
@@ -196,10 +196,10 @@ fun Month(
     }
 }
 
-fun getPhaseColor(phase: CyclePhase?): Color {
+fun getPhaseColor(phase: CyclePhase?, isPredicted: Boolean): Color {
     return when (phase) {
-        CyclePhase.MENSTRUATION -> Color(0xFFFF6B6B) // rojo
-        CyclePhase.OVULATION -> Color(0xFF64B5F6)    // morado
+        CyclePhase.MENSTRUATION -> if(!isPredicted) Color(0xFFFF6B6B) else  Color(0xFFFF6B6B).copy(alpha = 0.3f)// rojo
+        CyclePhase.OVULATION -> if(!isPredicted) Color(0xFF64B5F6) else  Color(0xFF64B5F6).copy(alpha = 0.3f)
         else -> Color.Transparent
     }
 }
