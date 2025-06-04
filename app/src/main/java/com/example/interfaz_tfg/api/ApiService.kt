@@ -105,10 +105,10 @@ interface ApiService {
     @GET("/cycles/user/{email}/prediction")
     suspend fun getPrediction(
         @Path("email") email: String
-    ):Response<MenstrualCycle>
+    ):Response<MutableList<MenstrualCycle?>>
 
-    @PUT()
+    @PUT("/cycles/update")
     suspend fun updateCycle(
-        @Body cycle: MenstrualCycleDTO
+        @Body cycle: MenstrualCycle
     ): Response<MenstrualCycle>
 }

@@ -38,9 +38,11 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectableBoxWithDropdown(
+    title: String,
     options: List<String>,
     currentGoal: String,
-    onOptionSelected: (String) -> Unit) {
+    onOptionSelected: (String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("") }
     Box(modifier = Modifier
@@ -74,9 +76,10 @@ fun SelectableBoxWithDropdown(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Text(
-                        text = "Objetivo: ",
+                        text = title,
                         fontWeight = FontWeight.Black,
-                        modifier = Modifier.padding(start = 15.dp)
+                        modifier = Modifier.padding(start = 15.dp),
+                        color = Color.Black
                     )
                     Spacer(Modifier.weight(1f))
                     Text(
@@ -87,7 +90,8 @@ fun SelectableBoxWithDropdown(
                     Icon(
                         imageVector = if (!expanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
                         contentDescription = "",
-                        Modifier.size(40.dp).padding(end = 5.dp)
+                        Modifier.size(40.dp).padding(end = 5.dp),
+                        tint = Color.Black
                     )
                 }
             }

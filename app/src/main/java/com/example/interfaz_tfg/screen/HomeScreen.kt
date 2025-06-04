@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -60,6 +61,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.interfaz_tfg.api.model.cycle.CyclePhase
+import com.example.interfaz_tfg.utils.groupContinuousDates
 import kotlinx.coroutines.launch
 
 
@@ -80,7 +82,7 @@ fun HomeScreen(
     val scrollState = rememberScrollState()
     val user by userViewModel.user.collectAsState()
     val logs by dailyLogViewModel.logs.collectAsState()
-    val isBleeding by dailyLogViewModel.isBleeding
+    val isBleeding by dailyLogViewModel.isBleeding.collectAsState()
     val cycles by cycleViewModel.cycles.collectAsState()
     val currentDate = LocalDate.now()
     var selectedDate by remember { mutableStateOf(currentDate) }
@@ -97,10 +99,11 @@ fun HomeScreen(
 
     LaunchedEffect(user?.email) {
         user?.email?.let {
+            cycleViewModel.getPrediction(it)
             cycleViewModel.loadCycles(it)
-            userViewModel.getUserByUsername(user!!.username)
             dailyLogViewModel.loadLogs(it)
             cycleViewModel.getPrediction(it)
+            userViewModel.getUserByUsername(user!!.username)
         }
     }
 
@@ -108,11 +111,28 @@ fun HomeScreen(
         dailyLogViewModel.updateBleedingStatusForToday(logs, currentDate)
     }
 
-    LaunchedEffect(user?.email, logs) {
+    LaunchedEffect(user?.email, logs, currentDate) {
         val email = user?.email ?: return@LaunchedEffect
         val todayLog = logs.find { it.date == currentDate.toString() }
-        val shouldRecalculate = (todayLog == null || !todayLog.hasMenstruation) &&
-                lastRecalculationDate != currentDate
+        val confirmedCycles = cycles.filter { !it.isPredicted }
+        val lastConfirmedCycle = confirmedCycles.maxByOrNull { LocalDate.parse(it.startDate) }
+
+        val menstruationDates = lastConfirmedCycle?.phases
+            ?.filter { it.phase == CyclePhase.MENSTRUATION }
+            ?.mapNotNull { runCatching { LocalDate.parse(it.date) }.getOrNull() }
+            ?: emptyList()
+
+        val menstruationRanges = groupContinuousDates(menstruationDates)
+        val currentMenstruationRange = menstruationRanges.find { currentDate in it.first..it.second }
+
+        val actualLength = currentMenstruationRange?.let {
+            ChronoUnit.DAYS.between(it.first, currentDate).toInt() + 1
+        } ?: 0
+
+        val shouldRecalculate = (
+                todayLog == null || !todayLog.hasMenstruation ||
+                        (actualLength > 0 && actualLength != lastConfirmedCycle?.cycleLength)
+                ) && lastRecalculationDate != currentDate
 
         if (shouldRecalculate) {
             cycleViewModel.recalculateCycle(email, currentDate)
@@ -121,19 +141,18 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(scrollState.value, user, token) {
-        if (scrollState.value == scrollState.maxValue && user?.email != null && !token.isNullOrBlank()) {
-            val email = Uri.encode(user!!.email)
-            navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
-        }
-    }
+   //LaunchedEffect(scrollState.value, user, token) {
+   //    if (scrollState.value == scrollState.maxValue && user?.email != null && !token.isNullOrBlank()) {
+   //        val email = Uri.encode(user!!.email)
+   //        navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
+   //    }
+   //}
 
 
     // Fases y fechas
     val confirmedPhases = cycles
         .filter { !it.isPredicted }
-        .maxByOrNull { LocalDate.parse(it.startDate) }
-        ?.phases ?: emptyList()
+        .flatMap { it.phases }
 
     val predictedPhases = cycles
         .filter { it.isPredicted }
@@ -158,11 +177,14 @@ fun HomeScreen(
     val dayInPeriod = menstruationStartDate?.let { ChronoUnit.DAYS.between(it, currentDate).toInt() + 1 }
     val nextMenstruationRange = menstruationRanges.firstOrNull { it.first.isAfter(currentDate) }
     val nextMenstruationDate = nextMenstruationRange?.first
-    val daysUntilNextPeriod = nextMenstruationDate?.let { ChronoUnit.DAYS.between(currentDate, it).toInt() } ?: -1
+    val daysUntilNextPeriod = nextMenstruationDate?.let {
+        val days = ChronoUnit.DAYS.between(currentDate, it).toInt()
+        if (days >= 0) days else -1
+    } ?: -1
 
     val periodText = when {
         dayInPeriod != null -> "Día $dayInPeriod"
-        daysUntilNextPeriod >= 0 -> daysUntilNextPeriod.toString()
+        daysUntilNextPeriod > 0 -> daysUntilNextPeriod.toString()
         else -> ""
     }
 
@@ -261,6 +283,7 @@ fun HomeScreen(
                                     val email = user?.email
                                     if (email != null) {
                                         scope.launch {
+                                            cycleViewModel.updateOrCreateCycleFromLogs(email, logs)
                                             cycleViewModel.recalculateCycle(email, currentDate)
                                             cycleViewModel.loadCycles(email)
                                             lastRecalculationDate = currentDate
@@ -309,26 +332,3 @@ fun HomeScreen(
 
 }
 
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun groupContinuousDates(dates: List<LocalDate>): List<Pair<LocalDate, LocalDate>> {
-    if (dates.isEmpty()) return emptyList()
-    val sortedDates = dates.sorted()
-    val result = mutableListOf<Pair<LocalDate, LocalDate>>()
-
-    var start = sortedDates[0]
-    var end = start
-
-    for (i in 1 until sortedDates.size) {
-        val current = sortedDates[i]
-        if (ChronoUnit.DAYS.between(end, current) <= 1) {
-            end = current
-        } else {
-            result.add(start to end)
-            start = current
-            end = current
-        }
-    }
-    result.add(start to end)
-    return result
-}

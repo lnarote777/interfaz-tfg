@@ -32,8 +32,8 @@ class DailyLogViewModel : ViewModel(){
     private val _logs = MutableStateFlow<List<DailyLog>>(emptyList())
     val logs: StateFlow<List<DailyLog>> = _logs
 
-    private val _isBleeding = mutableStateOf(false)
-    val isBleeding: State<Boolean> get() = _isBleeding
+    private val _isBleeding = MutableStateFlow(false)
+    val isBleeding: StateFlow<Boolean> = _isBleeding
 
     private val _isEditing = MutableStateFlow(false)
     val isEditing: StateFlow<Boolean> = _isEditing
@@ -46,31 +46,11 @@ class DailyLogViewModel : ViewModel(){
     @RequiresApi(Build.VERSION_CODES.O)
     fun setSelectedDate(date: LocalDate, email: String, token: String) {
         _selectedDate.value = date
-        val existingLog = logs.value.find { it.date == date.toString() }
-        if (existingLog != null) {
-            _logState.value = LogState(
-                mood = existingLog.mood,
-                symptoms = existingLog.symptoms,
-                menstrualFlow = existingLog.menstrualFlow?.name?.lowercase() ?: "",
-                sexualActivity = existingLog.sexualActivity,
-                vaginalDischarge = existingLog.vaginalDischarge,
-                physicalActivity = existingLog.physicalActivity,
-                pillsTaken = existingLog.pillsTaken,
-                waterIntake = existingLog.waterIntake,
-                weight = existingLog.weight,
-                notes = existingLog.notes
-            )
-        } else {
-            _logState.value = LogState()
-        }
+        loadLogForDate(email, date)
     }
 
     fun setNotes(notes: String) {
         _logState.value = _logState.value.copy(notes = notes)
-    }
-
-    fun setWaterIntake(water: Int?) {
-        _logState.value = _logState.value.copy(waterIntake = water)
     }
 
     fun setWeight(weight: Double?) {
@@ -154,6 +134,9 @@ class DailyLogViewModel : ViewModel(){
                             notes = log.notes
                         )
                         _isEditing.value = true
+                    }?: run {
+                        _logState.value = LogState()
+                        _isEditing.value = false
                     }
                 } else {
                     _logState.value = LogState()

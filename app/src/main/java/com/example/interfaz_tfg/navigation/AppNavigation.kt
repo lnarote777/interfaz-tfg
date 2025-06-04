@@ -199,18 +199,18 @@ fun AppNavigation(){
             StatsScreen(navController)
         }
 
-        composable(AppScreen.CycleSettingsScreen.route+ "/{periodDuration}/{cycleDuration}",
+        composable(AppScreen.CycleSettingsScreen.route+ "/{username}/{email}",
             arguments = listOf(
-                navArgument(name = "periodDuration"){
+                navArgument(name = "username"){
                     type = NavType.StringType
                 },
-                navArgument(name = "cycleDuration"){
+                navArgument(name = "email"){
                     type = NavType.StringType
                 }
             )){
             CycleSettingsScreen(navController,
-                periodDays = it.arguments?.getString("periodDuration") ?: "",
-                cycleDays = it.arguments?.getString("cycleDuration") ?: ""
+                username = it.arguments?.getString("username") ?: "",
+                email = it.arguments?.getString("email") ?: ""
             )
         }
 
