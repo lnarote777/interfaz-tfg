@@ -91,22 +91,9 @@ class CycleViewModel : ViewModel(){
                 val response = API.retrofitService.recalculateCycle(userId, date?.toString())
                 if (response.isSuccessful) {
                     val updatedCycle = response.body()
-                    if (updatedCycle != null) {
-                        val updatedList = _cycles.value.toMutableList()
-                        val index = updatedList.indexOfFirst { it.id == updatedCycle.id }
-                        if (index != -1) {
-                            updatedList[index] = updatedCycle
-                        } else {
-                            updatedList.add(updatedCycle)
-                        }
-                        _cycles.value = updatedList
-
-                        _phases.value = updatedCycle.phases ?: emptyList()
-
-                        _cycleState.value = updatedCycle
-                    }
+                    _cycleState.value = updatedCycle
                 } else {
-                    Log.e("API", "Error: ${response.code()} - ${response.errorBody()?.toString()}")
+                    Log.e("API", "Error: ${response.code()}")
                 }
             } catch (e: Exception) {
                 Log.e("API", "Exception: ${e.message}")

@@ -34,6 +34,8 @@ import com.example.interfaz_tfg.viewModel.UserViewModel
 @Composable
 fun CycleSettingsScreen(
     navController: NavController,
+    bleedingDuration: Int,
+    cycleLength: Int,
     username: String,
     email: String
 ) {
@@ -43,8 +45,8 @@ fun CycleSettingsScreen(
     val color = MaterialTheme.colorScheme
     val cycleState = cycleViewModel.cycles.collectAsState()
     val cycle = cycleState.value.find { !it.isPredicted }
-    val selectedCycleLength = remember { mutableIntStateOf(cycle?.cycleLength ?: 28) }
-    val selectedBleedingDuration = remember { mutableIntStateOf(cycle?.bleedingDuration ?: 5) }
+    val selectedCycleLength = remember { mutableIntStateOf(cycleLength) }
+    val selectedBleedingDuration = remember { mutableIntStateOf( bleedingDuration) }
 
     val userState = userViewModel.user.collectAsState()
     val user = userState.value
@@ -73,8 +75,10 @@ fun CycleSettingsScreen(
                             password = "",
                             goal = user?.goal ?: Goal.TRACK_PERIOD
                         )
+                    cycleViewModel.updateCycle(updatedCycle, navController, username, email)
+                        cycleViewModel.getPrediction(email)
                         userViewModel.updateUser(userUpdate, navController )
-                        cycleViewModel.updateCycle(updatedCycle, navController, username, email)
+
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -96,7 +100,6 @@ fun CycleSettingsScreen(
             Header(navController, "Ajustes ciclo")
 
             if (cycle == null || user == null) {
-                // Muestra solo el indicador mientras carga, pero con fondo uniforme y estilo
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

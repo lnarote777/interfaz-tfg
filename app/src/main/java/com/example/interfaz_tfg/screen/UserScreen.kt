@@ -144,7 +144,7 @@ fun UserScreen(
                     Button(
                         onClick = {
                             navController.navigate(
-                                "${AppScreen.CycleSettingsScreen.route}/$username/$email"
+                                "${AppScreen.CycleSettingsScreen.route}/$cycleDuration/$periodDuration/$username/$email"
                             )
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.botones2)),

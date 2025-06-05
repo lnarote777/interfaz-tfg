@@ -126,25 +126,8 @@ fun HomeScreen(
     LaunchedEffect(user?.email, logs, currentDate) {
         val email = user?.email ?: return@LaunchedEffect
         val todayLog = logs.find { it.date == currentDate.toString() }
-        val confirmedCycles = cycles.filter { !it.isPredicted }
-        val lastConfirmedCycle = confirmedCycles.maxByOrNull { LocalDate.parse(it.startDate) }
-
-        val menstruationDates = lastConfirmedCycle?.phases
-            ?.filter { it.phase == CyclePhase.MENSTRUATION }
-            ?.mapNotNull { runCatching { LocalDate.parse(it.date) }.getOrNull() }
-            ?: emptyList()
-
-        val menstruationRanges = groupContinuousDates(menstruationDates)
-        val currentMenstruationRange = menstruationRanges.find { selectedDate in it.first..it.second }
-
-        val actualLength = currentMenstruationRange?.let {
-            ChronoUnit.DAYS.between(it.first, selectedDate).toInt() + 1
-        } ?: 0
-
-        val shouldRecalculate = (
-                todayLog == null || !todayLog.hasMenstruation ||
-                        (actualLength > 0 && actualLength != lastConfirmedCycle?.cycleLength)
-                ) && lastRecalculationDate != selectedDate
+        val shouldRecalculate = (todayLog == null || !todayLog.hasMenstruation) &&
+                lastRecalculationDate != currentDate
 
         if (shouldRecalculate) {
             cycleViewModel.recalculateCycle(email, currentDate)
@@ -152,14 +135,6 @@ fun HomeScreen(
             lastRecalculationDate = currentDate
         }
     }
-
-   //LaunchedEffect(scrollState.value, user, token) {
-   //    if (scrollState.value == scrollState.maxValue && user?.email != null && !token.isNullOrBlank()) {
-   //        val email = Uri.encode(user!!.email)
-   //        navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
-   //    }
-   //}
-
 
     // Fases y fechas
     val confirmedPhases = cycles
@@ -187,7 +162,7 @@ fun HomeScreen(
     val isTodayInMenstruation = menstruationBlockToday != null
     val menstruationStartDate = if (isTodayInMenstruation && isBleeding) menstruationBlockToday?.first else null
     val dayInPeriod = menstruationStartDate?.let { ChronoUnit.DAYS.between(it, selectedDate).toInt() + 1 }
-    val nextMenstruationRange = menstruationRanges.firstOrNull { it.first.isAfter(currentDate) }
+    val nextMenstruationRange = menstruationRanges.firstOrNull { it.first.isAfter(selectedDate) }
     val nextMenstruationDate = nextMenstruationRange?.first
     val daysUntilNextPeriod = nextMenstruationDate?.let {
         val days = ChronoUnit.DAYS.between(selectedDate, it).toInt()

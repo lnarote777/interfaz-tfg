@@ -85,18 +85,12 @@ fun AppNavigation(calendarSharedViewModel: CalendarSharedViewModel){
             val gson = Gson()
             val type = object : TypeToken<List<DailyLog>>() {}.type
 
-            //val confirmedJson = it.arguments?.getString("confirmedCycle") ?: "[]"
-            //val predictedJson = it.arguments?.getString("predictedCycle") ?: "[]"
             val logsJson = it.arguments?.getString("logs") ?: "[]"
 
-            //val confirmedPhases: List<CyclePhaseDay> = gson.fromJson(confirmedJson, type)
-            //val predictedPhases: List<CyclePhaseDay> = gson.fromJson(predictedJson, type)
             val logs: List<DailyLog> = gson.fromJson(logsJson, type)
 
             CalendarScreen(
                 navController = navController,
-                //confirmedPhases = confirmedPhases,
-                //predictedPhases = predictedPhases,
                 logs = logs,
                 calendarSharedViewModel
             )
@@ -211,8 +205,14 @@ fun AppNavigation(calendarSharedViewModel: CalendarSharedViewModel){
             StatsScreen(navController)
         }
 
-        composable(AppScreen.CycleSettingsScreen.route+ "/{username}/{email}",
+        composable(AppScreen.CycleSettingsScreen.route+ "/{cycleLength}/{periodDuration}/{username}/{email}",
             arguments = listOf(
+                navArgument(name = "cycleLength"){
+                    type = NavType.IntType
+                },
+                navArgument(name = "periodDuration"){
+                    type = NavType.IntType
+                },
                 navArgument(name = "username"){
                     type = NavType.StringType
                 },
@@ -222,7 +222,9 @@ fun AppNavigation(calendarSharedViewModel: CalendarSharedViewModel){
             )){
             CycleSettingsScreen(navController,
                 username = it.arguments?.getString("username") ?: "",
-                email = it.arguments?.getString("email") ?: ""
+                email = it.arguments?.getString("email") ?: "",
+                cycleLength = it.arguments?.getInt("cycleLength") ?: -1,
+                bleedingDuration = it.arguments?.getInt("periodDuration") ?: -1
             )
         }
 

@@ -14,19 +14,49 @@ object UserPreferences {
     val TOKEN_KEY = stringPreferencesKey("token")
     val IMAGE_URI = stringPreferencesKey("profile_image_uri")
     val AVATAR_RES = intPreferencesKey("avatar_res_id")
+    val USERNAME_KEY = stringPreferencesKey("username")
+    val PASSWORD_KEY = stringPreferencesKey("password")
+
 
     suspend fun saveToken(context: Context, token: String) {
         context.dataStore.edit { preferences ->
             preferences[TOKEN_KEY] = token
         }
     }
+    suspend fun saveUsername(context: Context, username: String) {
+        context.dataStore.edit { preferences ->
+            preferences[USERNAME_KEY] = username
+        }
+    }
+    suspend fun savePassword(context: Context, password: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PASSWORD_KEY] = password
+        }
+    }
 
+    fun getUsername(context: Context): Flow<String?> {
+        return context.dataStore.data.map { preferences ->
+            preferences[USERNAME_KEY]
+        }
+    }
     fun getToken(context: Context): Flow<String?> {
         return context.dataStore.data.map { preferences ->
             preferences[TOKEN_KEY]
         }
     }
 
+    fun getPassword(context: Context): Flow<String?> {
+        return context.dataStore.data.map { preferences ->
+            preferences[PASSWORD_KEY]
+        }
+    }
+
+    suspend fun clearUser(context: Context) {
+        context.dataStore.edit { preferences ->
+            preferences.remove(USERNAME_KEY)
+            preferences.remove(PASSWORD_KEY)
+        }
+    }
     suspend fun clearToken(context: Context) {
         context.dataStore.edit { preferences ->
             preferences.remove(TOKEN_KEY)

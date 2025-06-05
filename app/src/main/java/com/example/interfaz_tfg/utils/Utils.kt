@@ -3,6 +3,7 @@ package com.example.interfaz_tfg.utils
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -14,13 +15,14 @@ fun groupContinuousDates(dates: List<LocalDate>): List<Pair<LocalDate, LocalDate
     var start = sortedDates[0]
     var end = start
 
-    for (date in sortedDates.drop(1)) {
-        if (date == end.plusDays(1)) {
-            end = date
+    for (i in 1 until sortedDates.size) {
+        val current = sortedDates[i]
+        if (ChronoUnit.DAYS.between(end, current) <= 1) {
+            end = current
         } else {
             result.add(start to end)
-            start = date
-            end = date
+            start = current
+            end = current
         }
     }
     result.add(start to end)

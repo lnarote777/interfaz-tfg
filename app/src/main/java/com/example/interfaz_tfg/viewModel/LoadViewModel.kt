@@ -3,13 +3,16 @@ package com.example.interfaz_tfg.viewModel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.interfaz_tfg.UserPreferences
+import com.example.interfaz_tfg.api.API
+import com.example.interfaz_tfg.api.model.user.UserLoginDTO
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class LoadViewModel(application: Application) : AndroidViewModel(application) {
 
-    fun checkLogin(
+    fun  checkLogin(
         onResult: (navigateTo: String) -> Unit
     ) {
         viewModelScope.launch {
