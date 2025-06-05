@@ -2,6 +2,7 @@ package com.example.interfaz_tfg.screen.settings
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -280,7 +281,8 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
                                 }
                             }
                             if (userUpdated != null) {
-                                userViewModel.updateUser(userUpdated, navController)
+                                userViewModel.updateUser(userUpdated)
+                                Toast.makeText(context, "Usuario actualizado", Toast.LENGTH_LONG).show()
                             }
                         },
                         modifier = Modifier

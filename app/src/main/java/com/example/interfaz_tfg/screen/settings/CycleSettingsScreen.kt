@@ -75,9 +75,9 @@ fun CycleSettingsScreen(
                             password = "",
                             goal = user?.goal ?: Goal.TRACK_PERIOD
                         )
-                    cycleViewModel.updateCycle(updatedCycle, navController, username, email)
                         cycleViewModel.getPrediction(email)
-                        userViewModel.updateUser(userUpdate, navController )
+                        userViewModel.updateUser(userUpdate)
+                        cycleViewModel.updateCycle(updatedCycle, navController, username, email)
 
                     },
                     modifier = Modifier

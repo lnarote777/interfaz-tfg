@@ -83,12 +83,11 @@ class UserViewModel() : ViewModel() {
         }
     }
 
-    fun updateUser(user: UserUpdateDTO, navController: NavController){
+    fun updateUser(user: UserUpdateDTO){
         viewModelScope.launch {
             try {
                 val response = API.retrofitService.update(user)
                 if(response.isSuccessful){
-                    navController.popBackStack()
                     Log.d("API", "Usuario actualizado")
                 }else{
                     Log.e("API", "Error al actualizar usuario: ${response.code()}")
