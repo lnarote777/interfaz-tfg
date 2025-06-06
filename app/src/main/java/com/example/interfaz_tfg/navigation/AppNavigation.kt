@@ -96,8 +96,16 @@ fun AppNavigation(calendarSharedViewModel: CalendarSharedViewModel){
             )
         }
 
-        composable(AppScreen.SettingsScreen.route){
-            SettingsScreen(navController)
+        composable(AppScreen.SettingsScreen.route + "/{email}",
+            arguments = listOf(
+                navArgument(name = "email"){
+                    type = NavType.StringType
+                }
+            )
+        ){
+            SettingsScreen(navController,
+                email = it.arguments?.getString("email") ?: ""
+            )
         }
 
         composable(AppScreen.DailyScreen.route + "/{email}/{token}/{isBleeding}",

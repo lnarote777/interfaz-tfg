@@ -162,7 +162,8 @@ fun Footer(
                 )
             }
 
-            IconButton(onClick = {navController.navigate(route = AppScreen.SettingsScreen.route)}) {
+            IconButton(onClick = {navController.navigate(route = AppScreen.SettingsScreen.route + "/$email") }
+            ) {
                 Icon(Icons.Default.Settings,
                     contentDescription = "Settings",
                     tint = colorResource(R.color.iconosNav),

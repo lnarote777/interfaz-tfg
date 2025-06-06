@@ -1,5 +1,6 @@
 package com.example.interfaz_tfg.screen.settings
 
+import android.provider.ContactsContract.CommonDataKinds.Email
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +30,7 @@ import com.example.interfaz_tfg.compose.configuraciones.SettingItem
 import com.example.interfaz_tfg.navigation.AppScreen
 
 @Composable
-fun SettingsScreen(navController: NavController){
+fun SettingsScreen(navController: NavController, email: String){
 
     var showAboutUs by rememberSaveable { mutableStateOf(false) }
     var showPrivacity by rememberSaveable { mutableStateOf(false) }
@@ -109,7 +110,7 @@ fun SettingsScreen(navController: NavController){
                     Divider(modifier = Modifier.padding(horizontal = 16.dp))
                     SettingItem(title = "Recordatorios", isClickable = true)
                     Divider(modifier = Modifier.padding(horizontal = 16.dp))
-                    SettingItem(title = "Actualizar a premium", isClickable = true, navController = navController, route = AppScreen.PremiumScreen.route)
+                    SettingItem(title = "Actualizar a premium", isClickable = true, navController = navController, route = "${AppScreen.PremiumScreen.route}/$email")
                     Divider(modifier = Modifier.padding(horizontal = 16.dp))
                     SettingItem(title = "Configuración de privacidad",
                         isClickable = true,
