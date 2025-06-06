@@ -263,17 +263,21 @@ fun HomeScreen(
                                 modifier = Modifier.padding(top = 10.dp)
                                     .height(35.dp),
                                 onClick = {
-                                    phasesUpdateTrigger++
-                                    dailyLogViewModel.setIsBleeding(true)
                                     val email = user?.email
                                     if (email != null) {
-                                        scope.launch {
-                                            cycleViewModel.updateOrCreateCycleFromLogs(email, logs)
-                                            cycleViewModel.recalculateCycle(email, currentDate)
-                                            cycleViewModel.loadCycles(email)
-                                            lastRecalculationDate = currentDate
-                                            navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
+                                        if (!isBleeding){
+                                            phasesUpdateTrigger++
+                                            dailyLogViewModel.setIsBleeding(true)
+                                            scope.launch {
+                                                cycleViewModel.updateOrCreateCycleFromLogs(email, logs)
+                                                cycleViewModel.recalculateCycle(email, currentDate)
+                                                cycleViewModel.loadCycles(email)
+                                                lastRecalculationDate = currentDate
+                                            }
                                         }
+
+
+                                        navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(

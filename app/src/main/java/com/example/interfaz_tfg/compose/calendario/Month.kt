@@ -183,7 +183,7 @@ fun Month(
                             }
                             val textColor = when {
                                 isSelected -> MaterialTheme.colorScheme.onPrimary
-                                isToday -> colorResource(R.color.botones2)
+                                isToday && baseColor == Color.Transparent -> MaterialTheme.colorScheme.onPrimary
                                 else -> MaterialTheme.colorScheme.onSurface
                             }
 

@@ -27,6 +27,8 @@ fun SettingItem(
     navController: NavController? = null,
     onClick: (() -> Unit)? = null
 ) {
+
+    val colorScheme = MaterialTheme.colorScheme
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -48,7 +50,7 @@ fun SettingItem(
         Text(
             text = title,
             style = MaterialTheme.typography.bodyLarge,
-            color = if (isClickable) MaterialTheme.colorScheme.primary else Color.Black,
+            color = if (isClickable) colorScheme.primary else colorScheme.onSurface ,
             modifier = Modifier.weight(1f)
         )
 

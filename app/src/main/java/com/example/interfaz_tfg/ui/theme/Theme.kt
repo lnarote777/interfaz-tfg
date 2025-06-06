@@ -15,11 +15,11 @@ import androidx.compose.ui.res.painterResource
 import com.example.interfaz_tfg.R
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF840051), // Titulo
+    primary = Color(0xFFFFB1E2), // Titulo
     secondary = Color(0xFF34052D), // Eslogan
     tertiary = Color(0xFF543585), // Botones1
-    background = Color(0xFF0A101D), // Fondo oscuro
-    surface = Color(0xFF1A284A), // Superficie más oscura para las tarjetas
+    background = Color(0xFF111B32), // Fondo oscuro
+    surface = Color(0xFF2B3F61), // Superficie más oscura para las tarjetas
     onPrimary = Color.White, // Texto sobre el título
     onSecondary = Color.White, // Texto sobre eslogan
     onTertiary = Color.White, // Texto sobre botones
