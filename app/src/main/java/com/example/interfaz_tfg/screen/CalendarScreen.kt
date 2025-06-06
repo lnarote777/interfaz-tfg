@@ -96,6 +96,7 @@ fun CalendarScreen(
                         selectedDate = selectedDate,
                         currentDate = currentDate,
                         logs = logs,
+                        showNavigationArrows = false,
                         confirmedPhases = confirmedPhases,
                         predictedPhases = predictedPhases,
                         onDateSelected = { date ->

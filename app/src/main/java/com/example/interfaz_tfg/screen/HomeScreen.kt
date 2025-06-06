@@ -1,10 +1,7 @@
 package com.example.interfaz_tfg.screen
 
-import java.time.temporal.ChronoUnit
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,12 +14,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
@@ -33,8 +28,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -50,20 +47,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.R
+import com.example.interfaz_tfg.api.model.cycle.CyclePhase
 import com.example.interfaz_tfg.compose.Footer
 import com.example.interfaz_tfg.compose.calendario.Month
 import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.utils.groupContinuousDates
+import com.example.interfaz_tfg.viewModel.CalendarSharedViewModel
 import com.example.interfaz_tfg.viewModel.CycleViewModel
 import com.example.interfaz_tfg.viewModel.DailyLogViewModel
 import com.example.interfaz_tfg.viewModel.UserViewModel
-import java.time.LocalDate
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import com.example.interfaz_tfg.api.model.cycle.CyclePhase
-import com.example.interfaz_tfg.utils.groupContinuousDates
-import com.example.interfaz_tfg.viewModel.CalendarSharedViewModel
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+import java.time.Month as JavaMonth
 
 
 @SuppressLint("NewApi")
@@ -93,7 +89,8 @@ fun HomeScreen(
     var phasesUpdateTrigger by remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
     val color = MaterialTheme.colorScheme
-
+    var currentMonth by remember { mutableStateOf(currentDate.month) }
+    var currentYear by remember { mutableStateOf(currentDate.year) }
 
     // Lógica reactiva
     LaunchedEffect(Unit) {
@@ -165,8 +162,7 @@ fun HomeScreen(
     val nextMenstruationRange = menstruationRanges.firstOrNull { it.first.isAfter(selectedDate) }
     val nextMenstruationDate = nextMenstruationRange?.first
     val daysUntilNextPeriod = nextMenstruationDate?.let {
-        val days = ChronoUnit.DAYS.between(selectedDate, it).toInt()
-        if (days >= 0) days else -1
+        maxOf(0, ChronoUnit.DAYS.between(selectedDate, it).toInt())
     } ?: -1
 
     val periodText = when {
@@ -289,15 +285,28 @@ fun HomeScreen(
                         }
                     }
                     Spacer(Modifier.height(60.dp))
+
                     Month(
-                        year = currentDate.year,
-                        month = currentDate.month,
+                        year = currentYear,
+                        month = currentMonth,
                         selectedDate = selectedDate,
                         currentDate = currentDate,
                         confirmedPhases = confirmedPhases,
                         predictedPhases = predictedPhases,
-                        logs = logs
-                    ) { date -> selectedDate = date }
+                        logs = logs,
+                        showNavigationArrows = true,
+                        onDateSelected = { date -> selectedDate = date },
+                        onPreviousMonth = {
+                            val prev = currentMonth.minus(1)
+                            if (prev == JavaMonth.DECEMBER) currentYear -= 1
+                            currentMonth = prev
+                        },
+                        onNextMonth = {
+                            val next = currentMonth.plus(1)
+                            if (next == JavaMonth.JANUARY) currentYear += 1
+                            currentMonth = next
+                        }
+                    )
                     Spacer(Modifier.height(100.dp))
                 }
             }

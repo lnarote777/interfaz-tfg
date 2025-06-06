@@ -1,12 +1,8 @@
 package com.example.interfaz_tfg.viewModel
 
-import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.Recomposer
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.interfaz_tfg.api.API
@@ -17,7 +13,6 @@ import com.example.interfaz_tfg.api.model.cycle.MonthlyStats
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 
 class DailyLogViewModel : ViewModel(){

@@ -4,14 +4,23 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +55,10 @@ fun Month(
     confirmedPhases: List<CyclePhaseDay>,
     predictedPhases: List<CyclePhaseDay>,
     logs: List<DailyLog>,
-    onDateSelected: (LocalDate) -> Unit
+    showNavigationArrows: Boolean,
+    onDateSelected: (LocalDate) -> Unit,
+    onPreviousMonth: () -> Unit = {},
+    onNextMonth: () -> Unit = {}
 ) {
     val firstDayOfMonth = LocalDate.of(year, month, 1)
     val daysInMonth = month.length(Year.of(year).isLeap)
@@ -60,40 +72,47 @@ fun Month(
             .background(color = color.surface)
     ) {
         // Header del mes
-        //Row {
-        //    IconButton(onClick = {
-        //        //navController.navigate(AppScreen.CalendarScreen.route + "/$confirmedJson/$predictedJson")
-        //    }) {
-        //        Icon(
-        //            Icons.Default.KeyboardArrowLeft,
-        //            contentDescription = "Mes anterior",
-        //            tint = color.onSurface,
-        //            modifier = Modifier.size(40.dp)
-        //        )
-        //    }
-//
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (showNavigationArrows) {
+                IconButton(modifier = Modifier.align(Alignment.CenterStart),
+                    onClick = { onPreviousMonth() }) {
+                    Icon(
+                        Icons.Default.KeyboardArrowLeft,
+                        contentDescription = "Mes anterior",
+                        tint = color.onSurface,
+                        modifier = Modifier.size(25.dp)
+                    )
+                }
+            }
             Text(
                 text = "${month.getDisplayName(TextStyle.FULL, Locale.getDefault())} $year".capitalize(),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .align(Alignment.Center)
+                    .padding(horizontal = 32.dp),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = FontFamily(Font(R.font.lexend, FontWeight.SemiBold)),
                 color = color.onSurface
             )
 
-      //      IconButton(onClick = {
-      //          //navController.navigate(AppScreen.CalendarScreen.route + "/$confirmedJson/$predictedJson")
-      //      }) {
-      //          Icon(Icons.Default.KeyboardArrowRight,
-      //              contentDescription = "Siguiente mes",
-      //              tint = color.onSurface,
-      //              modifier = Modifier.size(40.dp)
-      //          )
-      //      }
-      //  }
+            if (showNavigationArrows) {
+                IconButton(modifier = Modifier.align(Alignment.CenterEnd),
+                    onClick = { onNextMonth() }) {
+                    Icon(
+                        Icons.Default.KeyboardArrowRight,
+                        contentDescription = "Siguiente mes",
+                        tint = color.onSurface,
+                        modifier = Modifier.size(25.dp)
+                    )
+                }
+            }
+        }
 
 
         // Días de la semana
