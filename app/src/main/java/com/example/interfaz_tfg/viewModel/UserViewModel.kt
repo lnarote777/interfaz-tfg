@@ -1,23 +1,16 @@
 package com.example.interfaz_tfg.viewModel
 
-import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.example.interfaz_tfg.UserPreferences
+import com.example.interfaz_tfg.utils.UserPreferences
 import com.example.interfaz_tfg.api.API
 import com.example.interfaz_tfg.api.model.user.UserDTO
-import com.example.interfaz_tfg.api.model.user.UserEntity
 import com.example.interfaz_tfg.api.model.user.UserUpdateDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 

@@ -1,4 +1,4 @@
-package com.example.interfaz_tfg
+package com.example.interfaz_tfg.utils
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit

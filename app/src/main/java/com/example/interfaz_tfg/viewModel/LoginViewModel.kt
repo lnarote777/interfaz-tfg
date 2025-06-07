@@ -6,9 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.auth0.jwt.JWT
-import com.auth0.jwt.JWT.decode
 import com.auth0.jwt.interfaces.DecodedJWT
-import com.example.interfaz_tfg.UserPreferences
+import com.example.interfaz_tfg.utils.UserPreferences
 
 import com.example.interfaz_tfg.api.API
 import com.example.interfaz_tfg.api.model.user.UserLoginDTO
@@ -16,7 +15,6 @@ import com.example.interfaz_tfg.navigation.AppScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 /**
  * ViewModel para gestionar la lógica de inicio de sesión del usuario.
@@ -42,6 +40,9 @@ class LoginViewModel: ViewModel() {
                 val response = API.retrofitService.login(UserLoginDTO(username, password))
                 if (response.isSuccessful) {
                     response.body()?.token?.let { token ->
+                        UserPreferences.saveUsername(context, username)
+                        UserPreferences.savePassword(context, password)
+                        UserPreferences.clearToken(context)
                         UserPreferences.saveToken(context, token)
                         val userRol = getRolFromToken(token)
                         navController.navigate(route = AppScreen.HomeScreen.route + "/$username/$userRol/$token")

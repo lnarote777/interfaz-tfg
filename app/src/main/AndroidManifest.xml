@@ -31,7 +31,7 @@
 
         <!-- Nueva Activity para manejar resultado del pago -->
         <activity
-            android:name=".PaymentResultActivity"
+            android:name=".utils.PaymentResultActivity"
             android:exported="true"
             android:label="Resultado Pago"
             android:theme="@style/Theme.Interfaztfg">

@@ -32,11 +32,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -47,13 +53,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.api.model.user.SubscriptionType
 import com.example.interfaz_tfg.compose.Header
 import com.example.interfaz_tfg.compose.premium.CaracteristicasBox
+import com.example.interfaz_tfg.utils.UserPreferences
+import com.example.interfaz_tfg.viewModel.LoginViewModel
 import com.example.interfaz_tfg.viewModel.PagoViewModel
+import com.example.interfaz_tfg.viewModel.getRolFromToken
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 
@@ -64,15 +77,46 @@ fun PremiumScreen(navController: NavController, email: String){
     val pagoViewModel : PagoViewModel = viewModel()
     val uriHandler = LocalUriHandler.current
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val loginViewModel: LoginViewModel = viewModel()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var paymentInitiated by remember { mutableStateOf(false) }
+
+
+    LaunchedEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME && paymentInitiated) {
+                // La app ha vuelto al primer plano después de iniciar un pago
+                // Esperamos un poco para asegurar que el pago se haya procesado
+                scope.launch {
+                    delay(1000)
+
+                    // Rehacer el login para actualizar el token del usuario
+                    val username = UserPreferences.getUsername(context).firstOrNull()
+                    val password = UserPreferences.getPassword(context).firstOrNull()
+
+                    if (username != null && password != null) {
+                        loginViewModel.login(context, username, password, navController)
+                    }
+
+                    paymentInitiated = false
+                }
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+    }
 
     LaunchedEffect(pagoViewModel.checkoutUrl) {
         pagoViewModel.checkoutUrl.collect { url ->
             // Abrir URL de Stripe Checkout en navegador
             if (url != null) {
+                paymentInitiated = true
                 uriHandler.openUri(url)
             }
         }
     }
+
     Scaffold {innerpadding ->
         Column(
             modifier = Modifier.fillMaxSize()
