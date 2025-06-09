@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -40,126 +41,78 @@ import androidx.navigation.NavController
 import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.compose.TextFielPassword
 import com.example.interfaz_tfg.compose.Textfield
+import com.example.interfaz_tfg.compose.login.LoginScreenEffects
+import com.example.interfaz_tfg.compose.login.LoginScreenUI
+import com.example.interfaz_tfg.compose.login.loginDataClasses.LoginFormData
+import com.example.interfaz_tfg.compose.login.loginDataClasses.LoginScreenState
 import com.example.interfaz_tfg.navigation.AppScreen
+import com.example.interfaz_tfg.utils.performLogin
 import com.example.interfaz_tfg.viewModel.LoginViewModel
 
 
 @Composable
-fun LoginScreen(navController: NavController, viewModel: LoginViewModel = viewModel() ){
+fun LoginScreen(
+    navController: NavController,
+    viewModel: LoginViewModel = viewModel()
+){
+    val context = LocalContext.current
+
+    val uiState by viewModel.uiState.collectAsState()
+
     var user by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passVisible by rememberSaveable { mutableStateOf(false) }
-    val uiState by viewModel.uiState.collectAsState()
-    var errorMessage by remember { mutableStateOf("") }
-    var error by rememberSaveable { mutableStateOf(false) }
-    val context = androidx.compose.ui.platform.LocalContext.current
+    var errorMessage by rememberSaveable { mutableStateOf("") }
+    var showError by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(uiState) {
-        if (uiState.isNotEmpty()) {
-            errorMessage = uiState
-            error = true
-            user = ""
-            password = ""
-        }
+    var screenState = remember(user, password, passVisible, errorMessage, showError) {
+        LoginScreenState(
+            user = user,
+            password = password,
+            passVisible = passVisible,
+            errorMessage = errorMessage,
+            showError = showError
+        )
+    }
+    val formData = remember(screenState) {
+        LoginFormData.from(screenState)
     }
 
-    Box(){
-        if(isSystemInDarkTheme()){
-            Image(painter = painterResource(R.drawable.fondo_load_dark),
-                contentDescription = "Fondo",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }else{
-            Image(painter = painterResource(R.drawable.fondo_login),
-                contentDescription = "Fondo",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+    LoginScreenEffects(
+        uiState = uiState,
+        onErrorReceived = { errorMsg ->
+                errorMessage = errorMsg
+                showError = true
+                user = ""
+                password = ""
+
         }
+    )
 
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Box(modifier = Modifier
-                .fillMaxWidth(0.9F)
-                .clip(RoundedCornerShape(topStart = 51.dp, topEnd = 51.dp))
-                .background(colorResource(R.color.tarjetaDatos))
-                .height(600.dp)
-
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("Inicia Sesión",
-                            textAlign = TextAlign.Center,
-                            fontSize = 40.sp,
-                            modifier =  Modifier
-                                .fillMaxWidth()
-                                .padding(30.dp)
-                        )
-
-                        Textfield(user, "Usuario") { user = it }
-                        Spacer(Modifier.height(30.dp))
-
-                        TextFielPassword(password, passVisible, "Contraseña", { password = it }) {
-                            passVisible = !passVisible
-                        }
-                        Spacer(Modifier.height(30.dp))
-                        if (error){
-                            Text(
-                                errorMessage,
-                                color = Color.Red,
-                                fontSize = 20.sp
-                            )
-                        }
-
-                        Spacer(Modifier.height(60.dp))
-
-                        Button(
-                            onClick = {
-                                if (user.isBlank() || password.isBlank()) {
-                                    errorMessage = "Por favor, completa ambos campos"
-                                    error = true
-                                } else {
-                                    // Si todo está bien, intentamos hacer login
-                                    viewModel.login(context, user, password, navController)
-                                    errorMessage = ""
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(0.9f)
-                                .height(50.dp),
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.botones1))
-                        ) { Text("Iniciar Sesión", fontSize = 20.sp) }
-
-                        Spacer(Modifier.height(20.dp))
-
-                        Text("¿Olvidaste la contraseña?",
-                            textAlign = TextAlign.Center,
-                            modifier =  Modifier
-                                .fillMaxWidth()
-                                //.clickable { navController.navigate(route = AppScreen.RegistroScreen.route) }
-                        )
-                    }
-
-                    Text("¿Aun no estás registrada? Regístrate.",
-                        textAlign = TextAlign.Center,
-                        modifier =  Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 30.dp)
-                            .clickable { navController.navigate(route = AppScreen.RegisterScreen.route) }
+    LoginScreenUI(
+        navController = navController,
+        screenState = screenState,
+        formData = formData,
+        onStateChange = { newState ->
+            user = newState.user
+            password = newState.password
+            passVisible = newState.passVisible
+            errorMessage = newState.errorMessage
+            showError = newState.showError
+        },
+        onLogin = {
+            performLogin(
+                context = context,
+                formData = formData,
+                viewModel = viewModel,
+                navController = navController,
+                onValidationError = { errorMsg ->
+                    screenState = screenState.copy(
+                        errorMessage = errorMsg,
+                        showError = true
                     )
-
                 }
-
-            }
+            )
         }
-    }
+    )
 }
