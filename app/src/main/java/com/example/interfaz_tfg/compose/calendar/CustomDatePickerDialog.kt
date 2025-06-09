@@ -1,4 +1,4 @@
-package com.example.interfaz_tfg.compose.calendario
+package com.example.interfaz_tfg.compose.calendar
 
 import android.os.Build
 import androidx.annotation.RequiresApi

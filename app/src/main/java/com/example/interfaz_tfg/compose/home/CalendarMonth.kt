@@ -3,7 +3,7 @@ package com.example.interfaz_tfg.compose.home
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import com.example.interfaz_tfg.compose.calendario.Month
+import com.example.interfaz_tfg.compose.calendar.Month
 import com.example.interfaz_tfg.compose.home.homeDataClasses.CollectedStates
 import com.example.interfaz_tfg.compose.home.homeDataClasses.HomeScreenUIState
 import java.time.LocalDate

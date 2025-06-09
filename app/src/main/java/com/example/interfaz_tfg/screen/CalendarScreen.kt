@@ -19,15 +19,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.interfaz_tfg.compose.calendario.CalendarHeader
-import com.example.interfaz_tfg.R
-import com.example.interfaz_tfg.api.model.cycle.CyclePhaseDay
+import com.example.interfaz_tfg.compose.calendar.CalendarHeader
 import com.example.interfaz_tfg.api.model.cycle.DailyLog
-import com.example.interfaz_tfg.compose.calendario.Month
+import com.example.interfaz_tfg.compose.calendar.CalendarMonthsList
+import com.example.interfaz_tfg.compose.calendar.Month
+import com.example.interfaz_tfg.utils.generateCalendarMonths
+import com.example.interfaz_tfg.utils.scrollToCurrentMonth
 import com.example.interfaz_tfg.viewModel.CalendarSharedViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -40,87 +39,50 @@ fun CalendarScreen(
     logs: List<DailyLog>,
     calendarSharedViewModel: CalendarSharedViewModel
 ){
-
-    val colorScheme = MaterialTheme.colorScheme
     val currentDate = LocalDate.now()
-    val currentYear = currentDate.year
-    val minYear = 2010
-    val maxYear = currentYear + 2
-    val months = remember {
-        generateMonthsBetweenYears(minYear, maxYear).reversed()
-    }
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
 
+    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        val currentMonthIndex = months.indexOfFirst {
-            it.year == currentDate.year && it.month == currentDate.month
-        }
-        if (currentMonthIndex != -1) {
-            listState.scrollToItem(currentMonthIndex)
-        }
-    }
+    val months = remember { generateCalendarMonths(currentDate) }
 
     val confirmedPhases = calendarSharedViewModel.confirmedPhases
     val predictedPhases = calendarSharedViewModel.predictedPhases
 
-    Scaffold {innerpadding ->
+    LaunchedEffect(Unit) {
+        scrollToCurrentMonth(months, currentDate, listState)
+    }
+
+
+    Scaffold { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerpadding)
-                .background(color = colorScheme.background)
+            modifier = Modifier
+                .padding(innerPadding)
+                .background(color = MaterialTheme.colorScheme.background)
         ) {
-            CalendarHeader(navController, "Calendario",
+            CalendarHeader(
+                navController = navController,
+                title = "Calendario",
                 onTodayClick = {
                     selectedDate = currentDate
-                    val currentMonthIndex = months.indexOfFirst {
-                        it.year == currentDate.year && it.month == currentDate.month
-                    }
-                    if (currentMonthIndex != -1) {
-                        coroutineScope.launch {
-                            listState.animateScrollToItem(currentMonthIndex)
-                        }
+                    coroutineScope.launch {
+                        scrollToCurrentMonth(months, currentDate, listState)
                     }
                 }
             )
 
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                reverseLayout = true, // ← Esto invierte la dirección del scroll
-                state = listState
-            ) {
-                items(months) { monthYear ->
-                    Month(
-                        year = monthYear.year,
-                        month = monthYear.month,
-                        selectedDate = selectedDate,
-                        currentDate = currentDate,
-                        logs = logs,
-                        showNavigationArrows = false,
-                        confirmedPhases = confirmedPhases,
-                        predictedPhases = predictedPhases,
-                        onDateSelected = { date ->
-                            selectedDate = date
-                        }
-
-                    )
-                }
-            }
-
+            CalendarMonthsList(
+                months = months,
+                listState = listState,
+                selectedDate = selectedDate,
+                currentDate = currentDate,
+                logs = logs,
+                confirmedPhases = confirmedPhases,
+                predictedPhases = predictedPhases,
+                onDateSelected = { date -> selectedDate = date },
+                modifier = Modifier.weight(1f)
+            )
         }
     }
-}
-
-data class YearMonth(val year: Int, val month: Month)
-
-fun generateMonthsBetweenYears(startYear: Int, endYear: Int): List<YearMonth> {
-    val months = mutableListOf<YearMonth>()
-    for (year in startYear..endYear) {
-        for (month in Month.entries) {
-            months.add(YearMonth(year, month))
-        }
-    }
-    return months
 }

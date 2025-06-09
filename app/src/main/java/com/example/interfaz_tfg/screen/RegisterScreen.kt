@@ -19,7 +19,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,13 +47,12 @@ import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.compose.CalendarField
 import com.example.interfaz_tfg.compose.TextFielPassword
 import com.example.interfaz_tfg.compose.Textfield
-import com.example.interfaz_tfg.compose.calendario.CustomDatePickerDialog
+import com.example.interfaz_tfg.compose.calendar.CustomDatePickerDialog
 import com.example.interfaz_tfg.navigation.AppScreen
 import com.example.interfaz_tfg.viewModel.RegistrerViewModel
 import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(navController: NavController, viewModel: RegistrerViewModel = viewModel()){
     var email by rememberSaveable { mutableStateOf("") }
