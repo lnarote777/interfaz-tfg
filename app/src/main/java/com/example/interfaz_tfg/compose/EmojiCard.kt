@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 @SuppressLint("MutableCollectionMutableState")
@@ -64,7 +65,8 @@ fun EmojiCard(
                         }
                         updatedSelection.value = newSelection
                         onSelectionChange( newSelection)
-                    },
+                    }
+                    .testTag("emoji_$label")
 
             )
         }

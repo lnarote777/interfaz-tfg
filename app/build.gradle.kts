@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.testing.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,4 +80,10 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences-rxjava2:1.1.7")
     // optional - RxJava3 support
     implementation("androidx.datastore:datastore-preferences-rxjava3:1.1.7")
+
+    androidTestImplementation( "org.mockito:mockito-android:4.11.0")
+    androidTestImplementation( "org.mockito.kotlin:mockito-kotlin:4.1.0")
+    androidTestImplementation( "androidx.navigation:navigation-testing:2.7.7")
+
+
 }

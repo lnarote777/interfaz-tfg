@@ -1,5 +1,11 @@
 package com.example.interfaz_tfg.navigation
 
+import androidx.navigation.NavGraph
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
+import androidx.navigation.createGraph
+import com.example.interfaz_tfg.screen.LoginScreen
+
 /**
  * Clase sellada que define las pantallas principales de la aplicación y sus rutas asociadas.
  *
@@ -41,4 +47,12 @@ sealed class AppScreen (val route: String) {
 
     object UserSettingsScreen: AppScreen("UserSettingsScreen")
 
+}
+
+fun buildTestNavGraph(navController: NavHostController): NavGraph {
+    return navController.createGraph(startDestination = AppScreen.CoverScreen.route) {
+        composable(AppScreen.CoverScreen.route) {}
+        composable(AppScreen.LoginScreen.route) {}
+        composable(AppScreen.RegisterScreen.route) {}
+    }
 }
