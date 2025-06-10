@@ -183,10 +183,18 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    listOf(R.drawable.avatar1, R.drawable.avatar2, R.drawable.avatar3, R.drawable.avatar4, R.drawable.avatar5).forEach { resId ->
+                    val avatars = listOf(
+                        "avatar1" to R.drawable.avatar1,
+                        "avatar2" to R.drawable.avatar2,
+                        "avatar3" to R.drawable.avatar3,
+                        "avatar4" to R.drawable.avatar4,
+                        "avatar5" to R.drawable.avatar5
+                    )
+
+                    avatars.forEach { (name, resId) ->
                         Image(
                             painter = painterResource(id = resId),
-                            contentDescription = null,
+                            contentDescription = name,
                             modifier = Modifier
                                 .size(70.dp)
                                 .clip(CircleShape)
