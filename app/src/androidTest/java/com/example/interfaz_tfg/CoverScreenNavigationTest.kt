@@ -7,7 +7,6 @@ import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.interfaz_tfg.navigation.AppNavigation
 import com.example.interfaz_tfg.navigation.AppScreen
 import com.example.interfaz_tfg.navigation.buildTestNavGraph
 import com.example.interfaz_tfg.screen.CoverScreen
