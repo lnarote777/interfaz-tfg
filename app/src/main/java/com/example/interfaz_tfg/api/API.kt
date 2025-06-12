@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
  */
 object API {
     /** URL base de la API */
-    private const val BASE_URL = "http://10.0.2.2:8081/"
+    private const val BASE_URL = "https://api-tfg-uwn4.onrender.com"
 
     /**
      * Servicio de Retrofit para hacer las peticiones a la API.
