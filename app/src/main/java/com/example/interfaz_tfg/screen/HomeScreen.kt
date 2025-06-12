@@ -21,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -38,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
@@ -51,6 +53,7 @@ import com.example.interfaz_tfg.R
 import com.example.interfaz_tfg.api.model.cycle.CyclePhase
 import com.example.interfaz_tfg.compose.Footer
 import com.example.interfaz_tfg.compose.calendar.Month
+import com.example.interfaz_tfg.compose.home.PeriodCircle
 import com.example.interfaz_tfg.navigation.AppScreen
 import com.example.interfaz_tfg.utils.groupContinuousDates
 import com.example.interfaz_tfg.viewModel.CalendarSharedViewModel
@@ -92,6 +95,9 @@ fun HomeScreen(
     val color = MaterialTheme.colorScheme
     var currentMonth by remember { mutableStateOf(currentDate.month) }
     var currentYear by remember { mutableStateOf(currentDate.year) }
+    var initialized by remember { mutableStateOf(false) }
+    val isLoading by cycleViewModel.isLoading.collectAsState(initial = true)
+    val cyclesLoaded = cycles.isNotEmpty()
 
     // Lógica reactiva
     LaunchedEffect(Unit) {
@@ -104,7 +110,8 @@ fun HomeScreen(
 
     LaunchedEffect(user?.email) {
         user?.email?.let {
-            if (token != null) {
+            if (!initialized && token != null) {
+                initialized = true
                 cycleViewModel.getPrediction(it)
                 cycleViewModel.loadCycles(it)
                 dailyLogViewModel.loadLogs( it, token)
@@ -259,56 +266,35 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Box(contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .size(230.dp)
-                            .clip(CircleShape)
-                            .background(colorResource(R.color.rosa_55))
-                            .border(
-                                width = 10.dp,
-                                color = colorResource(R.color.bordeMorado),
-                                shape = CircleShape
-                            )
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center) {
-                            Text(if (periodText == daysUntilNextPeriod.toString()) "Periodo en: " else "Periodo:")
-                            Text(
-                                periodText,
-                                fontSize = 60.sp,
-                                fontWeight = FontWeight.ExtraBold
-                            )
-                            Button(
-                                modifier = Modifier.padding(top = 10.dp)
-                                    .height(35.dp),
-                                onClick = {
-                                    val email = user?.email
-                                    if (email != null && !isBleeding) {
-                                        phasesUpdateTrigger++
-
-                                        scope.launch {
-                                            dailyLogViewModel.setIsBleeding(true)
-                                            lastRecalculationDate = currentDate
-                                            delay(300)
-                                            if (token != null) {
-                                                cycleViewModel.updateOrCreateCycleFromLogs(token, email, logs)
-                                                cycleViewModel.recalculateCycle(token, email, currentDate)
-                                                cycleViewModel.loadCycles(email)
-                                                navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
-                                            }
+                    if (cyclesLoaded){
+                        PeriodCircle(
+                            periodText = periodText,
+                            daysUntilNextPeriod = daysUntilNextPeriod,
+                            isBleeding = isBleeding,
+                            onRegisterPeriod = {
+                                val email = user?.email
+                                if (email != null && !isBleeding) {
+                                    phasesUpdateTrigger++
+                                    scope.launch {
+                                        dailyLogViewModel.setIsBleeding(true)
+                                        lastRecalculationDate = currentDate
+                                        delay(300)
+                                        if (token != null) {
+                                            cycleViewModel.updateOrCreateCycleFromLogs(token, email, logs)
+                                            cycleViewModel.recalculateCycle(token, email, currentDate)
+                                            cycleViewModel.loadCycles(email)
+                                            navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
                                         }
-                                    } else if (email != null) {
-                                        navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
                                     }
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = colorResource(R.color.botones2)
-                                )
-                            ) {
-                                Text("Registrar periodo")
+                                } else if (email != null) {
+                                    navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
+                                }
                             }
-                        }
+                        )
+                    }else{
+                        CircularProgressIndicator(modifier = Modifier.size(50.dp))
                     }
+
                     Spacer(Modifier.height(60.dp))
 
                     Month(
@@ -352,6 +338,16 @@ fun HomeScreen(
             }
         }
 
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)), // fondo semitransparente
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
     }
 
 

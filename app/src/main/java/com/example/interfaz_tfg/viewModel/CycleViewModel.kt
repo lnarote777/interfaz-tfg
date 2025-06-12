@@ -1,7 +1,9 @@
 package com.example.interfaz_tfg.viewModel
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -35,7 +37,11 @@ class CycleViewModel : ViewModel(){
     private val _predictedCycles = MutableStateFlow<List<MenstrualCycle>>(emptyList())
     val predictedCycles: StateFlow<List<MenstrualCycle>> get() = _predictedCycles
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     fun loadCycles(userId: String) {
+        _isLoading.value = true
         viewModelScope.launch {
             try {
                 val response = API.retrofitService.getCyclesUser( userId)
@@ -46,23 +52,35 @@ class CycleViewModel : ViewModel(){
                 }
             }catch (e: Exception){
                 Log.d("EXCEPCION", "loadCycles: ${e.message}")
+            } finally {
+                _isLoading.value = false
             }
-
-
         }
     }
 
-    fun getPrediction( email: String){
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getPrediction(email: String){
+        val today = LocalDate.now()
+        val hasUpcomingPrediction = _predictedCycles.value.any {
+            LocalDate.parse(it.startDate).isAfter(today)
+        }
+
+        if (hasUpcomingPrediction) return // Ya tienes una predicción futura, no hagas nada
+
+        _isLoading.value = true
         viewModelScope.launch {
             try {
                 val response = API.retrofitService.getPrediction(email)
                 if (response.isSuccessful) {
                     _predictedCycles.value = response.body()?.filterNotNull() ?: emptyList()
+
                 } else {
                     Log.e("CycleViewModel", "Error obtener predicción: ${response.code()}")
                 }
             } catch (e: Exception) {
                 Log.e("CycleViewModel", "Exception obtener predicción", e)
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -74,7 +92,9 @@ class CycleViewModel : ViewModel(){
                 if (response.isSuccessful){
                     val cycle = response.body()!!
                     loadCycles( cycle.userId)
-                    getPrediction( cycle.userId)
+                    if (_predictedCycles.value.none { LocalDate.parse(it.startDate) > LocalDate.now() }) {
+                        getPrediction(cycle.userId)
+                    }
                 }else{
                     Log.d("ERROR", "createCycle: error ${response.code()}")
                 }
@@ -86,6 +106,7 @@ class CycleViewModel : ViewModel(){
     }
 
     fun recalculateCycle(token: String, userId: String, date: LocalDate? = null) {
+        _isLoading.value = true
         viewModelScope.launch {
             try {
                 val response = API.retrofitService.recalculateCycle("Bearer $token", userId, date?.toString())
@@ -97,6 +118,8 @@ class CycleViewModel : ViewModel(){
                 }
             } catch (e: Exception) {
                 Log.e("API", "Exception: ${e.message}")
+            } finally {
+                _isLoading.value = false
             }
         }
     }
