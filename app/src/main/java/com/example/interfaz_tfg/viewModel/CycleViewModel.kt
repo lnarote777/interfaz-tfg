@@ -85,7 +85,8 @@ class CycleViewModel : ViewModel(){
         }
     }
 
-    fun createCycle( dto: MenstrualCycleDTO) {
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun createCycle(dto: MenstrualCycleDTO) {
         viewModelScope.launch {
             try {
                 val response = API.retrofitService.createCycle( dto)
