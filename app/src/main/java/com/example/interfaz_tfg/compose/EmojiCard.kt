@@ -42,6 +42,7 @@ fun EmojiCard(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Estado local que mantiene la selección actual de emojis
         val updatedSelection = remember { mutableStateOf(selectedLabels.toMutableList()) }
 
         emojis.forEach { (label, emojiItem) ->
@@ -57,6 +58,7 @@ fun EmojiCard(
                     )
                     .padding(8.dp)
                     .clickable {
+                        // Al hacer clic, añade o quita el emoji de la selección
                         val newSelection = updatedSelection.value.toMutableList()
                         if (isSelected) {
                             newSelection.remove(label)
@@ -64,9 +66,9 @@ fun EmojiCard(
                             newSelection.add(label)
                         }
                         updatedSelection.value = newSelection
-                        onSelectionChange( newSelection)
+                        onSelectionChange( newSelection) // Notifica cambio al padre
                     }
-                    .testTag("emoji_$label")
+                    .testTag("emoji_$label") // Test tag para pruebas
 
             )
         }

@@ -85,7 +85,7 @@ fun RegisterScreen(navController: NavController, viewModel: RegistrerViewModel =
         }
     }
 
-
+    // Diálogo personalizado para selección de fecha que actualiza birthdate y birthdateRaw
     if (showDatePicker) {
         CustomDatePickerDialog(
             onDismiss = { showDatePicker = false },
@@ -111,7 +111,7 @@ fun RegisterScreen(navController: NavController, viewModel: RegistrerViewModel =
             )
         }
 
-
+        // Formulario principal con inputs para registro y botón para navegar al login
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier.fillMaxSize()
@@ -167,6 +167,7 @@ fun RegisterScreen(navController: NavController, viewModel: RegistrerViewModel =
                         }
                         Spacer(Modifier.height(10.dp))
 
+                        // Campo personalizado para seleccionar fecha (abre diálogo)
                         CalendarField(
                             selectedDate = birthdate,
                             onclick = {showDatePicker = true},
@@ -200,7 +201,7 @@ fun RegisterScreen(navController: NavController, viewModel: RegistrerViewModel =
                     errorMessage = "Las contraseñas no coinciden"
                     error = true
                 } else {
-
+                    // Llamar al ViewModel para registrar usuario con datos validados
                     viewModel.registerUser(
                         name = name,
                         pass = password,

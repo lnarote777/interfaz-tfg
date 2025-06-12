@@ -48,6 +48,8 @@ fun CalendarScreen(
     val currentYear = currentDate.year
     val minYear = 2010
     val maxYear = currentYear + 2
+
+    // Lista de meses entre años, invertida para mostrar desde el más reciente
     val months = remember {
         generateMonthsBetweenYears(minYear, maxYear).reversed()
     }
@@ -56,6 +58,7 @@ fun CalendarScreen(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
+    // Al iniciar, hacer scroll al mes actual
     LaunchedEffect(Unit) {
         val currentMonthIndex = months.indexOfFirst {
             it.year == currentDate.year && it.month == currentDate.month
@@ -65,6 +68,7 @@ fun CalendarScreen(
         }
     }
 
+    // Obtener fases confirmadas y predichas desde el ViewModel compartido
     val confirmedPhases = calendarSharedViewModel.confirmedPhases
     val predictedPhases = calendarSharedViewModel.predictedPhases
 
@@ -73,6 +77,7 @@ fun CalendarScreen(
             modifier = Modifier.padding(innerpadding)
                 .background(color = colorScheme.background)
         ) {
+            // Header con botón para ir al mes actual
             CalendarHeader(navController, "Calendario",
                 onTodayClick = {
                     selectedDate = currentDate
@@ -87,6 +92,7 @@ fun CalendarScreen(
                 }
             )
 
+            // Lista vertical de meses con meses renderizados por el composable Month
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(24.dp),

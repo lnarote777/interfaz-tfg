@@ -114,7 +114,7 @@ fun UserScreen(
                     .fillMaxSize()
                     .padding(top = 30.dp)
             ) {
-
+                // Tarjeta con imagen de perfil, nombre y email, usando la URI o avatar seleccionado.
                 SettingCard(height = 250.dp) {
                     username?.let { userName ->
                         email?.let { userEmail ->
@@ -131,6 +131,7 @@ fun UserScreen(
                     }
                 }
                 Spacer(Modifier.height(20.dp))
+                // Tarjeta con datos de configuración del ciclo y botón para editar.
                 SettingCard(height = 250.dp) {
                     SettingItem("Mi objetivo", goalStr)
                     SettingItem("Duración periodo", periodDuration)
@@ -150,6 +151,8 @@ fun UserScreen(
                     }
                 }
                 Spacer(Modifier.height(20.dp))
+
+                // Tarjeta con opciones para cerrar sesión y eliminar cuenta.
                 SettingCard(height = 90.dp) {
                     Text(
                         "Cerrar sesión",
@@ -174,6 +177,8 @@ fun UserScreen(
                 }
 
             }
+
+            // Diálogo de confirmación para eliminar la cuenta, que pide confirmar el correo.
             if (showDeleteDialog) {
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = false },
@@ -204,6 +209,7 @@ fun UserScreen(
                     },
                     confirmButton = {
                         Button(onClick = {
+                            // Comprueba que el email introducido coincida con el actual antes de eliminar.
                             if (email != null) {
                                 token?.let {
                                     userViewModel.deleteUser(context, it, email,

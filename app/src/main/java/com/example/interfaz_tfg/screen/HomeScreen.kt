@@ -100,6 +100,8 @@ fun HomeScreen(
     val cyclesLoaded = cycles.isNotEmpty()
 
     // Lógica reactiva
+
+    // Carga el usuario una sola vez al iniciar la pantalla
     LaunchedEffect(Unit) {
         username?.let {
             if (token != null) {
@@ -108,6 +110,7 @@ fun HomeScreen(
         }
     }
 
+    // Al obtener el usuario, carga ciclos, predicciones y logs
     LaunchedEffect(user?.email) {
         user?.email?.let {
             if (!initialized && token != null) {
@@ -120,6 +123,7 @@ fun HomeScreen(
         }
     }
 
+    // Cambia el log seleccionado cuando cambia la fecha seleccionada
     LaunchedEffect(selectedDate) {
         user?.email?.let {
             if (token != null) {
@@ -129,10 +133,12 @@ fun HomeScreen(
         dailyLogViewModel.updateBleedingStatusForToday(logs, selectedDate)
     }
 
+    // Actualiza el estado de sangrado cuando cambian los logs
     LaunchedEffect(logs) {
         dailyLogViewModel.updateBleedingStatusForToday(logs, currentDate)
     }
 
+    // Recalcula el ciclo menstrual si hoy no hay sangrado registrado y no se ha recalculado hoy
     LaunchedEffect(user?.email, logs, currentDate) {
         val email = user?.email ?: return@LaunchedEffect
         val todayLog = logs.find { it.date == currentDate.toString() }
@@ -148,7 +154,7 @@ fun HomeScreen(
         }
     }
 
-    // Fases y fechas
+    // Procesa las fases confirmadas y predichas para mostrarlas en el calendario
     val confirmedPhases = cycles
         .filter { !it.isPredicted }
         .flatMap { it.phases }
@@ -160,6 +166,7 @@ fun HomeScreen(
     val allPhases = (confirmedPhases + predictedPhases)
         .distinctBy { it.date to it.phase }
 
+    // Obtiene rangos continuos de días de menstruación confirmados
     val menstruationDates = allPhases
         .filter { it.phase == CyclePhase.MENSTRUATION }
         .mapNotNull { runCatching { LocalDate.parse(it.date) }.getOrNull() }
@@ -168,6 +175,7 @@ fun HomeScreen(
 
     val menstruationRanges = groupContinuousDates(menstruationDates)
 
+    // Determina si hoy está en menstruación y calcula día actual del periodo
     val menstruationBlockToday = menstruationRanges.find { currentDate in it.first..it.second }
     val isTodayInMenstruation = menstruationBlockToday != null
     val menstruationStartDate = if (isTodayInMenstruation && isBleeding) menstruationBlockToday?.first else null
@@ -175,6 +183,8 @@ fun HomeScreen(
     val dayInPeriod = menstruationStartDate?.let {
         ChronoUnit.DAYS.between(it, selectedDate).toInt() + 1
     }
+
+    // Calcula día del periodo en la predicción
     val nextPredictedMenstruationRange = menstruationRanges
         .filter { range -> predictedPhases.any { it.date == range.first.toString() } }
         .firstOrNull { selectedDate in it.first..it.second }
@@ -183,6 +193,7 @@ fun HomeScreen(
         ChronoUnit.DAYS.between(it.first, selectedDate).toInt() + 1
     }
 
+    // Días hasta la próxima menstruación confirmada
     val nextMenstruationRange = menstruationRanges.firstOrNull { it.first.isAfter(selectedDate) }
     val nextMenstruationDate = nextMenstruationRange?.first
 
@@ -197,6 +208,7 @@ fun HomeScreen(
         else -> ""
     }
 
+    // Actualiza ViewModel compartido para sincronizar fases en el calendario
     calendarSharedViewModel.confirmedPhases = confirmedPhases
     calendarSharedViewModel.predictedPhases = predictedPhases
 
@@ -267,6 +279,7 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     if (cyclesLoaded){
+                        // Muestra el círculo del periodo con estado y opción para registrar menstruación
                         PeriodCircle(
                             periodText = periodText,
                             daysUntilNextPeriod = daysUntilNextPeriod,
@@ -297,6 +310,7 @@ fun HomeScreen(
 
                     Spacer(Modifier.height(60.dp))
 
+                    // Calendario con navegación de meses y selección de días
                     Month(
                         year = currentYear,
                         month = currentMonth,

@@ -65,32 +65,36 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
     val user = userViewModel.user.collectAsState()
     val selectedAvatarRes by userViewModel.selectedAvatarRes.collectAsState()
     val color = MaterialTheme.colorScheme
+
     var newUsername by remember { mutableStateOf(username ?: "") }
     var newPass by remember { mutableStateOf("") }
+
+    // Control de diálogos y estados de cambio
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var isUsername by rememberSaveable { mutableStateOf(true) }
     var cambio by rememberSaveable { mutableStateOf(false) }
     var cambioPass by rememberSaveable { mutableStateOf(false) }
     var showImageChoiceDialog by remember { mutableStateOf(false) }
     var showAvatarDialog by remember { mutableStateOf(false) }
+
     val context = LocalContext.current
-    var token = ""
-    val rol = getRolFromToken(token)
+    val token = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        token = UserPreferences.getToken(context).toString()
+        token.value = UserPreferences.getToken(context).toString()
         if (username != null) {
-            userViewModel.getUserByUsername(token, username)
+            userViewModel.getUserByUsername(token.value, username)
         }
     }
 
+    // Lanzador para seleccionar imagen desde galería
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         userViewModel.setSelectedImage(context, uri)
     }
 
-
+    // Diálogo para cambiar nombre de usuario o contraseña
     if(showDialog){
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -134,25 +138,25 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
         )
     }
 
+    // Diálogo para elegir entre galería o avatar
     if (showImageChoiceDialog) {
         AlertDialog(
             onDismissRequest = { showImageChoiceDialog = false },
             title = { Text("Seleccionar imagen de perfil") },
             text = {
                 Column {
-                    if (rol == "PREMIUM"){
-                        Text(
-                            "Desde galería",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    launcher.launch("image/*")
-                                    showImageChoiceDialog = false
-                                }
-                                .padding(8.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
+                    Text(
+                        "Desde galería",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                launcher.launch("image/*")
+                                showImageChoiceDialog = false
+                            }
+                            .padding(8.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     Text(
                         "Elegir avatar",
                         modifier = Modifier
@@ -174,6 +178,7 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
         )
     }
 
+    // Diálogo para elegir avatar predefinido
     if (showAvatarDialog) {
         AlertDialog(
             onDismissRequest = { showAvatarDialog = false },
@@ -268,7 +273,7 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
                     Spacer(modifier = Modifier.height(16.dp))
                     SettingItem(
                         title = "Cambiar contraseña",
-                        value = if (cambioPass) "•".repeat(newPass.length) else "•".repeat(user.value?.name?.length ?: 8),
+                        value = if (cambioPass) "•".repeat(newPass.length) else "••••••••",
                         isClickable = true,
                         onClick = {showDialog = true ; isUsername = false}
                     )
@@ -278,19 +283,21 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
                     // Botón para guardar cambios
                     Button(
                         onClick = {
-                            val userUpdated = email?.let {
-                                (if (cambio) newUsername else username)?.let { it1 ->
-                                    UserUpdateDTO(
-                                        email = it,
-                                        username = it1,
-                                        password =  if (cambioPass) newPass else ""
-                                    )
-                                }
+                            if (newUsername.isBlank() && newPass.isBlank()) {
+                                Toast.makeText(context, "Introduce un nuevo nombre o contraseña", Toast.LENGTH_SHORT).show()
+                                return@Button
                             }
-                            if (userUpdated != null) {
-                                userViewModel.updateUser(token, userUpdated)
-                                Toast.makeText(context, "Usuario actualizado", Toast.LENGTH_LONG).show()
-                            }
+                            val updatedUsername = if (cambio) newUsername else username
+                            val updatedPassword = if (cambioPass) newPass else ""
+
+                            val userUpdated = UserUpdateDTO(
+                                email = email ?: return@Button,
+                                username = updatedUsername ?: return@Button,
+                                password = updatedPassword
+                            )
+
+                            userViewModel.updateUser(token.value, userUpdated)
+                            Toast.makeText(context, "Usuario actualizado", Toast.LENGTH_LONG).show()
                         },
                         modifier = Modifier
                             .fillMaxWidth()

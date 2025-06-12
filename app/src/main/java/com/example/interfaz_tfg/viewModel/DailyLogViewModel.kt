@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class DailyLogViewModel : ViewModel(){
+    // Estado interno de la información del log del día (mood, síntomas, etc.)
     private val _logState = MutableStateFlow(LogState())
     val logState: StateFlow<LogState> = _logState
 
@@ -37,13 +38,14 @@ class DailyLogViewModel : ViewModel(){
         _isBleeding.value = value
     }
 
-
+    // Cambiar la fecha seleccionada y cargar el log correspondiente
     @RequiresApi(Build.VERSION_CODES.O)
     fun setSelectedDate(date: LocalDate, email: String, token: String) {
         _selectedDate.value = date
         loadLogForDate(token, email, date)
     }
 
+    // Actualizar notas del log en estado local
     fun setNotes(notes: String) {
         _logState.value = _logState.value.copy(notes = notes)
     }
@@ -52,11 +54,13 @@ class DailyLogViewModel : ViewModel(){
         _logState.value = _logState.value.copy(weight = weight)
     }
 
+    // Actualiza el estado de sangrado basándose en la lista de logs y la fecha de hoy
     fun updateBleedingStatusForToday(logs: List<DailyLog>, today: LocalDate) {
         val todayLog = logs.find { it.date == today.toString() }
         _isBleeding.value = todayLog?.hasMenstruation == true
     }
 
+    // Actualiza una categoría del log (ej. síntomas, estado de ánimo) con emojis seleccionados
     fun updateCategory(category: String, selectedEmojis: MutableList<String?>) {
         _logState.value = when (category) {
             "Estado de ánimo" -> _logState.value.copy(mood = selectedEmojis)
@@ -69,6 +73,8 @@ class DailyLogViewModel : ViewModel(){
             else -> _logState.value
         }
     }
+
+    //Llamadas a la API
     @RequiresApi(Build.VERSION_CODES.O)
     fun createLog(token: String, email: String, logDTO: DailyLogDTO, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {

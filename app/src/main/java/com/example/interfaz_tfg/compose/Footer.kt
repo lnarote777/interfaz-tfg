@@ -77,7 +77,7 @@ fun Footer(
             .fillMaxWidth()
             .height(90.dp)
     ) {
-
+        // Dibujar fondo con "notch" para botón central flotante
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -123,12 +123,7 @@ fun Footer(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            IconButton(onClick = {
-                if (currentRoute != AppScreen.HomeScreen.route){
-                    navController.navigate(route = AppScreen.HomeScreen.route)
-                }
-
-            }) {
+            IconButton(onClick = {}) {
                 Icon(Icons.Default.Home,
                     contentDescription = "Home",
                     tint = colorResource(R.color.iconosNav),
@@ -172,6 +167,7 @@ fun Footer(
             }
         }
 
+        // Botón central flotante para añadir registro diario
         Button(
             onClick = {navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")},
             shape = CircleShape,

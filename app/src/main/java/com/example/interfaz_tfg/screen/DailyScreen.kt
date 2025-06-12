@@ -99,6 +99,8 @@ fun DailyScreen(
 
     val context = LocalContext.current
     val isEditing by viewModel.isEditing.collectAsState()
+
+    // Determina si hay datos para guardar/actualizar
     val hasChanges by remember(selectedItems, logState) {
         derivedStateOf {
             logState.mood.isNotEmpty() ||
@@ -197,6 +199,8 @@ fun DailyScreen(
                 )
 
                 Spacer(Modifier.height(16.dp))
+
+                // Lista de categorías con emojis para seleccionar síntomas, estados, etc.
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -204,6 +208,8 @@ fun DailyScreen(
                 ) {
                     items(categorias) { (titulo, emojiList) ->
                         val seleccionados = selectedItems[titulo] ?: emptyList()
+
+                        // No mostrar flujo menstrual si no hay sangrado
                         if (titulo == "Flujo Menstrual" && !isBleeding.toBoolean()) {
                             return@items
                         }
@@ -227,6 +233,8 @@ fun DailyScreen(
                         )
                         Spacer(Modifier.height(16.dp))
                     }
+
+                    // Campo para ingresar peso
                     item {
                         TextCard(
                             title = "Peso (kg)",
@@ -239,6 +247,7 @@ fun DailyScreen(
                         Spacer(Modifier.height(16.dp))
                     }
 
+                    // Campo para notas
                     item {
                         TextCard(
                             title = "Notas",

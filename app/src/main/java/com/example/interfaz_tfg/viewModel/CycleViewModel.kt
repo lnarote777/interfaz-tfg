@@ -25,6 +25,7 @@ class CycleViewModel : ViewModel(){
      private val _cycles = MutableStateFlow<List<MenstrualCycle>>(emptyList())
     val cycles: StateFlow<List<MenstrualCycle>> = _cycles
 
+    // Ciclo seleccionado actualmente en la UI (visto para futuro)
     private val _selectedCycle = MutableStateFlow<MenstrualCycle?>(null)
     val selectedCycle: StateFlow<MenstrualCycle?> = _selectedCycle
 
@@ -40,6 +41,8 @@ class CycleViewModel : ViewModel(){
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    //Llamadas a API
+    // Carga los ciclos menstruales confirmados para un usuario dado
     fun loadCycles(userId: String) {
         _isLoading.value = true
         viewModelScope.launch {
@@ -85,6 +88,7 @@ class CycleViewModel : ViewModel(){
         }
     }
 
+    // Crea un nuevo ciclo menstrual y recarga la lista de ciclos
     @RequiresApi(Build.VERSION_CODES.O)
     fun createCycle(dto: MenstrualCycleDTO) {
         viewModelScope.launch {
@@ -106,6 +110,7 @@ class CycleViewModel : ViewModel(){
         }
     }
 
+    // Recalcula el ciclo menstrual para un usuario en base a una fecha opcional (por ejemplo tras añadir logs)
     fun recalculateCycle(token: String, userId: String, date: LocalDate? = null) {
         _isLoading.value = true
         viewModelScope.launch {
@@ -124,7 +129,7 @@ class CycleViewModel : ViewModel(){
             }
         }
     }
-
+    // Actualiza o crea un ciclo menstrual en base a una lista de logs diarios que incluyen sangrado
     @SuppressLint("NewApi")
     fun updateOrCreateCycleFromLogs(token: String, email: String, logs: List<DailyLog>) {
         viewModelScope.launch {
@@ -134,12 +139,14 @@ class CycleViewModel : ViewModel(){
                     .mapNotNull { LocalDate.parse(it.date) }
                     .sorted()
 
+                // Agrupa fechas continuas de sangrado
                 val grouped = groupContinuousDates(bleedingDates)
-                val latestRange = grouped.lastOrNull() ?: return@launch
+                val latestRange = grouped.lastOrNull() ?: return@launch // Si no hay sangrado, termina
                 val start = latestRange.first
                 val end = latestRange.second
                 val duration = ChronoUnit.DAYS.between(start, end).toInt() + 1
 
+                // Busca ciclo menstrual que se solape con el rango detectado
                 val overlappingCycle = _cycles.value.find {
                     val cycleStart = LocalDate.parse(it.startDate)
                     val cycleEnd = LocalDate.parse(it.endDate)
@@ -152,7 +159,7 @@ class CycleViewModel : ViewModel(){
                     val nextCycleStart = if (index + 1 < _cycles.value.size) {
                         LocalDate.parse(_cycles.value[index + 1].startDate)
                     } else {
-                        cycleStart.plusDays(28)
+                        cycleStart.plusDays(28) // Por defecto 28 días si no hay siguiente ciclo
                     }
                     val newCycleLength = ChronoUnit.DAYS.between(cycleStart, nextCycleStart).toInt()
 
@@ -165,10 +172,11 @@ class CycleViewModel : ViewModel(){
                         )
                         val response = API.retrofitService.updateCycle("Bearer $token", updatedCycle)
                         if (response.isSuccessful) {
-                            loadCycles(email)
+                            loadCycles(email)// Recarga la lista tras actualizar
                         }
                     }
                 } else {
+                    // Si no hay ciclo solapado, crea uno nuevo con datos por defecto
                     val dto = MenstrualCycleDTO(
                         userId = email,
                         startDate = start.toString(),

@@ -15,18 +15,24 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class UserViewModel() : ViewModel() {
+
+    // Estado de todos los usuarios (por si se lista más de uno)
     private val _users = MutableStateFlow<List<UserDTO>>(emptyList())
     val users: StateFlow<List<UserDTO>> = _users
 
+    // Estado del usuario actualmente cargado
     private val _user = MutableStateFlow<UserDTO?>(null)
     val user: StateFlow<UserDTO?> = _user
 
+    // Uri de imagen seleccionada desde galería
     private val _selectedImageUri = MutableStateFlow<Uri?>(null)
     val selectedImageUri: StateFlow<Uri?> = _selectedImageUri
 
+    // Recurso del avatar seleccionado (imagen predefinida)
     private val _selectedAvatarRes = MutableStateFlow<Int?>(null)
     val selectedAvatarRes: StateFlow<Int?> = _selectedAvatarRes
 
+    // Inicializa la selección desde las preferencias guardadas (galería o avatar)
     fun initFromPreferences(context: Context) {
         viewModelScope.launch {
             runCatching {
@@ -41,6 +47,7 @@ class UserViewModel() : ViewModel() {
         }
     }
 
+    // Guarda avatar seleccionado y borra imagen personalizada
     fun setSelectedAvatar(context: Context, resId: Int?) {
         _selectedAvatarRes.value = resId
         _selectedImageUri.value = null
@@ -49,6 +56,7 @@ class UserViewModel() : ViewModel() {
         }
     }
 
+    // Guarda imagen personalizada y borra avatar predefinido
     fun setSelectedImage(context: Context, uri: Uri?) {
         _selectedImageUri.value = uri
         _selectedAvatarRes.value = null
@@ -57,6 +65,7 @@ class UserViewModel() : ViewModel() {
         }
     }
 
+    // Llamadas a la API
     fun getUserByUsername(token: String, username: String){
         viewModelScope.launch {
             try {

@@ -82,8 +82,9 @@ fun PremiumScreen(navController: NavController, email: String){
     val lifecycleOwner = LocalLifecycleOwner.current
     var paymentInitiated by remember { mutableStateOf(false) }
 
-    var token : String? = ""
+    var token: String? by remember { mutableStateOf(null) }
 
+    // Observador del ciclo de vida para detectar cuando la app vuelve del fondo (tras pago)
     LaunchedEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME && paymentInitiated) {
@@ -108,6 +109,7 @@ fun PremiumScreen(navController: NavController, email: String){
         lifecycleOwner.lifecycle.addObserver(observer)
     }
 
+    // Si el ViewModel emite una URL de pago, se abre automáticamente
     LaunchedEffect(pagoViewModel.checkoutUrl) {
         pagoViewModel.checkoutUrl.collect { url ->
             // Abrir URL de Stripe Checkout en navegador
@@ -151,10 +153,12 @@ fun PremiumScreen(navController: NavController, email: String){
                     textAlign = TextAlign.Center
                 )
 
+                // Caja con características premium (component reusado)
                 CaracteristicasBox()
 
                 Spacer(Modifier.height(20.dp))
 
+                // Opción de pago único
                 Box(contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
@@ -214,6 +218,7 @@ fun PremiumScreen(navController: NavController, email: String){
 
                 Spacer(Modifier.height(20.dp))
 
+                // Opción de suscripción mensual
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.8f)

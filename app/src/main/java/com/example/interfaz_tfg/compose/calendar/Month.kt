@@ -68,7 +68,7 @@ fun Month(
             .padding(horizontal = 8.dp)
             .background(color = color.surface)
     ) {
-        // Header del mes
+        // Encabezado con nombre del mes y flechas opcionales
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -128,6 +128,7 @@ fun Month(
             }
         }
 
+        // Renderiza las semanas del mes en filas de 7 días
         var currentWeek = 0
         val weeksInMonth = ((firstDayOfWeek.value - 1 + daysInMonth) / 7) + 1
 
@@ -149,11 +150,16 @@ fun Month(
                             val date = LocalDate.of(year, month, day)
                             val isSelected = date == selectedDate
                             val isToday = date == currentDate
+
+                            // Busca fase confirmada o predicha en esa fecha
                             val confirmedPhase = confirmedPhases.find { it.date == date.toString() }
                             val predictedPhase = predictedPhases.find { it.date == date.toString() }
+
+                            // Determina si hay sangrado confirmado en esa fecha
                             val hasConfirmedBleeding =
                                 logs.any { it.date == date.toString() && it.hasMenstruation }
 
+                            // Color base según fase y si es predicción
                             val baseColor = when {
                                 confirmedPhase != null -> {
                                     if (confirmedPhase.phase == CyclePhase.MENSTRUATION) {
@@ -172,6 +178,7 @@ fun Month(
                                 else -> Color.Transparent
                             }
 
+                            // Color de fondo del día según selección y fase
                             val backgroundColor = when {
                                 isSelected -> colorResource(R.color.botones2)
                                 !isSelected && isToday && baseColor != Color.Transparent -> baseColor
@@ -184,6 +191,7 @@ fun Month(
                                 else -> MaterialTheme.colorScheme.onSurface
                             }
 
+                            // Dibuja el día con su color de fondo
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -212,6 +220,7 @@ fun Month(
     }
 }
 
+// Devuelve el color de cada fase del ciclo
 fun getPhaseColor(phase: CyclePhase?, isPredicted: Boolean): Color {
     return when (phase) {
         CyclePhase.MENSTRUATION -> if(!isPredicted) Color(0xFFFF6B6B) else  Color(0xFFFF6B6B).copy(alpha = 0.3f)// rojo
