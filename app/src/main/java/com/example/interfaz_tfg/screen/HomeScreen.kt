@@ -150,31 +150,42 @@ fun HomeScreen(
         .filter { it.isPredicted }
         .flatMap { it.phases }
 
-    val confirmedMenstruationDates = confirmedPhases
+    val allPhases = (confirmedPhases + predictedPhases)
+        .distinctBy { it.date to it.phase }
+
+    val menstruationDates = allPhases
         .filter { it.phase == CyclePhase.MENSTRUATION }
         .mapNotNull { runCatching { LocalDate.parse(it.date) }.getOrNull() }
-
-    val predictedMenstruationDates = predictedPhases
-        .filter { it.phase == CyclePhase.MENSTRUATION }
-        .mapNotNull { runCatching { LocalDate.parse(it.date) }.getOrNull() }
-
-    val allMenstruationDates = (confirmedMenstruationDates + predictedMenstruationDates)
         .distinct()
         .sorted()
 
-    val menstruationRanges = groupContinuousDates(allMenstruationDates)
+    val menstruationRanges = groupContinuousDates(menstruationDates)
+
     val menstruationBlockToday = menstruationRanges.find { currentDate in it.first..it.second }
     val isTodayInMenstruation = menstruationBlockToday != null
     val menstruationStartDate = if (isTodayInMenstruation && isBleeding) menstruationBlockToday?.first else null
-    val dayInPeriod = menstruationStartDate?.let { ChronoUnit.DAYS.between(it, selectedDate).toInt() + 1 }
+
+    val dayInPeriod = menstruationStartDate?.let {
+        ChronoUnit.DAYS.between(it, selectedDate).toInt() + 1
+    }
+    val nextPredictedMenstruationRange = menstruationRanges
+        .filter { range -> predictedPhases.any { it.date == range.first.toString() } }
+        .firstOrNull { selectedDate in it.first..it.second }
+
+    val predictedPeriodDay = nextPredictedMenstruationRange?.let {
+        ChronoUnit.DAYS.between(it.first, selectedDate).toInt() + 1
+    }
+
     val nextMenstruationRange = menstruationRanges.firstOrNull { it.first.isAfter(selectedDate) }
     val nextMenstruationDate = nextMenstruationRange?.first
+
     val daysUntilNextPeriod = nextMenstruationDate?.let {
         maxOf(0, ChronoUnit.DAYS.between(selectedDate, it).toInt())
     } ?: -1
 
     val periodText = when {
         dayInPeriod != null -> "Día $dayInPeriod"
+        predictedPeriodDay != null && predictedPeriodDay > 0 -> "Día $predictedPeriodDay"
         daysUntilNextPeriod > 0 -> daysUntilNextPeriod.toString()
         else -> ""
     }

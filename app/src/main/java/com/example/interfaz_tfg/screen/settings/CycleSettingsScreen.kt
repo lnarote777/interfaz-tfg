@@ -55,13 +55,14 @@ fun CycleSettingsScreen(
     val userState = userViewModel.user.collectAsState()
     val user = userState.value
     val selectedGoal = remember { mutableStateOf(user?.goal ?: Goal.TRACK_PERIOD) }
-    var token : String? = ""
+    var token  = remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(email) {
-        token = UserPreferences.getToken(context).firstOrNull()
+        token.value = UserPreferences.getToken(context).firstOrNull()
         cycleViewModel.loadCycles(email)
-        token?.let { userViewModel.getUserByUsername(it, username) }
+        token.value?.let { userViewModel.getUserByUsername(it, username) }
     }
+
 
     val numCycle = (21..100).map { it.toString() }
     val numMenstruation = (1..12).map { it.toString() }
@@ -82,8 +83,8 @@ fun CycleSettingsScreen(
                             goal = user?.goal ?: Goal.TRACK_PERIOD
                         )
                         cycleViewModel.getPrediction(email)
-                        token?.let { userViewModel.updateUser(it, userUpdate) }
-                        token?.let { cycleViewModel.updateCycle(it, updatedCycle, navController, username, email) }
+                        token.value?.let { userViewModel.updateUser(it, userUpdate) }
+                        token.value?.let { cycleViewModel.updateCycle(it, updatedCycle, navController, username, email) }
 
                     },
                     modifier = Modifier
