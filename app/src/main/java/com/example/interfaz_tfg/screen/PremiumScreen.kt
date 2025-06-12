@@ -82,6 +82,7 @@ fun PremiumScreen(navController: NavController, email: String){
     val lifecycleOwner = LocalLifecycleOwner.current
     var paymentInitiated by remember { mutableStateOf(false) }
 
+    var token : String? = ""
 
     LaunchedEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -103,7 +104,7 @@ fun PremiumScreen(navController: NavController, email: String){
                 }
             }
         }
-
+        token = UserPreferences.getToken(context).firstOrNull()
         lifecycleOwner.lifecycle.addObserver(observer)
     }
 
@@ -123,7 +124,7 @@ fun PremiumScreen(navController: NavController, email: String){
                 .padding(innerpadding)
 
         ) {
-            Header(navController, "VIP")
+            Header(navController, "VIP", onClick = {})
 
             Column(modifier = Modifier.verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -199,7 +200,7 @@ fun PremiumScreen(navController: NavController, email: String){
                             colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.botones1)),
                             onClick = {
                                 scope.launch {
-                                    pagoViewModel.iniciarPago(email, SubscriptionType.ONE_TIME) // Para 1 año
+                                    token?.let { pagoViewModel.iniciarPago(it, email, SubscriptionType.ONE_TIME) } // Para 1 año
                                 }
                             }
                         ) {
@@ -262,7 +263,7 @@ fun PremiumScreen(navController: NavController, email: String){
                             colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.botones2)),
                             onClick = {
                                 scope.launch {
-                                    pagoViewModel.iniciarPago(email, SubscriptionType.MONTHLY)
+                                    token?.let { pagoViewModel.iniciarPago(it, email, SubscriptionType.MONTHLY) }
                                 }
                             }
                         ) {

@@ -66,7 +66,8 @@ fun CoverScreen(navController: NavController){
         // Imagen de fondo con animación Crossfade
         Crossfade(
             targetState = indiceBackground,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            label = ""
         ) { indice ->
             Image(
                 painter = painterResource(id = fondos[indice]),

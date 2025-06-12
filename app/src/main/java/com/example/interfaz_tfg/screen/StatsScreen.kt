@@ -37,7 +37,7 @@ fun StatsScreen(navController: NavController){
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize().padding(padding)
         ) {
-            Header(navController, "Estadísticas")
+            Header(navController, "Estadísticas", onClick = {})
             stats?.let {
                 Column(
                     modifier = Modifier

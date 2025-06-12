@@ -38,7 +38,7 @@ class CycleViewModel : ViewModel(){
     fun loadCycles(userId: String) {
         viewModelScope.launch {
             try {
-                val response = API.retrofitService.getCyclesUser(userId)
+                val response = API.retrofitService.getCyclesUser( userId)
                 if (response.isSuccessful){
                     _cycles.value = response.body()!!
                 }else{
@@ -52,7 +52,7 @@ class CycleViewModel : ViewModel(){
         }
     }
 
-    fun getPrediction(email: String){
+    fun getPrediction( email: String){
         viewModelScope.launch {
             try {
                 val response = API.retrofitService.getPrediction(email)
@@ -67,14 +67,14 @@ class CycleViewModel : ViewModel(){
         }
     }
 
-    fun createCycle(dto: MenstrualCycleDTO) {
+    fun createCycle( dto: MenstrualCycleDTO) {
         viewModelScope.launch {
             try {
                 val response = API.retrofitService.createCycle( dto)
                 if (response.isSuccessful){
                     val cycle = response.body()!!
-                    loadCycles(cycle.userId)
-                    getPrediction(cycle.userId)
+                    loadCycles( cycle.userId)
+                    getPrediction( cycle.userId)
                 }else{
                     Log.d("ERROR", "createCycle: error ${response.code()}")
                 }
@@ -85,10 +85,10 @@ class CycleViewModel : ViewModel(){
         }
     }
 
-    fun recalculateCycle(userId: String, date: LocalDate? = null) {
+    fun recalculateCycle(token: String, userId: String, date: LocalDate? = null) {
         viewModelScope.launch {
             try {
-                val response = API.retrofitService.recalculateCycle(userId, date?.toString())
+                val response = API.retrofitService.recalculateCycle("Bearer $token", userId, date?.toString())
                 if (response.isSuccessful) {
                     val updatedCycle = response.body()
                     _cycleState.value = updatedCycle
@@ -102,7 +102,7 @@ class CycleViewModel : ViewModel(){
     }
 
     @SuppressLint("NewApi")
-    fun updateOrCreateCycleFromLogs(email: String, logs: List<DailyLog>) {
+    fun updateOrCreateCycleFromLogs(token: String, email: String, logs: List<DailyLog>) {
         viewModelScope.launch {
             try {
                 val bleedingDates = logs
@@ -139,7 +139,7 @@ class CycleViewModel : ViewModel(){
                             bleedingDuration = duration,
                             cycleLength = newCycleLength
                         )
-                        val response = API.retrofitService.updateCycle(updatedCycle)
+                        val response = API.retrofitService.updateCycle("Bearer $token", updatedCycle)
                         if (response.isSuccessful) {
                             loadCycles(email)
                         }
@@ -161,10 +161,10 @@ class CycleViewModel : ViewModel(){
     }
 
 
-    fun updateCycle(cycle: MenstrualCycle, navController: NavController, username: String, email: String){
+    fun updateCycle(token: String, cycle: MenstrualCycle, navController: NavController, username: String, email: String){
         try {
             viewModelScope.launch {
-                val response = API.retrofitService.updateCycle(cycle)
+                val response = API.retrofitService.updateCycle("Bearer $token",cycle)
                 if (response.isSuccessful){
                     navController.navigate(AppScreen.UserScreen.route + "/$username/$email")
                 }else{

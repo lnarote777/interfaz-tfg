@@ -41,21 +41,33 @@ interface ApiService {
     suspend fun login(@Body usuarioLoginDTO: UserLoginDTO): Response<LogInResponse>
 
     @GET("/users/{username}")
-    suspend fun getUserByUsername(@Path("username") username: String): Response<UserDTO>
+    suspend fun getUserByUsername(
+        @Header("Authorization") token: String,
+        @Path("username") username: String
+    ): Response<UserDTO>
+
+    @GET("/users/{userId}")
+    suspend fun getUserByEmail(
+        @Header("Authorization") token: String,
+        @Path("userId") userId: String
+    ): Response<UserDTO>
 
     @PUT("/users/update")
     suspend fun update(
+        @Header("Authorization") token: String,
         @Body user: UserUpdateDTO
     ): Response<UserDTO>
 
     @DELETE("/users/delete")
     suspend fun deleteUser(
+        @Header("Authorization") token: String,
         @Query("email") email: String
     ): Response<UserDTO>
 
     //------------Pagos---------------
     @POST("/pay/create-subscription")
     suspend fun createSubscription(
+        @Header("Authorization") token: String,
         @Body request: Subscription
     ): Response<SubscriptionResponse>
 
@@ -69,17 +81,20 @@ interface ApiService {
 
     @GET("/daily-log/user/{userId}/date/{date}")
     suspend fun getLogByDate(
+        @Header("Authorization") token: String,
         @Path("userId") userId: String,
         @Path("date") date: String
     ): Response<DailyLog?>
 
     @GET("/daily-log/user/{userId}")
     suspend fun getLogsByUser(
+        @Header("Authorization") token: String,
         @Path("userId") userId: String
     ): Response<List<DailyLog>>
 
     @PUT("daily-log/user/{userId}/date/{date}")
     suspend fun updateLog(
+        @Header("Authorization") token: String,
         @Path("userId") email: String,
         @Path("date") date: String,
         @Body log: DailyLogDTO
@@ -98,6 +113,7 @@ interface ApiService {
 
     @GET("/cycles/recalculate/{userId}")
     suspend fun recalculateCycle(
+        @Header("Authorization") token: String,
         @Path("userId") userId: String,
         @Query("date") date: String? = null
     ): Response<MenstrualCycle>
@@ -109,6 +125,7 @@ interface ApiService {
 
     @PUT("/cycles/update")
     suspend fun updateCycle(
+        @Header("Authorization") token: String,
         @Body cycle: MenstrualCycle
     ): Response<MenstrualCycle>
 }

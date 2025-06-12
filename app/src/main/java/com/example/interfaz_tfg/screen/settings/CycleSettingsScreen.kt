@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -28,8 +29,10 @@ import com.example.interfaz_tfg.api.model.user.Goal
 import com.example.interfaz_tfg.api.model.user.UserUpdateDTO
 import com.example.interfaz_tfg.compose.Header
 import com.example.interfaz_tfg.compose.SelectableBoxWithDropdown
+import com.example.interfaz_tfg.utils.UserPreferences
 import com.example.interfaz_tfg.viewModel.CycleViewModel
 import com.example.interfaz_tfg.viewModel.UserViewModel
+import kotlinx.coroutines.flow.firstOrNull
 
 @Composable
 fun CycleSettingsScreen(
@@ -42,6 +45,7 @@ fun CycleSettingsScreen(
     val cycleViewModel: CycleViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
 
+    val context = LocalContext.current
     val color = MaterialTheme.colorScheme
     val cycleState = cycleViewModel.cycles.collectAsState()
     val cycle = cycleState.value.find { !it.isPredicted }
@@ -51,10 +55,12 @@ fun CycleSettingsScreen(
     val userState = userViewModel.user.collectAsState()
     val user = userState.value
     val selectedGoal = remember { mutableStateOf(user?.goal ?: Goal.TRACK_PERIOD) }
+    var token : String? = ""
 
     LaunchedEffect(email) {
+        token = UserPreferences.getToken(context).firstOrNull()
         cycleViewModel.loadCycles(email)
-        userViewModel.getUserByUsername(username)
+        token?.let { userViewModel.getUserByUsername(it, username) }
     }
 
     val numCycle = (21..100).map { it.toString() }
@@ -76,8 +82,8 @@ fun CycleSettingsScreen(
                             goal = user?.goal ?: Goal.TRACK_PERIOD
                         )
                         cycleViewModel.getPrediction(email)
-                        userViewModel.updateUser(userUpdate)
-                        cycleViewModel.updateCycle(updatedCycle, navController, username, email)
+                        token?.let { userViewModel.updateUser(it, userUpdate) }
+                        token?.let { cycleViewModel.updateCycle(it, updatedCycle, navController, username, email) }
 
                     },
                     modifier = Modifier
@@ -97,13 +103,13 @@ fun CycleSettingsScreen(
                 .fillMaxSize()
                 .background(color.background)
         ) {
-            Header(navController, "Ajustes ciclo")
+            Header(navController, "Ajustes ciclo", onClick = {})
 
             if (cycle == null || user == null) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(top = 40.dp), // para evitar que se pegue demasiado al Header
+                        .padding(top = 40.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = color.primary)

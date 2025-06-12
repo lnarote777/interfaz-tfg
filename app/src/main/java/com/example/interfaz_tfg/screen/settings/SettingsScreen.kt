@@ -90,7 +90,7 @@ fun SettingsScreen(navController: NavController, email: String){
                 .padding(innerpadding)
 
         ) {
-            Header(navController, "Ajustes")
+            Header(navController, "Ajustes", onClick = {})
             Box(
                 modifier = Modifier
                     .fillMaxSize(0.9f)

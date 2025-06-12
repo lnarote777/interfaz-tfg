@@ -16,16 +16,15 @@ import kotlinx.coroutines.launch
 
 class UserViewModel() : ViewModel() {
     private val _users = MutableStateFlow<List<UserDTO>>(emptyList())
-
     val users: StateFlow<List<UserDTO>> = _users
+
     private val _user = MutableStateFlow<UserDTO?>(null)
-
     val user: StateFlow<UserDTO?> = _user
+
     private val _selectedImageUri = MutableStateFlow<Uri?>(null)
-
     val selectedImageUri: StateFlow<Uri?> = _selectedImageUri
-    private val _selectedAvatarRes = MutableStateFlow<Int?>(null)
 
+    private val _selectedAvatarRes = MutableStateFlow<Int?>(null)
     val selectedAvatarRes: StateFlow<Int?> = _selectedAvatarRes
 
     fun initFromPreferences(context: Context) {
@@ -58,10 +57,10 @@ class UserViewModel() : ViewModel() {
         }
     }
 
-    fun getUserByUsername(username: String){
+    fun getUserByUsername(token: String, username: String){
         viewModelScope.launch {
             try {
-                val response = API.retrofitService.getUserByUsername(username)
+                val response = API.retrofitService.getUserByUsername("Bearer $token", username)
                 if (response.isSuccessful) {
                     response.body()?.let {
                         _user.value = it
@@ -76,10 +75,11 @@ class UserViewModel() : ViewModel() {
         }
     }
 
-    fun updateUser(user: UserUpdateDTO){
+
+    fun updateUser(token: String, user: UserUpdateDTO){
         viewModelScope.launch {
             try {
-                val response = API.retrofitService.update(user)
+                val response = API.retrofitService.update("Bearer $token", user)
                 if(response.isSuccessful){
                     Log.d("API", "Usuario actualizado")
                 }else{
@@ -91,11 +91,11 @@ class UserViewModel() : ViewModel() {
         }
     }
 
-    fun deleteUser(context: Context, email: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun deleteUser(context: Context, token: String, email: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
 
-                val response = API.retrofitService.deleteUser(email)
+                val response = API.retrofitService.deleteUser("Bearer $token", email)
                 if (response.isSuccessful) {
                     UserPreferences.clearToken(context)
                     onSuccess()

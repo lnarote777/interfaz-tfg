@@ -29,6 +29,7 @@ import com.example.interfaz_tfg.screen.settings.CycleSettingsScreen
 import com.example.interfaz_tfg.screen.settings.SettingsScreen
 import com.example.interfaz_tfg.screen.settings.UserSettingsScreen
 import com.example.interfaz_tfg.viewModel.CalendarSharedViewModel
+import com.example.interfaz_tfg.viewModel.DailyLogViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.gson.Gson
@@ -147,7 +148,7 @@ fun AppNavigation(calendarSharedViewModel: CalendarSharedViewModel){
                 username = it.arguments?.getString("username"),
                 token = it.arguments?.getString("token") ?: "",
                 userRol = it.arguments?.getString("userRol"),
-                calendarSharedViewModel = calendarSharedViewModel
+                calendarSharedViewModel = calendarSharedViewModel,
             )
         }
 
@@ -172,7 +173,7 @@ fun AppNavigation(calendarSharedViewModel: CalendarSharedViewModel){
             )
         ){
             PremiumScreen(navController,
-                email = it.arguments?.getString("email") ?: ""
+                email = it.arguments?.getString("email") ?: "",
             )
         }
 

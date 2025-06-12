@@ -78,10 +78,10 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
     val rol = getRolFromToken(token)
 
     LaunchedEffect(Unit) {
-        if (username != null) {
-            userViewModel.getUserByUsername(username)
-        }
         token = UserPreferences.getToken(context).toString()
+        if (username != null) {
+            userViewModel.getUserByUsername(token, username)
+        }
     }
 
     val launcher = rememberLauncherForActivityResult(
@@ -233,7 +233,8 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
                 navController = navController,
                 title = "Ajustes del perfil",
                 back = false,
-                route = AppScreen.UserScreen.route + "/$username/$email"
+                onClick = {
+                    navController.navigate(AppScreen.UserScreen.route + "/$username/$email")}
             )
 
             Box(
@@ -287,7 +288,7 @@ fun UserSettingsScreen(navController: NavController, username: String? ="", emai
                                 }
                             }
                             if (userUpdated != null) {
-                                userViewModel.updateUser(userUpdated)
+                                userViewModel.updateUser(token, userUpdated)
                                 Toast.makeText(context, "Usuario actualizado", Toast.LENGTH_LONG).show()
                             }
                         },

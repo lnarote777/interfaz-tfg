@@ -24,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,7 +46,13 @@ import com.example.interfaz_tfg.compose.sexEmojis
 import com.example.interfaz_tfg.compose.symptomEmojis
 import com.example.interfaz_tfg.compose.vaginalDischarge
 import com.example.interfaz_tfg.compose.waterEmojis
+import com.example.interfaz_tfg.navigation.AppScreen
 import com.example.interfaz_tfg.viewModel.DailyLogViewModel
+import com.example.interfaz_tfg.viewModel.UserViewModel
+import com.example.interfaz_tfg.viewModel.getRolFromToken
+import com.example.interfaz_tfg.viewModel.getUsernameFromToken
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -57,7 +64,6 @@ fun DailyScreen(
     isBleeding: String,
     viewModel: DailyLogViewModel = viewModel()
 ){
-
     val categorias = listOf(
         "Estado de ánimo" to moodEmojis,
         "Síntomas" to symptomEmojis,
@@ -83,10 +89,13 @@ fun DailyScreen(
             )
         }
     }.value
+
     val color = MaterialTheme.colorScheme
     val selectedDate by viewModel.selectedDate.collectAsState()
 
-    LaunchedEffect (Unit) { viewModel.loadLogForDate(email, selectedDate )  }
+    LaunchedEffect (selectedDate) {
+        viewModel.loadLogForDate(token, email, selectedDate )
+    }
 
     val context = LocalContext.current
     val isEditing by viewModel.isEditing.collectAsState()
@@ -112,6 +121,9 @@ fun DailyScreen(
         else -> null
     }
 
+    val coroutineScope = rememberCoroutineScope()
+    val username = getUsernameFromToken(token)
+    val userRol = getRolFromToken(token)
 
 
     Scaffold(
@@ -133,7 +145,7 @@ fun DailyScreen(
                         notes = logState.notes
                     )
                     if (isEditing) {
-                        viewModel.updateLog(email, selectedDate, logDTO,
+                        viewModel.updateLog(email, selectedDate, logDTO,token,
                             onSuccess = {
                                 Toast.makeText(context, "Registro actualizado", Toast.LENGTH_SHORT).show()
                                 navController.popBackStack()
@@ -171,7 +183,13 @@ fun DailyScreen(
                     .padding(innerpadding)
                     .background(color = color.background)
             ) {
-                Header(navController, "Registro diario")
+                Header(navController, "Registro diario", back = false, onClick = {
+                    coroutineScope.launch {
+                        viewModel.setIsBleeding(false)  // Cambia el valor en el ViewModel
+                        delay(300) // Espera para asegurar la actualización antes de navegar
+                        navController.navigate("${AppScreen.HomeScreen.route}/$username/${userRol}/$token")
+                    }
+                })
 
                 WeekCalendar(
                     selectedDate = selectedDate,
@@ -234,10 +252,8 @@ fun DailyScreen(
 
                 }
 
-
-
-                }
             }
-
         }
+
     }
+}

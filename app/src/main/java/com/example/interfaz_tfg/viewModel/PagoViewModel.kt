@@ -16,10 +16,10 @@ class PagoViewModel : ViewModel() {
     private val _checkoutUrl = MutableStateFlow<String?>(null)
     val checkoutUrl: StateFlow<String?> = _checkoutUrl
 
-    fun iniciarPago(email: String, type: SubscriptionType) {
+    fun iniciarPago(token: String, email: String, type: SubscriptionType) {
         viewModelScope.launch {
             try {
-                val response = API.retrofitService.createSubscription(
+                val response = API.retrofitService.createSubscription("Bearer $token",
                     Subscription(email = email, type = type)
                 )
                 if (response.isSuccessful) {

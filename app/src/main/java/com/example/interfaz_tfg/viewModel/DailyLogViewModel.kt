@@ -41,7 +41,7 @@ class DailyLogViewModel : ViewModel(){
     @RequiresApi(Build.VERSION_CODES.O)
     fun setSelectedDate(date: LocalDate, email: String, token: String) {
         _selectedDate.value = date
-        loadLogForDate(email, date)
+        loadLogForDate(token, email, date)
     }
 
     fun setNotes(notes: String) {
@@ -87,11 +87,11 @@ class DailyLogViewModel : ViewModel(){
         }
     }
 
-    fun loadLogs(email: String) {
+    fun loadLogs(email: String, token: String) {
         viewModelScope.launch {
             try {
                 val cleanedEmail = email.trim('"')
-                val result = API.retrofitService.getLogsByUser(cleanedEmail)
+                val result = API.retrofitService.getLogsByUser("Bearer $token", cleanedEmail)
                 if (result.isSuccessful) {
                     _logs.value = result.body() ?: emptyList()
 
@@ -109,11 +109,11 @@ class DailyLogViewModel : ViewModel(){
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun loadLogForDate(email: String, date: LocalDate) {
+    fun loadLogForDate(token: String, email: String, date: LocalDate) {
         viewModelScope.launch {
             try {
                 val cleanedEmail = email.trim('"')
-                val result = API.retrofitService.getLogByDate(cleanedEmail, date.toString())
+                val result = API.retrofitService.getLogByDate("Bearer $token", cleanedEmail, date.toString())
                 if (result.isSuccessful) {
                     result.body()?.let { log ->
                         _logState.value = LogState(
@@ -144,11 +144,11 @@ class DailyLogViewModel : ViewModel(){
         }
     }
 
-    fun updateLog(email: String, date: LocalDate, dto: DailyLogDTO, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun updateLog(email: String, date: LocalDate, dto: DailyLogDTO, token: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
                 val cleanedEmail = email.trim('"')
-                val result = API.retrofitService.updateLog(cleanedEmail, date.toString(), dto)
+                val result = API.retrofitService.updateLog("Bearer $token",cleanedEmail, date.toString(), dto)
                 if (result.isSuccessful) {
                     onSuccess()
                 } else {

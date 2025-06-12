@@ -28,7 +28,7 @@ import com.example.interfaz_tfg.R
 
 
 @Composable
-fun Header(navController: NavController, title: String, back: Boolean = true, route: String = ""){
+fun Header(navController: NavController, title: String, back: Boolean = true, onClick : () -> Unit){
 
     val color = MaterialTheme.colorScheme
     Box(
@@ -50,7 +50,7 @@ fun Header(navController: NavController, title: String, back: Boolean = true, ro
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .padding(horizontal = 10.dp)
-                .clickable { if (back) navController.popBackStack() else navController.navigate(route = route)},
+                .clickable { if (back) navController.popBackStack() else onClick()},
             tint = color.onBackground
         )
 
