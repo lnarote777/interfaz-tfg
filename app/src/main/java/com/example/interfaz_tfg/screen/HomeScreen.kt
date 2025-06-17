@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -97,7 +98,9 @@ fun HomeScreen(
     var currentYear by remember { mutableStateOf(currentDate.year) }
     var initialized by remember { mutableStateOf(false) }
     val isLoading by cycleViewModel.isLoading.collectAsState(initial = true)
-    val cyclesLoaded = cycles.isNotEmpty()
+    val isDataReady = logs.isNotEmpty() && cycles.isNotEmpty()
+    var recalculatedToday by remember { mutableStateOf(false) }
+    var shouldNavigateToDaily by remember { mutableStateOf(false) }
 
     // Lógica reactiva
 
@@ -143,14 +146,26 @@ fun HomeScreen(
         val email = user?.email ?: return@LaunchedEffect
         val todayLog = logs.find { it.date == currentDate.toString() }
         val shouldRecalculate = (todayLog == null || !todayLog.hasMenstruation) &&
-                lastRecalculationDate != currentDate
+                lastRecalculationDate != currentDate &&
+                !recalculatedToday
 
         if (shouldRecalculate) {
+            recalculatedToday = true
             if (token != null) {
                 cycleViewModel.recalculateCycle(token, email, currentDate)
             }
             cycleViewModel.loadCycles(email)
             lastRecalculationDate = currentDate
+        }
+    }
+
+    LaunchedEffect(shouldNavigateToDaily, isLoading) {
+        if (shouldNavigateToDaily && !isLoading) {
+            val email = user?.email
+            if (email != null && token != null) {
+                navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
+            }
+            shouldNavigateToDaily = false // resetear el estado
         }
     }
 
@@ -181,7 +196,8 @@ fun HomeScreen(
     val menstruationStartDate = if (isTodayInMenstruation && isBleeding) menstruationBlockToday?.first else null
 
     val dayInPeriod = menstruationStartDate?.let {
-        ChronoUnit.DAYS.between(it, selectedDate).toInt() + 1
+        val days = ChronoUnit.DAYS.between(it, selectedDate).toInt() + 1
+        if (days in 1..10) days else null
     }
 
     // Calcula día del periodo en la predicción
@@ -201,12 +217,21 @@ fun HomeScreen(
         maxOf(0, ChronoUnit.DAYS.between(selectedDate, it).toInt())
     } ?: -1
 
-    val periodText = when {
-        dayInPeriod != null -> "Día $dayInPeriod"
-        predictedPeriodDay != null && predictedPeriodDay > 0 -> "Día $predictedPeriodDay"
-        daysUntilNextPeriod > 0 -> daysUntilNextPeriod.toString()
-        else -> ""
+    val periodText by remember(logs, cycles, selectedDate, isBleeding) {
+        derivedStateOf {
+            if(!isLoading && isDataReady) {
+                when {
+                    dayInPeriod != null -> "Día $dayInPeriod"
+                    predictedPeriodDay != null && predictedPeriodDay > 0 -> "Día $predictedPeriodDay"
+                    daysUntilNextPeriod > 0 -> daysUntilNextPeriod.toString()
+                    else -> ""
+                }
+            }else {
+                ""
+            }
+        }
     }
+
 
     // Actualiza ViewModel compartido para sincronizar fases en el calendario
     calendarSharedViewModel.confirmedPhases = confirmedPhases
@@ -216,7 +241,8 @@ fun HomeScreen(
         Box(modifier = Modifier.padding(innerpadding)) {
             if(isSystemInDarkTheme()){
                 Box(
-                    Modifier.fillMaxSize()
+                    Modifier
+                        .fillMaxSize()
                         .background(color.background)
                 )
             }else{
@@ -278,8 +304,7 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    if (cyclesLoaded){
-                        // Muestra el círculo del periodo con estado y opción para registrar menstruación
+                    // Muestra el círculo del periodo con estado y opción para registrar menstruación
                         PeriodCircle(
                             periodText = periodText,
                             daysUntilNextPeriod = daysUntilNextPeriod,
@@ -291,12 +316,13 @@ fun HomeScreen(
                                     scope.launch {
                                         dailyLogViewModel.setIsBleeding(true)
                                         lastRecalculationDate = currentDate
-                                        delay(300)
+                                        delay(700)
                                         if (token != null) {
                                             cycleViewModel.updateOrCreateCycleFromLogs(token, email, logs)
-                                            cycleViewModel.recalculateCycle(token, email, currentDate)
+                                            cycleViewModel.recalculateCycle(token, email, selectedDate)
+                                            cycleViewModel.getPrediction(email)
                                             cycleViewModel.loadCycles(email)
-                                            navController.navigate("${AppScreen.DailyScreen.route}/$email/$token/$isBleeding")
+                                            shouldNavigateToDaily = true
                                         }
                                     }
                                 } else if (email != null) {
@@ -304,9 +330,6 @@ fun HomeScreen(
                                 }
                             }
                         )
-                    }else{
-                        CircularProgressIndicator(modifier = Modifier.size(50.dp))
-                    }
 
                     Spacer(Modifier.height(60.dp))
 

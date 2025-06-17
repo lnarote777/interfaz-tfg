@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,11 +47,15 @@ fun PeriodCircle(
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             Text(if (periodText == daysUntilNextPeriod.toString()) "Periodo en: " else "Periodo:")
-            Text(
-                periodText,
-                fontSize = 60.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
+            if (periodText.isBlank()){
+                CircularProgressIndicator()
+            } else{
+                Text(
+                    periodText,
+                    fontSize = 60.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            }
             Button(
                 modifier = Modifier.padding(top = 10.dp)
                     .height(35.dp),

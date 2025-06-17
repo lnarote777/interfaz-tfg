@@ -63,13 +63,6 @@ class CycleViewModel : ViewModel(){
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getPrediction(email: String){
-        val today = LocalDate.now()
-        val hasUpcomingPrediction = _predictedCycles.value.any {
-            LocalDate.parse(it.startDate).isAfter(today)
-        }
-
-        if (hasUpcomingPrediction) return // Ya tienes una predicción futura, no hagas nada
-
         _isLoading.value = true
         viewModelScope.launch {
             try {
