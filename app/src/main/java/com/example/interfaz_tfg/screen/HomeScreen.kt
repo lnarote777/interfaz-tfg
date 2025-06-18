@@ -3,6 +3,7 @@ package com.example.interfaz_tfg.screen
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -86,8 +87,8 @@ fun HomeScreen(
     val user by userViewModel.user.collectAsState()
     val logs by dailyLogViewModel.logs.collectAsState()
     val isBleeding by dailyLogViewModel.isBleeding.collectAsState()
-    val cycles by cycleViewModel.cycles.collectAsState(initial = emptyList())
-
+    val confirmedCycles by cycleViewModel.cycles.collectAsState(initial = emptyList())
+    val predictedCycles by cycleViewModel.predictedCycles.collectAsState(initial = emptyList())
     val currentDate = LocalDate.now()
     var selectedDate by remember { mutableStateOf(currentDate) }
     var lastRecalculationDate by rememberSaveable { mutableStateOf<LocalDate?>(null) }
@@ -98,7 +99,7 @@ fun HomeScreen(
     var currentYear by remember { mutableStateOf(currentDate.year) }
     var initialized by remember { mutableStateOf(false) }
     val isLoading by cycleViewModel.isLoading.collectAsState(initial = true)
-    val isDataReady = logs.isNotEmpty() && cycles.isNotEmpty()
+    val isDataReady = logs.isNotEmpty() && (confirmedCycles.isNotEmpty() || predictedCycles.isNotEmpty())
     var recalculatedToday by remember { mutableStateOf(false) }
     var shouldNavigateToDaily by remember { mutableStateOf(false) }
 
@@ -118,13 +119,14 @@ fun HomeScreen(
         user?.email?.let {
             if (!initialized && token != null) {
                 initialized = true
-                cycleViewModel.getPrediction(it)
-                cycleViewModel.loadCycles(it)
-                dailyLogViewModel.loadLogs( it, token)
+                dailyLogViewModel.loadLogs(user!!.email, token)
+                cycleViewModel.loadCycles(user!!.email)
+                cycleViewModel.getPrediction(user!!.email)
                 userViewModel.getUserByUsername(token, user!!.username)
             }
         }
     }
+
 
     // Cambia el log seleccionado cuando cambia la fecha seleccionada
     LaunchedEffect(selectedDate) {
@@ -170,28 +172,26 @@ fun HomeScreen(
     }
 
     // Procesa las fases confirmadas y predichas para mostrarlas en el calendario
-    val confirmedPhases = cycles
-        .filter { !it.isPredicted }
+
+    val confirmedPhases = confirmedCycles
         .flatMap { it.phases }
 
-    val predictedPhases = cycles
-        .filter { it.isPredicted }
+    val predictedPhases = predictedCycles
         .flatMap { it.phases }
 
-    val allPhases = (confirmedPhases + predictedPhases)
-        .distinctBy { it.date to it.phase }
-
-    // Obtiene rangos continuos de días de menstruación confirmados
-    val menstruationDates = allPhases
+    val confirmedDates = confirmedPhases
         .filter { it.phase == CyclePhase.MENSTRUATION }
         .mapNotNull { runCatching { LocalDate.parse(it.date) }.getOrNull() }
-        .distinct()
-        .sorted()
 
-    val menstruationRanges = groupContinuousDates(menstruationDates)
+    val predictedDates = predictedPhases
+        .filter { it.phase == CyclePhase.MENSTRUATION }
+        .mapNotNull { runCatching { LocalDate.parse(it.date) }.getOrNull() }
+
+    val confirmedRanges = groupContinuousDates(confirmedDates)
+    val predictedRanges = groupContinuousDates(predictedDates)
 
     // Determina si hoy está en menstruación y calcula día actual del periodo
-    val menstruationBlockToday = menstruationRanges.find { currentDate in it.first..it.second }
+    val menstruationBlockToday = confirmedRanges.find { currentDate in it.first..it.second }
     val isTodayInMenstruation = menstruationBlockToday != null
     val menstruationStartDate = if (isTodayInMenstruation && isBleeding) menstruationBlockToday?.first else null
 
@@ -200,30 +200,28 @@ fun HomeScreen(
         if (days in 1..10) days else null
     }
 
-    // Calcula día del periodo en la predicción
-    val nextPredictedMenstruationRange = menstruationRanges
-        .filter { range -> predictedPhases.any { it.date == range.first.toString() } }
-        .firstOrNull { selectedDate in it.first..it.second }
-
-    val predictedPeriodDay = nextPredictedMenstruationRange?.let {
-        ChronoUnit.DAYS.between(it.first, selectedDate).toInt() + 1
-    }
-
     // Días hasta la próxima menstruación confirmada
-    val nextMenstruationRange = menstruationRanges.firstOrNull { it.first.isAfter(selectedDate) }
-    val nextMenstruationDate = nextMenstruationRange?.first
+    val nextConfirmedRange = confirmedRanges.firstOrNull { it.first.isAfter(selectedDate) }
+    val nextPredictedRange = predictedRanges.firstOrNull { it.first.isAfter(selectedDate) }
+
+    val nextMenstruationDate = nextConfirmedRange?.first ?: nextPredictedRange?.first
 
     val daysUntilNextPeriod = nextMenstruationDate?.let {
         maxOf(0, ChronoUnit.DAYS.between(selectedDate, it).toInt())
     } ?: -1
 
-    val periodText by remember(logs, cycles, selectedDate, isBleeding) {
+    // Calcula día del periodo en la predicción
+    val predictedPeriodDay = predictedRanges
+        .firstOrNull { selectedDate in it.first..it.second }
+        ?.let { ChronoUnit.DAYS.between(it.first, selectedDate).toInt() + 1 }
+
+    val periodText by remember(logs, confirmedCycles, predictedCycles, selectedDate, isBleeding) {
         derivedStateOf {
             if(!isLoading && isDataReady) {
                 when {
                     dayInPeriod != null -> "Día $dayInPeriod"
-                    predictedPeriodDay != null && predictedPeriodDay > 0 -> "Día $predictedPeriodDay"
                     daysUntilNextPeriod > 0 -> daysUntilNextPeriod.toString()
+                    predictedPeriodDay != null && predictedPeriodDay > 0 -> "Día $predictedPeriodDay"
                     else -> ""
                 }
             }else {

@@ -49,7 +49,7 @@ class CycleViewModel : ViewModel(){
             try {
                 val response = API.retrofitService.getCyclesUser( userId)
                 if (response.isSuccessful){
-                    _cycles.value = response.body()!!
+                    _cycles.value = response.body()!!.filter { !it.isPredicted }
                 }else{
                     Log.e("ERROR", "loadcycles - error: ${response.code()}, ${response.errorBody()}")
                 }
@@ -63,13 +63,14 @@ class CycleViewModel : ViewModel(){
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getPrediction(email: String){
+        if (_predictedCycles.value.isNotEmpty()) return
+
         _isLoading.value = true
         viewModelScope.launch {
             try {
                 val response = API.retrofitService.getPrediction(email)
                 if (response.isSuccessful) {
                     _predictedCycles.value = response.body()?.filterNotNull() ?: emptyList()
-
                 } else {
                     Log.e("CycleViewModel", "Error obtener predicción: ${response.code()}")
                 }
